@@ -1,7 +1,5 @@
 package it.polimi.ingsw;
 
-import java.io.Serializable;
-
 /**
  * Immutable class to represent Leader Cards.
  * @author Alessandro Mercurio

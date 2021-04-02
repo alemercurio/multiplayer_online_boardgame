@@ -32,9 +32,14 @@ public class ColorPack {
      */
     public void addColor(Color color, int level) {
         Pair cardToAdd = new Pair(color, level);
-        int number = cardSet.get(cardToAdd);
-        number = number + 1;
-        cardSet.put(cardToAdd, number);
+        if(cardSet.get(cardToAdd)!=null) {
+            int number = cardSet.get(cardToAdd);
+            number = number + 1;
+        }
+        else {
+            number = 1;
+            cardSet.put(cardToAdd, number);
+        }
     }
 
     /**
