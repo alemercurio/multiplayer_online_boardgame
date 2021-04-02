@@ -6,7 +6,6 @@ package it.polimi.ingsw;
  */
 
 public interface Power {
-
     /**
      * The Power gets activated, and operates its effect over the board of the Player.
      * @param board the Player's PlayerBoard.

@@ -1,11 +1,13 @@
 package it.polimi.ingsw;
 
+import java.io.Serializable;
+
 /**
  * Abstract class to generalize Leader Cards and Development Cards.
  * @author Alessandro Mercurio
  */
 
-public abstract class Card {
+public abstract class Card implements Serializable {
     protected int points;
 
     /**

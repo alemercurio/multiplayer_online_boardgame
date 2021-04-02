@@ -1,21 +1,23 @@
 package it.polimi.ingsw;
 
+import java.io.Serializable;
+
 /**
- * Class to represent Leader Cards.
+ * Immutable class to represent Leader Cards.
  * @author Alessandro Mercurio
  */
 
 public class LeaderCard extends Card {
-    private ResourcePack reqResources;
-    private ColorPack reqDevCards;
-    private boolean isActive;
-    private Power power;
+    final private ResourcePack reqResources;
+    final private ColorPack reqDevCards;
+    final private Power power;
 
     /**
      * Play the Leader and set its status as active, meaning its special ability can be used for the rest of the game.
+     * @param board the Player's PlayerBoard.
      */
-    public void activate() {
-        isActive = true;
+    public void activate(PlayerBoard board) {
+        power.activate(board);
     }
 
     /**
@@ -37,13 +39,4 @@ public class LeaderCard extends Card {
         needed = reqDevCards.getCopy();
         return needed;
     }
-
-    /**
-     * Return True if the LeaderCard has been played, False if not.
-     * @return a boolean representing the current status.
-     */
-    public boolean getStatus() {
-        return isActive;
-    }
-
 }
