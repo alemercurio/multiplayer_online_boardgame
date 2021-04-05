@@ -26,10 +26,10 @@ public class Vatican {
     /** constructor
      * @param faithTracks represents the list of faithTrack of all the players;
      * @param track represents the victory point associated with each square;
-     * @param reportSection it has as many rows as there are section report sections. for each row, we have:
-     *                      first column: witch represents the first square of the current report section;
-     *                      second column: witch represents the last square of the current report section;
-     *                      third column: witch represents the victory points associated to the current report section;
+     * @param reportSection it has as many rows as there are report sections. for each row, we have:
+     *                      first column: which represents the first square of the current report section;
+     *                      second column: which represents the last square of the current report section;
+     *                      third column: which represents the victory points associated to the current report section;
      * @param reportActive represents the report section that have been activated;
      * @param game represent the game where the current Vatican is used;
      */
@@ -44,13 +44,13 @@ public class Vatican {
 
     /**
      * this method is invoked whenever a player decides to discard a resource
-     * @param track represent the trackID of the faithTrack's player. Also represent to the index of the faithTrack in the arrayList of faithTrack
-     * @param num represent the number of resource discard by the player who invoked the method
+     * @param track represents the trackID of the faithTrack's player. Also represents the index of the faithTrack in the arrayList of faithTrack
+     * @param num represents the number of resources discarded by the player who invoked the method
      */
     public void wastedResources(int track, int num){
         int reachedSquare = 0;
 
-        // after this statement, I have the furthest square reached by a player's marker
+        // after this statement, I have the furthest square reached by any player's marker
         for ( int i = 0; i < faithTracks.size(); i++){
             if ( i != track){
                    reachedSquare =  faithTracks.get(i).advance(num);
@@ -70,7 +70,7 @@ public class Vatican {
 
     }
 
-    /** this method give or discard the specified popeFavour for every payer's faithTrack, according the square reached by the faithMarker
+    /** this method give or discard the specified popeFavour for each payer's faithTrack, according the square reached by the faithMarker
      *
      * @param sectionToReport represents the last section to report, from the last section reported
      */
@@ -83,7 +83,7 @@ public class Vatican {
             current_faithTrack = faithTracks.get(i);
             current_faithMaker = current_faithTrack.getFaithMarker();
 
-            // for each faithTrack, check the popeFavour to activated from the last reported section to the further report section reached
+            // for each faithTrack, active or discard popeFavours, from the last reported section to the further report section reached
             for (int j = lastFavourActivated + 1; j <= sectionToReport; j++) {
                 if (current_faithMaker >= reportSection[j][0])
                     current_faithTrack.givePopeFavour(j);
@@ -94,11 +94,11 @@ public class Vatican {
         lastFavourActivated = sectionToReport;
     }
 
-    /**when a any faithMarker goes one square forward, this method is invoked to check is there is any section to report     *
+    /**when any faithMarker goes one square forward, this method is invoked to check whether there is any section to report
      * @param trackID represents the ID of the faithTrack (and player) who invoked the method
      */
     public void isToReport(int trackID){
-        // I check only for the next section because advancing of only one square, the maker can't reach more than one pope space
+        //only the section after the last one reported is checked because advancing of only one square, the maker can't reach more than one pope space
         if (faithTracks.get(trackID).getFaithMarker() == reportSection[lastFavourActivated + 1][1])
             this.vaticanReport(lastFavourActivated + 1);
     }
@@ -122,5 +122,14 @@ public class Vatican {
      * @return the point associated to the square specified
      */
     public int getPoints( int faithMarker){return track [faithMarker];}
+
+    /**
+     *
+     * @param index represente the index in the list of the specified faithTrack
+     * @return the specified faithTrack
+     */
+    public FaithTrack getFaithTrack (int index){
+        return faithTracks.get(index);
+    }
 
 }
