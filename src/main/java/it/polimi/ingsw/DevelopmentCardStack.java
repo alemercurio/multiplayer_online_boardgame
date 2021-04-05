@@ -11,7 +11,7 @@ public class DevelopmentCardStack {
     private ArrayList<DevelopmentCard>[] devCards; //array of 3 ArrayList, one for each stack
 
     /**
-     * Standard constructor to create the 3-long array of ArrayList.
+     * Standard constructor to create the array of three ArrayList.
      */
     public DevelopmentCardStack() {
         devCards = new ArrayList[3];
@@ -26,26 +26,38 @@ public class DevelopmentCardStack {
      * @param position the stack chosen.
      */
     public void storeDevCard(DevelopmentCard card, int position) {
-        devCards[position].add(card);
+        if (position >=1 & position <=3) {
+            devCards[position].add(card);
+        }
     }
 
     /**
      * Get the DevelopmentCard on top of the specified stack.
-     * @param position the stack chosen.
+     * @param position the stack chosen (1,2 or 3).
      * @return the DevelopmentCard on top of the stack.
      */
     public DevelopmentCard getDevCard(int position) {
-        ArrayList<DevelopmentCard> stack = devCards[position];
-        return stack.get(stack.size()-1);
+        if (position >=1 & position <=3) {
+            ArrayList<DevelopmentCard> stack = devCards[position];
+            return stack.get(stack.size() - 1);
+        }
+        else {
+            return null;
+        }
     }
 
     /**
-     * Get one of the three full Cards stack.
+     * Get one of the three full Cards stacks.
      * @param position the stack chosen.
      * @return the full DevelopmentCards stack in the form of ArrayList.
      */
     public ArrayList<DevelopmentCard> getStack(int position) {
-        return devCards[position];
+        if (position >=1 & position <=3) {
+            return devCards[position];
+        }
+        else {
+            return null;
+        }
     }
 
     /**

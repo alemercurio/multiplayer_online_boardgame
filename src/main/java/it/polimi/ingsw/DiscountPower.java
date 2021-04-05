@@ -12,7 +12,7 @@ public class DiscountPower implements Power {
      * The activation of this Power add the discount granted by the Leader to the set of discounts of the Player.
      * @param board the Player's PlayerBoard, where all the discounts are registered.
      */
-    public void activate(Playerboard board) {
+    public void activate(PlayerBoard board) {
         board.addDiscount(discount);
     }
 }

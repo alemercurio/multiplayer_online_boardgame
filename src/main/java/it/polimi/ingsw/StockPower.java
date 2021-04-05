@@ -33,16 +33,16 @@ public class StockPower implements Power {
      * @param pack the ResourcePack to add in the depots.
      */
     public void addResources(ResourcePack pack) {
-        boolean correct = True;
+        boolean correct = true;
         int toAdd = pack.get(type);
 
-        for(Resource resource: Resource.values()) {
+        for(Resource resource : Resource.values()) {
             if(resource!=type && pack.get(resource)!=0) {
-                correct = False;
+                correct = false;
             }
         }
 
-        if(correct==True) {
+        if(correct) {
             if(toAdd < (size - used)) {
                 used = used + toAdd;
             }

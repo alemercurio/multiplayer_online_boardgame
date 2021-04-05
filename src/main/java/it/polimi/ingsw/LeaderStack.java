@@ -18,10 +18,12 @@ public class LeaderStack {
      * @param board the Player's PlayerBoard.
      */
     public void activate(int index, PlayerBoard board) {
-        LeaderCard toActivate = inactiveLeaders.get(index);
-        activeLeaders.add(toActivate);
-        inactiveLeaders.remove(toActivate);
-        toActivate.activate(board);
+        if(index>=0 & index<inactiveLeaders.size()) {
+            LeaderCard toActivate = inactiveLeaders.get(index);
+            activeLeaders.add(toActivate);
+            inactiveLeaders.remove(toActivate);
+            toActivate.activate(board);
+        }
     }
 
     /**
@@ -29,7 +31,9 @@ public class LeaderStack {
      * @param index the index of the LeaderCard to discard in the list of non-played Leaders.
      */
     public void discard(int index) {
-        inactiveLeaders.remove(index);
+        if(index>=0 & index<inactiveLeaders.size()) {
+            inactiveLeaders.remove(index);
+        }
     }
 
     /**
@@ -38,7 +42,9 @@ public class LeaderStack {
      * @return the LeaderCard requested.
      */
     public LeaderCard getActiveLeader(int index) {
-        return activeLeaders.get(index);
+        if(index>=0 & index<activeLeaders.size()) {
+            return activeLeaders.get(index);
+        }
     }
 
     /**
@@ -47,7 +53,9 @@ public class LeaderStack {
      * @return the LeaderCard requested.
      */
     public LeaderCard getInactiveLeader(int index) {
-        return inactiveLeaders.get(index);
+        if(index>=0 & index<inactiveLeaders.size()) {
+            return inactiveLeaders.get(index);
+        }
     }
 
     /**
@@ -55,7 +63,7 @@ public class LeaderStack {
      * @return a List with both played and non-played Leaders.
      */
     public List<LeaderCard> getAllLeaders() {
-        ArrayList<LeaderCard> allLeaders = new ArrayList<LeaderCard>();
+        ArrayList<LeaderCard> allLeaders = new ArrayList<>();
         allLeaders.addAll(activeLeaders);
         allLeaders.addAll(inactiveLeaders);
         return allLeaders;
