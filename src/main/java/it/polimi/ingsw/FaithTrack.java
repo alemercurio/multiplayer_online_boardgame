@@ -16,9 +16,9 @@ public class FaithTrack {
 
     /** constructor
      * @param reportSection used to specified the squares that are part of a pope Space
-     * @param vatican represents the observer vatican
+     * @param vatican represents the (observer) vatican
      * @param faithTrackID represents the ID of the faithTrack
-     * @param popeFavours ued to specified the popeFavour that are activated and witch are not
+     * @param popeFavours ued to specified whether popeFavours are activated or not
      */
     public FaithTrack(boolean[] reportSection, Vatican vatican, int faithTrackID, boolean [] popeFavours) {
         this.reportSection = reportSection;
@@ -79,5 +79,11 @@ public class FaithTrack {
     public void disCardPopeFavour (int index){
         this.popeFavours [index] = false;
     }
+
+    /**
+     *
+     * @return this position of the faithMarker in the faithTrack
+     */
+    public int getFaithTrackID() {return this.faithTrackID;}
 
 }
