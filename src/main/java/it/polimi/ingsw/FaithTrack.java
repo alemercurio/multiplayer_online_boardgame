@@ -1,70 +1,83 @@
 package it.polimi.ingsw;
 
+/** represent the FaithTrack
+ * @author Patrick Niantcho
+ * @author patrick.niantcho@gmail.com
+ */
 public class FaithTrack {
 
-    private int faithMarker;
+    private int faithMarker = 0;
     private boolean [] reportSection;
     private final Vatican vatican;
+    // represent the index of the current faithTrack in the arrayList of faithTrack in Vatican
     private final int faithTrackID;
-    private byte [] popeFavours;
+    // has the same length as the field reportSection in vatican
+    private boolean [] popeFavours;
 
-    public FaithTrack(int faithMarker, boolean[] reportSection, Vatican vatican, int faithTrackID, byte [] popeFavours) {
-        this.faithMarker = faithMarker;
+    /** constructor
+     * @param reportSection used to specified the squares that are part of a pope Space
+     * @param vatican represents the observer vatican
+     * @param faithTrackID represents the ID of the faithTrack
+     * @param popeFavours ued to specified the popeFavour that are activated and witch are not
+     */
+    public FaithTrack(boolean[] reportSection, Vatican vatican, int faithTrackID, boolean [] popeFavours) {
         this.reportSection = reportSection;
         this.vatican = vatican;
         this.faithTrackID = faithTrackID;
-        this.popeFavours  = popeFavours; // initialize with false
+        // initialize with false
+        this.popeFavours  = popeFavours;
     }
 
+    /**
+     * advance the faithMaker of one square
+     * PATTERN OBSERVER: whenever this method is called, notify the Vatican (observer) to update the favour
+     */
     public void advance (){
         faithMarker ++;
-        for(int i = 0; i < vatican.getNumberSection(); i++){
-            if (faithMarker == vatican.getReportSpace(i,2)){ // convention: faithMarker must have values from 0
-                if (!vatican.getFavourStatus(i)) { // no player has active this favour yet
-                    vatican.vaticanReport(this.faithMarker, i);
-                }
-            }
-        }
-    }
-    public void advance (int num){
 
-        faithMarker += num;
+        if (faithMarker == 24)
+            vatican.setFinalRound();
+
+       vatican.isToReport(faithTrackID);
+    }
+
+    /**
+     *advance the faithMaker of a specified number of squares
+     * used ONLY by the method wastedResource in Vatican
+     * @param step the number of squares the player must advance his marker
+     * @return represents the position of the faithMarker the the faithTrack after advance of "step" squares
+     */
+    public int advance (int step){
+
+        faithMarker += step;
         if (faithMarker > 24)
         {
             faithMarker = 24;
            vatican.setFinalRound();
         }
-
+        return this.faithMarker;
     }
 
-    public void report (){ // used to check the possibility of report for the faith marker advanced due to waste of resources
-        boolean last = false;
-        int sectionToReport = vatican.getLastFavourActivated();
-        int i = vatican.getLastFavourActivated() + 1;
-
-        while ( (i < popeFavours.length) && (last == false)){
-            if ( (!vatican.getFavourStatus(i)) &&(faithMarker >= vatican.getReportSpace(i,1)))
-                sectionToReport = i;
-            if (faithMarker < vatican.getReportSpace(i,1) )
-                last = true;
-            i++;
-        }
-        if (sectionToReport != vatican.getLastFavourActivated())
-            vatican.vaticanReport(faithMarker, sectionToReport);
-
-    }
-
+    /**
+     *
+     * @return this position of the faithMarker in the faithTrack
+     */
     public int getFaithMarker() {return this.faithMarker;}
 
-    public void givePopeFavour(int index) { // convention : index must have values from 0
-        this.popeFavours [index] = 1;
+    /**
+     *
+     * @param index must have values from 0, and represent the favour to give from the current player's faithTrack
+     */
+    public void givePopeFavour(int index) {
+        this.popeFavours [index] = true;
     }
 
+    /**
+     *
+     * @param index must have values from 0, and represent the favour to discard from the current player's faithTrack
+     */
     public void disCardPopeFavour (int index){
-        this.popeFavours [index] = -1;
+        this.popeFavours [index] = false;
     }
 
-    public byte getPopeFavour (int index){
-        return popeFavours [index];
-    }
 }
