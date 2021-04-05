@@ -1,26 +1,39 @@
 package it.polimi.ingsw;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.ArrayList;
 
-
+/** represent the vatican
+ * @author Patrick Niantcho
+ * @author patrick.niantcho@gmail.com
+ */
 public class Vatican {
-    private ArrayList<FaithTrack> faithTracks;
-    private int[] track; // victory points that you get when you pass the square
-    private int [][] reportSection; // first row: for the  report section set by the players; second row: first column for the initial square of the section, second for the last one, third for the victory point  
+    private final ArrayList<FaithTrack> faithTracks;
+    /**
+     *  victory points associated to each square of the faithTrack
+     */
+    private int[] track;
+    private final int [][] reportSection;
     private  boolean [] reportActive;
     private  final Game game;
     private boolean finalRound = false;
-    private int lastFavourActivated = 0;
+    private int lastFavourActivated = -1;
+    /**
+     * represents the furthest case reached by a player
+     */
+    private int furthestReachedSquare = 0;
 
 
-    public Vatican(ArrayList<FaithTrack> faithTracks, int[] track, int[][] reportSection, boolean[] reportActive, Game game, boolean finalRound) {
+    /** constructor
+     * @param faithTracks represents the list of faithTrack of all the players;
+     * @param track represents the victory point associated with each square;
+     * @param reportSection it has as many rows as there are section report sections. for each row, we have:
+     *                      first column: witch represents the first square of the current report section;
+     *                      second column: witch represents the last square of the current report section;
+     *                      third column: witch represents the victory points associated to the current report section;
+     * @param reportActive represents the report section that have been activated;
+     * @param game represent the game where the current Vatican is used;
+     */
+    public Vatican(ArrayList<FaithTrack> faithTracks, int[] track, int[][] reportSection, boolean[] reportActive, Game game) {
         this.faithTracks = faithTracks;
         this.track = track;
         this.reportSection = reportSection;
@@ -28,21 +41,41 @@ public class Vatican {
         this.game = game;
     }
 
-    /**public static void main(String[] args) {
 
-        JsonParser jsonParser = new JsonParser();
-        try {
-            FileReader reader = new FileReader("C:\\Users\\patri\\ing-sw-2021-mercurio-niantcho-tosini\\src\\main\\java\\it\\polimi\\ingsw\\parameters.json");
-            Object obj = jsonParser.parse(reader);
-            JsonObject trackJson = (JsonObject) obj;
+    /**
+     * this method is invoked whenever a player decides to discard a resource
+     * @param track represent the trackID of the faithTrack's player. Also represent to the index of the faithTrack in the arrayList of faithTrack
+     * @param num represent the number of resource discard by the player who invoked the method
+     */
+    public void wastedResources(int track, int num){
+        int reachedSquare = 0;
 
-            JsonElement track = trackJson.get("track");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        // after this statement, I have the furthest square reached by a player's marker
+        for ( int i = 0; i < faithTracks.size(); i++){
+            if ( i != track){
+                   reachedSquare =  faithTracks.get(i).advance(num);
+                   if (reachedSquare > furthestReachedSquare)
+                       furthestReachedSquare = reachedSquare;
+            }
         }
-    }**/
 
-    public void vaticanReport(int faithMarker, int index){
+        //after this statement, I have the report section representing the furthest square reached
+        int i = lastFavourActivated;
+        while ( furthestReachedSquare >= reportSection[i + 1][1])
+            i++;
+
+        // report only if the section to report if after the last section reported
+        if (i > lastFavourActivated)
+            this.vaticanReport(i);
+
+    }
+
+    /** this method give or discard the specified popeFavour for every payer's faithTrack, according the square reached by the faithMarker
+     *
+     * @param sectionToReport represents the last section to report, from the last section reported
+     */
+    public void vaticanReport (int sectionToReport){
+
         FaithTrack current_faithTrack;
         int current_faithMaker = 0;
 
@@ -50,62 +83,44 @@ public class Vatican {
             current_faithTrack = faithTracks.get(i);
             current_faithMaker = current_faithTrack.getFaithMarker();
 
-            for (int j = lastFavourActivated + 1; j <= index; j++)
-            {
-                if (!reportActive[j])
-                {
-                    if (current_faithMaker < reportSection[j][0])
-                    {
-                        if (current_faithTrack.getPopeFavour(j) == 0){
-                            current_faithTrack.disCardPopeFavour(j);
-                        }
-                    }
-                    else
-                    {
-                        if (current_faithTrack.getPopeFavour(j) == 0) {
-                            current_faithTrack.givePopeFavour(j);
-                        }
-                    }
-                }
-
+            // for each faithTrack, check the popeFavour to activated from the last reported section to the further report section reached
+            for (int j = lastFavourActivated + 1; j <= sectionToReport; j++) {
+                if (current_faithMaker >= reportSection[j][0])
+                    current_faithTrack.givePopeFavour(j);
+                else
+                    current_faithTrack.disCardPopeFavour(j);
             }
         }
-        for (int i = lastFavourActivated + 1; i <= index; i++)
-            reportActive[i] = true;
-        lastFavourActivated = index;
-
-    }
-    public void wastedResources(int track, int num){ // track is the trackID which also corresponds to the index of the faith track in the arrayList of faithTrack
-        for ( int i = 0; i < faithTracks.size(); i++){
-            if ( i != track){
-                    faithTracks.get(i).advance(num);
-            }
-        }
-
-        for ( int i = 0; i < faithTracks.size(); i++)
-            faithTracks.get(i).report();
-
+        lastFavourActivated = sectionToReport;
     }
 
+    /**when a any faithMarker goes one square forward, this method is invoked to check is there is any section to report     *
+     * @param trackID represents the ID of the faithTrack (and player) who invoked the method
+     */
+    public void isToReport(int trackID){
+        // I check only for the next section because advancing of only one square, the maker can't reach more than one pope space
+        if (faithTracks.get(trackID).getFaithMarker() == reportSection[lastFavourActivated + 1][1])
+            this.vaticanReport(lastFavourActivated + 1);
+    }
+
+    /**  PATTERN OBSERVER : notify Game to end the game is it's the final round
+     *
+     */
     public void endGame()
     {
         if (finalRound = true){game.endGame();}
     }
 
-    public int getReportSpace(int row, int colomn){
-        return reportSection[row][colomn];
-    }
-
-    public int getNumberSection (){
-        return reportSection.length;
-    }
-
-    public boolean getFavourStatus (int index){
-        return reportActive[index];
-    }
+    /** specified that the current round is the final round
+     *
+     */
+    public void setFinalRound () {finalRound = true; endGame();}
 
 
-    public int getLastFavourActivated(){return this.lastFavourActivated;}
-    public void setFinalRound () {finalRound = true;}
+    /**
+     * @param faithMarker specified the square form with we want to point associated to
+     * @return the point associated to the square specified
+     */
+    public int getPoints( int faithMarker){return track [faithMarker];}
 
 }
