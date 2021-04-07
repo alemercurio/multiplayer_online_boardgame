@@ -4,36 +4,34 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author patrick Niantcho
- * @author patrick.niantcho@gmail.com
+ * Solo Action token whose revelation discard Development Cards from the grid, from the lowest level to the highest.
+ * @author Patrick Niantcho
  */
-public class SoloDiscard implements SoloAction {
-
-    private Map<Color, Integer> toDiscard;
+public class SoloDiscard extends SoloAction {
+    private final Map<Color, Integer> toDiscard;
 
     /**
-     *
-     * @param toDiscard represent the number of a specified card to discard
+     * Constructs a SoloAction that cause the discarding of a number of DevelopmentCards.
+     * @param toDiscard the number of Cards to discard for each color.
      */
     public SoloDiscard(HashMap<Color, Integer> toDiscard) {
         this.toDiscard = toDiscard;
+        this.setShuffle(false);
     }
 
     /**
-     *
-     * @param player represent LorenzoIlMagnifico
-     * @return specify that after apply the action, to action desk should not be shuffled
+     * Reveals the SoloAction and applies its effect, the discarding of DevelopmentCards.
+     * @param lorenzo the unique instance of LorenzoilMagnifico in the solo mode game.
      */
     @Override
-    public boolean Apply(LorenzoIlMagnifico player) {
-       for ( Map.Entry<Color, Integer> pair : toDiscard.entrySet() )
-           player.discard( pair.getKey(), pair.getValue());
-       return false;
+    public void apply(LorenzoIlMagnifico lorenzo) {
+       for(Map.Entry<Color, Integer> pair : toDiscard.entrySet())
+           lorenzo.discard(pair.getKey(), pair.getValue());
     }
 
     /**
-     *
-     * @return the effect of this action on the MarketBoard
+     * Returns the Map representing the effect of the SoloAction.
+     * @return the number of Cards that the SoloAction discards for each color.
      */
     public Map<Color, Integer> getToDiscard() {
         return toDiscard;

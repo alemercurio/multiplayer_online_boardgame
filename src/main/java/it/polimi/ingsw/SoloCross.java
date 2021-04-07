@@ -1,36 +1,39 @@
 package it.polimi.ingsw;
 
 /**
+ * Solo Action token whose revelation makes the Black Cross advance on the Faith Track.
  * @author Patrick Niantcho
- * @author patrick.niantcho@gmail.com
  */
-public class SoloCross implements SoloAction {
-
-    private int fatihPoint;
-    private boolean Shuffle;
+public class SoloCross extends SoloAction {
+    private final int fatihPoints;
 
     /**
-     * constructor
-     * @param fatihPoint represent the faith point to apply for Lorenzo il magnifico when the action is apply
-     * @param shuffle reveals whether or not the action deck should be shuffled
+     * Constructs a SoloAction that makes the Black Cross advance of a number of spaces and eventually shuffles the full deck.
+     * @param fatihPoints the number of steps the Black Cross will advance.
+     * @param shuffle the boolean representing whether or not the action deck will be shuffled.
      */
-    public SoloCross(int fatihPoint, boolean shuffle) {
-        this.fatihPoint = fatihPoint;
-        Shuffle = shuffle;
+    public SoloCross(int fatihPoints, boolean shuffle) {
+        this.fatihPoints = fatihPoints;
+        this.setShuffle(shuffle);
     }
 
-    /** apply the effect of the action
-     * @param player represents Lorenzo il Magnifico
-     * @return a boolean that specify if the action deck should be shuffled
+    /**
+     * Reveals the SoloAction and applies its effect, making the Black Cross advance.
+     * @param lorenzo the unique instance of LorenzoIlMagnifico in the solo mode game.
      */
     @Override
-    public boolean Apply(LorenzoIlMagnifico player) {
-        player.advancedFaithTrack(fatihPoint);
-        return  Shuffle;
-    }
-    public int getFatihPoint() {
-        return fatihPoint;
+    public void apply(LorenzoIlMagnifico lorenzo) {
+        lorenzo.advance(fatihPoints);
+        if(toShuffle()) {
+            lorenzo.shuffleDeck();
+        }
     }
 
-
+    /**
+     * Returns the number of spaces that the Black Cross will advance when the SoloAction gets activated.
+     * @return the number of faithPoints earned by LorenzoIlMagnifico
+     */
+    public int getFatihPoints() {
+        return fatihPoints;
+    }
 }
