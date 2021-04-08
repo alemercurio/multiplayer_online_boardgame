@@ -5,7 +5,6 @@ import java.util.List;
 
 /**
  * Immutable class to represent Leader Cards.
- *
  * @author Alessandro Mercurio
  */
 public class LeaderCard extends Card {
@@ -23,7 +22,8 @@ public class LeaderCard extends Card {
         // TODO: il costruttore è opportuno che sia private.
         this.reqResources = reqResources.getCopy();
         this.reqDevCards = reqDevCards.getCopy();
-        // TODO: power nella versione StockPower è mutabile e dunque può servire un metodo getCopy().
+
+        // note: powers may be mutable objects.
         this.power = power;
     }
 
