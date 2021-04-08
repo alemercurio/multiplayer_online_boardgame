@@ -14,12 +14,14 @@ public class LeaderCard extends Card {
 
     /**
      * Constructs a LeaderCard with the given parameters.
+     *
      * @param reqResources the requirement in terms of Resources.
-     * @param reqDevCards the requirement in terms of DevelopmentCards.
-     * @param power the Power granted by the LeaderCard.
+     * @param reqDevCards  the requirement in terms of DevelopmentCards.
+     * @param power        the Power granted by the LeaderCard.
      */
-    public LeaderCard(ResourcePack reqResources, ColorPack reqDevCards, Power power) {
+    public LeaderCard(int points, ResourcePack reqResources, ColorPack reqDevCards, Power power) {
         // TODO: il costruttore è opportuno che sia private.
+        super(points);
         this.reqResources = reqResources.getCopy();
         this.reqDevCards = reqDevCards.getCopy();
 
@@ -39,7 +41,7 @@ public class LeaderCard extends Card {
         Power pow = new DiscountPower(rp);
 
         List<LeaderCard> leaderCardDeck = new LinkedList<>();
-        leaderCardDeck.add(new LeaderCard(rp, cp, pow));
+        leaderCardDeck.add(new LeaderCard(1, rp, cp, pow));
         return leaderCardDeck;
     }
 

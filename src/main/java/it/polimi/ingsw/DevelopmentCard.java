@@ -5,7 +5,6 @@ import java.util.List;
 
 /**
  * Immutable class to represent Development Cards.
- *
  * @author Alessandro Mercurio
  */
 public class DevelopmentCard extends Card {
@@ -16,13 +15,15 @@ public class DevelopmentCard extends Card {
 
     /**
      * Constructs a DevelopmentCard with the given parameters.
-     * @param cost the ResourcePack representing the cost of the card.
-     * @param color the Color of the card.
-     * @param level the level of the card.
+     *
+     * @param cost       the ResourcePack representing the cost of the card.
+     * @param color      the Color of the card.
+     * @param level      the level of the card.
      * @param production the Production associated with the card.
      */
-    public DevelopmentCard(ResourcePack cost, Color color, int level, Production production) {
+    public DevelopmentCard(int points, ResourcePack cost, Color color, int level, Production production) {
         // TODO: il costruttore è opportuno che sia private.
+        super(points);
         this.cost = cost.getCopy();
         this.color = color;
         this.level = level;
@@ -37,7 +38,7 @@ public class DevelopmentCard extends Card {
         // TODO: aggiungere il codice relativo al caricamento delle carte.
         ResourcePack cost = new ResourcePack(1);
         ResourcePack res = new ResourcePack(0, 1);
-        DevelopmentCard dc = new DevelopmentCard(cost, Color.GREEN, 1, new Production(cost, res));
+        DevelopmentCard dc = new DevelopmentCard(1, cost, Color.GREEN, 1, new Production(cost,res));
 
         List<DevelopmentCard> devCardDeck = new LinkedList<>();
         devCardDeck.add(dc);
