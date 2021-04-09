@@ -1,17 +1,33 @@
 package it.polimi.ingsw;
 
 /**
- * Leader Card special ability giving the player additional depots for Resources.
+ * Leader Card special ability giving the player an additional depot for Resources.
  * @author Alessandro Mercurio
  */
-
 public class StockPower implements Power {
-    private int size;
-    private Resource type;
+    private final int size;
+    private final Resource type;
     private int used;
 
+    // TODO: la dimensione potrebbe essere modificata a posteriori;
+    //  ciò può consentire di utilizzare un solo StockPower per modellarne molti...
+    //  puoi implementare un metodo merge()...
+
     /**
-     * The activation of this Power starts the process to add the Resource depots given by the Leader to the full set of depots available for the Player
+     * Constructs a StockPower with the ability to store at most the given amount
+     * of the specified Resource.
+     * @param size the size of the depot.
+     * @param type the Resource to contain.
+     */
+    public StockPower(int size, Resource type) {
+        this.size = size;
+        this.type = type;
+        this.used = 0;
+    }
+
+    /**
+     * The activation of this Power grants an additional depot
+     * to the ones available for the Player.
      * @param board the Player's PlayerBoard.
      */
     public void activate(PlayerBoard board) {
@@ -19,46 +35,65 @@ public class StockPower implements Power {
     }
 
     /**
-     * Return the available Resources stocked in the Leader additional depots.
+     * Returns the type of Resource that the current Stock is able to store.
+     * @return the resource containable into the current Stock.
+     */
+    public Resource getType() {
+        return this.type;
+    }
+
+    /**
+     * Returns the pack of Resources stored in the depot.
      * @return the ResourcePack corresponding to the stocked Resources.
      */
     public ResourcePack getResources() {
-        ResourcePack output = new ResourcePack();
-        output.add(type, used);
-        return output;
+        return (new ResourcePack()).add(type, used);
     }
 
     /**
-     * If the pack is correct, add the amount of Resources of the right type into the depots of the Leader.
-     * @param pack the ResourcePack to add in the depots.
+     * Returns the amount of resources stored in the current depot.
+     * The type of resources is left implicit.
+     * @return the amount of stored resources.
      */
-    public void addResources(ResourcePack pack) {
-        boolean correct = true;
-        int toAdd = pack.get(type);
+    public int getUsed() {
+        return this.used;
+    }
 
-        for(Resource resource : Resource.values()) {
-            if(resource!=type && pack.get(resource)!=0) {
-                correct = false;
-            }
-        }
-
-        if(correct) {
-            if(toAdd < (size - used)) {
-                used = used + toAdd;
+    /**
+     * Stores the maximum amount of Resources of the right type,
+     * from the given pack, into the depot;
+     * the same amount of resources is consumed from the given pack.
+     * @param pack the ResourcePack containing the resources to store into the depot.
+     */
+    public void add(ResourcePack pack) {
+        if (this.used < this.size) {
+            // Adds all the available resources of the right type.
+            this.used = this.used + pack.flush(this.type);
+            // Overflow is then collected
+            if (this.used > this.size) {
+                pack.add(this.type, this.used - this.size);
+                this.used = this.size;
             }
         }
     }
 
     /**
-     * If there are enough Resources, consume the amount specified in the input ResourcePack.
-     * @param pack the ResourcePack to consume from the depots.
+     * If there are enough Resources, consume the amount specified in the input ResourcePack;
+     * partial consuming is allowed.
+     * @param pack the ResourcePack to consume from the depot.
+     * @return the ResourcePack of non-consumable resources.
      */
-    public void consume(ResourcePack pack) {
-        ResourcePack available = new ResourcePack();
-        available.add(type, used);
-        if (available.isConsumable(pack)) {
-            used = used - pack.get(type);
+    public ResourcePack consume(ResourcePack pack) {
+        ResourcePack leftToConsume = pack.getCopy();
+        if (this.used > 0) {
+            // Consumes all the required resources of the right type.
+            this.used = this.used - leftToConsume.flush(this.type);
+            // Missing resources returns as an unfulfilled requirement
+            if (this.used < 0) {
+                leftToConsume.add(this.type, (-this.used));
+                this.used = 0;
+            }
         }
-
+        return leftToConsume;
     }
 }
