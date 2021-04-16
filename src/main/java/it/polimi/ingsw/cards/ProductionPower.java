@@ -1,4 +1,6 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.cards;
+
+import it.polimi.ingsw.supply.Production;
 
 /**
  * Leader Card special ability giving the player an additional production power.

@@ -1,4 +1,4 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.cards;
 
 import java.util.HashMap;
 import java.util.Map;

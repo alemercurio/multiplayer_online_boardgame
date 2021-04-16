@@ -1,4 +1,4 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.solo;
 
 /**
  * Solo Action token whose revelation makes the Black Cross advance on the Faith Track.

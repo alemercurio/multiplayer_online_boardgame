@@ -1,4 +1,4 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.solo;
 
 /**
  * Interface for the different types of Solo Action tokens.

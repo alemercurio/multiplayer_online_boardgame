@@ -1,4 +1,4 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.cards;
 
 /**
  * Interface for all type of Leader Card special abilities, sharing the possibility to be activated.

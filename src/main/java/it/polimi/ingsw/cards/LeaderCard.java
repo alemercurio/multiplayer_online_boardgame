@@ -1,4 +1,6 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.cards;
+
+import it.polimi.ingsw.supply.ResourcePack;
 
 import java.util.LinkedList;
 import java.util.List;

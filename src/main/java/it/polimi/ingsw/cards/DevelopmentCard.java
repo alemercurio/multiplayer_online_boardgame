@@ -1,8 +1,10 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.cards;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import it.polimi.ingsw.supply.Production;
+import it.polimi.ingsw.supply.ResourcePack;
 
 import java.io.File;
 import java.io.FileNotFoundException;

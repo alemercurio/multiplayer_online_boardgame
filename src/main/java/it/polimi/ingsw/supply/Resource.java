@@ -1,4 +1,4 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.supply;
 
 /**
  * Represents a resource. Resources can be either

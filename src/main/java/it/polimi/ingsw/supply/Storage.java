@@ -1,4 +1,6 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.supply;
+
+import it.polimi.ingsw.cards.StockPower;
 
 import java.util.HashMap;
 import java.util.LinkedList;

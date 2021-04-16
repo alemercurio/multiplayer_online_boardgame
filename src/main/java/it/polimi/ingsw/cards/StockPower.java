@@ -1,4 +1,6 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.cards;
+
+import it.polimi.ingsw.supply.Resource;
 
 /**
  * Leader Card special ability giving the player an additional depot for Resources.

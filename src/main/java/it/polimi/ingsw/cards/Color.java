@@ -1,4 +1,4 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.cards;
 
 /**
  * Enumeration for all possible Development Cards colors.

@@ -1,4 +1,8 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.solo;
+
+import it.polimi.ingsw.cards.Color;
+import it.polimi.ingsw.faith.FaithTrack;
+import it.polimi.ingsw.supply.MarketBoard;
 
 /**
  * Singleton for the unique instance of Lorenzo il Magnifico, when playing a game in solo mode.

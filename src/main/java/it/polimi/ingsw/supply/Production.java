@@ -1,4 +1,4 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.supply;
 
 /**
  * Represents a production power with a specific input and a specific output;

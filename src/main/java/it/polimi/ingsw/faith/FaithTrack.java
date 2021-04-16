@@ -1,4 +1,4 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.faith;
 
 /**
  * Class to represent the Faith Track status for a specific Player, meaning the position of its Faith Marker and the Pope's Favors he did and didn't get.
