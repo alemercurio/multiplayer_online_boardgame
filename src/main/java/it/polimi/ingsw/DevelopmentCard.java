@@ -1,6 +1,14 @@
 package it.polimi.ingsw;
 
-import java.util.LinkedList;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,17 +40,25 @@ public class DevelopmentCard extends Card {
 
     /**
      * Returns a List of all the available DevelopmentCards.
+     * @param filePath the path of the JSON where the DevelopmentCards are stored.
      * @return a list of all the DevelopmentCards.
      */
-    public static List<DevelopmentCard> getDevelopmentCardDeck() {
-        // TODO: aggiungere il codice relativo al caricamento delle carte.
-        ResourcePack cost = new ResourcePack(1);
-        ResourcePack res = new ResourcePack(0, 1);
-        DevelopmentCard dc = new DevelopmentCard(1, cost, Color.GREEN, 1, new Production(cost,res));
+    public static List<DevelopmentCard> getDevelopmentCardDeck(String filePath)
+    {
+        File file = new File(filePath);
+        Gson parser = new Gson();
+        Type devCardType = new TypeToken<List<DevelopmentCard>>() {}.getType();
 
-        List<DevelopmentCard> devCardDeck = new LinkedList<>();
-        devCardDeck.add(dc);
-        return devCardDeck;
+        try
+        {
+            FileReader devCard = new FileReader(file);
+            JsonReader reader = new JsonReader(devCard);
+            return parser.fromJson(reader,devCardType);
+        }
+        catch (FileNotFoundException e)
+        {
+            return new ArrayList<DevelopmentCard>();
+        }
     }
 
     /**
