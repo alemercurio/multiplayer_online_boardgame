@@ -4,15 +4,23 @@ package it.polimi.ingsw;
  * Leader Card special ability giving the player an additional production power.
  * @author Alessandro Mercurio
  */
-
 public class ProductionPower implements Power {
-    private Production production;
+    private final Production production;
 
     /**
-     * The activation of this Power adds the additional Production to the list of all productions available for the Player.
-     * @param board the Player's PlayerBoard, to include with the others the Production that the Leader permits.
+     * Constructs a ProductionPower with the given production.
+     * @param production the production that the power is able to give.
      */
-    public void activate(PlayerBoard board){
-        board.addProduction(production);
+    public ProductionPower(Production production) {
+        // Because Production objects are immutable it is not necessary to make a copy.
+        this.production = production;
+    }
+
+    /**
+     * The activation of this Power makes its Production available for the Player.
+     * @param board the Player's PlayerBoard.
+     */
+    public void activate(PlayerBoard board) {
+        board.addProduction(this.production);
     }
 }

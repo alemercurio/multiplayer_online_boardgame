@@ -1,79 +1,78 @@
 package it.polimi.ingsw;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Class to represent the three stacks of Development Cards in a Player's board.
  * @author Alessandro Mercurio
  */
-
 public class DevelopmentCardStack {
-    private ArrayList<DevelopmentCard>[] devCards; //array of 3 ArrayList, one for each stack
+    private final List<LinkedList<DevelopmentCard>> devCards; //List of 3 Lists, one for each stack
 
     /**
-     * Standard constructor to create the array of three ArrayList.
+     * Constructs and empty DevelopmentCardStack.
      */
     public DevelopmentCardStack() {
-        devCards = new ArrayList[3];
-        devCards[0] = new ArrayList<DevelopmentCard>();
-        devCards[1] = new ArrayList<DevelopmentCard>();
-        devCards[2] = new ArrayList<DevelopmentCard>();
+        this.devCards = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            devCards.add(new LinkedList<DevelopmentCard>());
+        }
     }
 
     /**
-     * Put a DevelopmentCard on top of one of the three stacks.
-     * @param card the card to add.
-     * @param position the stack chosen.
+     * Puts a DevelopmentCard on top of one of the three stacks.
+     * Position are indexed from one and if the given index is invalid nothing happens.
+     * @param card     the DevelopmentCard to add.
+     * @param position the index of the chosen stack.
      */
     public void storeDevCard(DevelopmentCard card, int position) {
-        if (position >=1 & position <=3) {
-            devCards[position].add(card);
+        // TODO: potrebbe sollevare un'eccezione nel caso in cui si tenti di porre
+        //  una carte di livello inferiore su una di livello superiore.
+        if (position >= 1 && position <= 3) {
+            // Because DevelopmentCard objects are immutable it is not necessary to make a copy.
+            devCards.get(position - 1).addFirst(card);
         }
     }
 
     /**
-     * Get the DevelopmentCard on top of the specified stack.
-     * @param position the stack chosen (1,2 or 3).
-     * @return the DevelopmentCard on top of the stack.
+     * Gets the DevelopmentCard on top of the specified stack;
+     * if the given position is invalid or empty returns null.
+     * @param position the chosen stack (1,2 or 3).
+     * @return the DevelopmentCard on top of the stack or null.
      */
     public DevelopmentCard getDevCard(int position) {
-        if (position >=1 & position <=3) {
-            ArrayList<DevelopmentCard> stack = devCards[position];
-            return stack.get(stack.size() - 1);
-        }
-        else {
-            return null;
-        }
+        if (position >= 1 && position <= 3) {
+            if (this.devCards.get(position - 1).isEmpty()) return null;
+            else return this.devCards.get(position - 1).getFirst();
+        } else return null;
     }
 
     /**
-     * Get one of the three full Cards stacks.
-     * @param position the stack chosen.
-     * @return the full DevelopmentCards stack in the form of ArrayList.
+     * Returns a list of the Cards that are on top of their stack;
+     * if a stack is empty, its position in the list is occupied with null.
+     * @return a list containing the higher card of each stack.
      */
-    public ArrayList<DevelopmentCard> getStack(int position) {
-        if (position >=1 & position <=3) {
-            return devCards[position];
+    public List<DevelopmentCard> getDevCard() {
+        List<DevelopmentCard> activeCards = new ArrayList<DevelopmentCard>();
+        for (LinkedList<DevelopmentCard> stack : this.devCards) {
+            // Because DevelopmentCard objects are immutable they can be shared.
+            if (stack.isEmpty()) activeCards.add(null);
+            else activeCards.add(stack.getFirst());
         }
-        else {
-            return null;
-        }
+        return activeCards;
     }
 
     /**
-     * Creates and return the full ColorPack representing all Cards in the three stacks.
+     * Returns a ColorPack representing all Cards in the current DevelopmentCardStack.
      * @return the ColorPack representation of all played DevelopmentCards.
      */
     public ColorPack getColorPack() {
-        int index = 0;
         ColorPack pack = new ColorPack();
-        while(index < 3) {
-            for(DevelopmentCard card : devCards[index])
-            {
+        for (int i = 0; i < 3; i++)
+            for (DevelopmentCard card : this.devCards.get(i))
                 pack.addColor(card.getColor(), card.getLevel());
-            }
-            index++;
-        }
         return pack;
     }
 }

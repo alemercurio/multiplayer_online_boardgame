@@ -1,11 +1,15 @@
 package it.polimi.ingsw;
 
-import java.util.LinkedList;
+import java.util.*;
 
+/**
+ * The MarketBoard class represents both the resource's market and the
+ * DevelopmentCards' one. It offers methods for gathering resources from the market
+ * or to buy a DevelopmentCard.
+ */
 public class MarketBoard {
     private final ResourceMarket resourceMarket;
     private final CardMarket cardMarket;
-
 
     /**
      * Represent the resource section of the MarketBoard.
@@ -116,35 +120,78 @@ public class MarketBoard {
         }
     }
 
+    /**
+     * Represents the Development Card section of the MarketBoard.
+     */
     public static class CardMarket
     {
-        private final LinkedList<DevelopmentCard>[][] decksMap;
+        private final Map<Color, List<LinkedList<DevelopmentCard>>> decksMap;
 
+        /**
+         * Constructs a CardMarket and loads DevelopmentCards into it.
+         */
         public CardMarket()
         {
-            this.decksMap = new LinkedList[3][4];
-            for(int row = 0;row < 3;row++)
-                for(int column = 0;column < 4; column++)
+            // Initialize data structure
+            this.decksMap = new HashMap<>();
+            for(Color color : Color.values())
+            {
+                List<LinkedList<DevelopmentCard>> column = new ArrayList<>();
+                for(int i = 0; i < 3; i++)
                 {
-                    this.decksMap[row][column] = new LinkedList<DevelopmentCard>();
+                    column.add(new LinkedList<DevelopmentCard>());
                 }
-
-            for(DevelopmentCard devCard : DevelopmentCard.getDevelopmentCardDeck())
-                this.decksMap[devCard.getLevel()][devCard.getColor().ordinal()].add(devCard);
+                this.decksMap.put(color,column);
+            }
+            // Load Development Cards
+            List<DevelopmentCard> devCards = DevelopmentCard.getDevelopmentCardDeck("resources/JSON/DevelopmentCard.json");
+            Collections.shuffle(devCards);
+            for(DevelopmentCard card : devCards)
+                this.decksMap.get(card.getColor()).get(card.getLevel() - 1).add(card);
         }
 
+        /**
+         * Returns the DevelopmentCard on top of the specified deck;
+         * the given color specifies the column as level does for the row;
+         * if the deck is empty returns null.
+         * @param level the level of the required DevelopmentCard.
+         * @param color the color of the required DevelopmentCard.
+         * @return the required DevelopmentCard.
+         */
         public DevelopmentCard getDevelopmentCard(int level, Color color)
         {
             // TODO: Potrebbe generare un'eccezione (anzichè tornare null)
-            return this.decksMap[level][color.ordinal()].pollFirst();
+            return this.decksMap.get(color).get(level - 1).pollFirst();
         }
 
+        /**
+         * Test if no Development Cards of the specified Color are available.
+         * @param color the Color whose availability is to test.
+         * @return true if no more Development Cards of the specified Color are available, false otherwise.
+         */
+        public boolean isOutOfStock(Color color)
+        {
+            for(List<DevelopmentCard> level : this.decksMap.get(color))
+                if(!level.isEmpty()) return false;
+            return true;
+        }
+
+        /**
+         * Drops the specified amount of DevelopmentCards from the column
+         * corresponding to the given Color;
+         * Cards are discarded from lower levels and then in order;
+         * returns false if the specified column has no more DevelopmentCards, true otherwise.
+         * @param color the Color corresponding to the column to discard cards from.
+         * @param amount the amount of DevelopmentCards to discard.
+         * @return false if the specified column is left empty, true otherwise.
+         */
         public boolean discard(Color color, int amount)
         {
             int level = 0;
+            List<LinkedList<DevelopmentCard>> column = this.decksMap.get(color);
             for(int i = 0; i < amount; i++)
             {
-                if(this.decksMap[level][color.ordinal()].pollFirst() == null)
+                if(column.get(level).pollFirst() == null)
                 {
                     // It is necessary to remove from a higher level
                     level++;
@@ -155,7 +202,7 @@ public class MarketBoard {
                     i--;
                 }
             }
-            return true;
+            return !this.isOutOfStock(color);
         }
 
         @Override
@@ -164,39 +211,70 @@ public class MarketBoard {
             String res = "{";
             for(int row = 2; row >= 0; row--)
             {
-                res = res + "\tLEVEL:" + (row + 1) + "\n";
-                for(int column = 0; column < 4; column++)
+                res = res + "\n\t";
+                for(Color color : Color.values())
                 {
-                    if(!this.decksMap[row][column].isEmpty()) res = res + "\t" + this.decksMap[row][column].get(0);
+                    res = res + " " + this.decksMap.get(color).get(row).size();
                 }
-                res = res + "\n";
             }
-            res = res + "}";
+            res = res + "\n}";
             return res;
         }
     }
 
+    /**
+     * Constructs a MarketBoard with all the necessary resources and DevelopmentCards.
+     */
     public MarketBoard()
     {
         this.resourceMarket = new ResourceMarket();
         this.cardMarket = new CardMarket();
     }
 
+    /**
+     * Returns the pack of resources gained from the specified row.
+     * The resource market shifting is handled automatically.
+     * @param row the row to take.
+     * @return the ResourcePack of gathered resources.
+     */
     public ResourcePack takeRow(int row)
     {
         return this.resourceMarket.getRow(row);
     }
 
+    /**
+     * Returns the pack of resources gained from the specified column.
+     * The resource market shifting is handled automatically.
+     * @param column the column to take.
+     * @return the ResourcePack of gathered resources.
+     */
     public ResourcePack takeColumn(int column)
     {
         return this.resourceMarket.getColumn(column);
     }
 
+    /**
+     * Returns the first available DevelopmentCard from the market
+     * with the specified Color and level;
+     * if there are no available cards that match the requirement returns null.
+     * @param level the level of the required DevelopmentCard.
+     * @param color the Color of the required DevelopmentCard.
+     * @return the first available DevelopmentCard with the given color and level.
+     */
     public DevelopmentCard getDevelopmentCard(int level, Color color)
     {
         return this.cardMarket.getDevelopmentCard(level,color);
     }
 
+    /**
+     * Drops the given amount of DevelopmentCards of the specified
+     * Color from the current Market;
+     * cards are discarded from lower levels and then in order;
+     * returns false if there are no more DevelopmentCards of the given color in the current Market.
+     * @param color the color of the DevelopmentCards to discard.
+     * @param amount the amount of DevelopmentCards to discard.
+     * @return false if there are not any DevelopmentCard of the specified color left, true otherwise.
+     */
     public boolean discard(Color color, int amount)
     {
         return this.cardMarket.discard(color, amount);
@@ -211,5 +289,4 @@ public class MarketBoard {
     {
         return this.cardMarket.toString();
     }
-
 }
