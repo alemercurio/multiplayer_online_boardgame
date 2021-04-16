@@ -1,62 +1,59 @@
 package it.polimi.ingsw;
 
 /**
+ * Singleton for the unique instance of Lorenzo il Magnifico, when playing a game in solo mode.
  * @author Patrick Niantcho
- * @author patrick.niantcho@gmail.com
  */
 public class LorenzoIlMagnifico {
-    private FaithTrack faith;
-    private MarketBoard market;
-    private SoloActionDeck action;
-    private final Vatican vatican;
+    private final FaithTrack faithTrack;
+    private final MarketBoard market;
+    private final SoloActionDeck deck;
 
     /**
-     * constructor
-     * @param faith represents the FaithTrack of LorenzoIlMagnifico
-     * @param market represents the marketBoard
-     * @param action represents the list of actions available for LorenzoIlMagnifico
-     * @param vatican represents the vatican
+     * Constructs the Singleton instance.
+     * @param faithTrack the FaithTrack of LorenzoIlMagnifico.
+     * @param market the reference to the MarketBoard.
+     * @param deck the full stack of SoloAction tokens available for LorenzoIlMagnifico.
      */
-    public LorenzoIlMagnifico(FaithTrack faith, MarketBoard market, SoloActionDeck action, Vatican vatican) {
-        this.faith = faith;
+    public LorenzoIlMagnifico(FaithTrack faithTrack, MarketBoard market, SoloActionDeck deck) {
+        this.faithTrack = faithTrack;
         this.market = market;
-        this.action = action;
-        this.vatican = vatican;
+        this.deck = deck;
     }
 
     /**
-     * apply the effect of the any action which is ramdomly picked in the action deck
+     * Extracts a random SoloAction and applies its effect.
      */
-    public void playSoloAction (){
-        boolean isShuffle = false;
-        SoloAction currentAction = action.getSoloAction();
-        isShuffle = currentAction.Apply(this);
-        if(isShuffle){
-            action.Shuffle();
+    public void playSoloAction() {
+        SoloAction playedAction = deck.getSoloAction();
+        playedAction.apply(this);
+        if (playedAction.toShuffle()) {
+            deck.shuffle();
         }
     }
 
     /**
-     *
-     * @param color the color of the card to discard from the market
-     * @param amount the number of the spicified card to discard from the market
+     * Calls the discarding of DevelopmentCards over the MarketBoard instance, which contains the full grid.
+     * @param color the color of the Cards.
+     * @param amount the number of Cards of the specified color to discard.
      */
     public void discard (Color color, int amount){
         market.discard(color, amount);
     }
 
     /**
-     *
-     * @param step the number of squares the player must advance his marker
+     * Calls the method to make the Faith Marker of LorenzoIlMagnifico (the Black Cross) advance.
+     * @param step the number of spaces the Black Cross must advance in the FaithTrack.
      */
-    public void advancedFaithTrack(int step){
+    public void advance(int step){
+        faithTrack.advance(step);
+    }
 
-        FaithTrack opponentFaithTrack = vatican.getFaithTrack(0);
-       if ( faith == opponentFaithTrack)
-           opponentFaithTrack = vatican.getFaithTrack(1);
-
-       vatican.wastedResources(opponentFaithTrack.getFaithTrackID(), step);
-
-
+    /**
+     * Calls the shuffling of the full stack of SoloAction in the SoloActionDeck.
+     */
+    public void shuffleDeck()
+    {
+        deck.shuffle();
     }
 }

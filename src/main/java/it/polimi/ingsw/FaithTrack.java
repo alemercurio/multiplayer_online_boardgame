@@ -1,89 +1,105 @@
 package it.polimi.ingsw;
 
-/** represent the FaithTrack
+/**
+ * Class to represent the Faith Track status for a specific Player, meaning the position of its Faith Marker and the Pope's Favors he did and didn't get.
  * @author Patrick Niantcho
- * @author patrick.niantcho@gmail.com
  */
 public class FaithTrack {
-
-    private int faithMarker = 0;
-    private boolean [] reportSection;
+    private int faithMarker;
+    private final boolean[] popeSpaces;
     private final Vatican vatican;
-    // represent the index of the current faithTrack in the arrayList of faithTrack in Vatican
     private final int faithTrackID;
-    // has the same length as the field reportSection in vatican
-    private boolean [] popeFavours;
+    private final int[] popeFavors;
+    private int totalPoints = 0;
 
-    /** constructor
-     * @param reportSection used to specified the squares that are part of a pope Space
-     * @param vatican represents the (observer) vatican
-     * @param faithTrackID represents the ID of the faithTrack
-     * @param popeFavours ued to specified whether popeFavours are activated or not
+    /**
+     * Constructs a FaithTrack.
+     * @param popeSpaces   the spaces that are Pope spaces in the track.
+     * @param vatican      the unique Vatican.
+     * @param faithTrackID the identifier of the FaithTrack, to distinguish it from the others.
+     * @param popeFavors  for each Pope's Favour, whether the Player got it (true) or not (false).
      */
-    public FaithTrack(boolean[] reportSection, Vatican vatican, int faithTrackID, boolean [] popeFavours) {
-        this.reportSection = reportSection;
+    public FaithTrack(boolean[] popeSpaces, Vatican vatican, int faithTrackID, int[] popeFavors) {
+        this.faithMarker = 0;
+        this.popeSpaces = popeSpaces;
         this.vatican = vatican;
         this.faithTrackID = faithTrackID;
-        // initialize with false
-        this.popeFavours  = popeFavours;
+        this.popeFavors = popeFavors;
     }
 
     /**
-     * advance the faithMaker of one square
-     * PATTERN OBSERVER: whenever this method is called, notify the Vatican (observer) to update the favour
+     * Returns the position of the Faith Marker in the Faith Track, meaning the index of the space it is currently in.
+     * @return the current position of the Faith Marker.
      */
-    public void advance (){
-        faithMarker ++;
-
-        if (faithMarker == 24)
-            vatican.setFinalRound();
-
-       vatican.isToReport(faithTrackID);
+    public int getFaithMarker() {
+        return faithMarker;
     }
 
     /**
-     *advance the faithMaker of a specified number of squares
-     * used ONLY by the method wastedResource in Vatican
-     * @param step the number of squares the player must advance his marker
-     * @return represents the position of the faithMarker the the faithTrack after advance of "step" squares
+     * Returns the identifier of the Faith Track within the list of all FaithTracks.
+     * @return the identifier.
      */
-    public int advance (int step){
+    public int getID() {
+        return faithTrackID;
+    }
 
-        faithMarker += step;
-        if (faithMarker > 24)
-        {
-            faithMarker = 24;
-           vatican.setFinalRound();
+    /**
+     * Makes the Faith Marker advance of one single space. If the new current space is a Pope Space, reports to Vatican.
+     * @return the new current space occupied by the FaithMarker after the movement.
+     */
+    public int advance() {
+        faithMarker++;
+        if(popeSpaces[faithMarker]) {
+            vatican.vaticanReport(faithMarker);
         }
-        return this.faithMarker;
+        return faithMarker;
     }
 
     /**
-     *
-     * @return this position of the faithMarker in the faithTrack
+     * Makes the FaithMarker advance of some spaces. If the new current space is a Pope Space, reports to Vatican.
+     * @param steps the number of spaces of the movement.
+     * @return the new current space occupied by the FaithMarker after the movement.
      */
-    public int getFaithMarker() {return this.faithMarker;}
-
-    /**
-     *
-     * @param index must have values from 0, and represent the favour to give from the current player's faithTrack
-     */
-    public void givePopeFavour(int index) {
-        this.popeFavours [index] = true;
+    public int advance(int steps) {
+        faithMarker += steps;
+        if(popeSpaces[faithMarker]) {
+            vatican.vaticanReport(faithMarker);
+        }
+        return faithMarker;
     }
 
     /**
-     *
-     * @param index must have values from 0, and represent the favour to discard from the current player's faithTrack
+     * Assigns a Pope Favor to the Player.
+     * @param index the Pope Favour assigned to the Player.
      */
-    public void disCardPopeFavour (int index){
-        this.popeFavours [index] = false;
+    public void givePopeFavour(int index, int points) {
+        popeFavors[index] = points;
     }
 
     /**
-     *
-     * @return this position of the faithMarker in the faithTrack
+     * Evaluates the number of Victory Points obtained by the Player through Pope Favors.
+     * @return the total Pope Favors points obtained.
      */
-    public int getFaithTrackID() {return this.faithTrackID;}
+    public int countFavors() {
+        int points = 0;
+        for(int i = 0; i <= popeFavors.length; i++) {
+            points += popeFavors[i];
+        }
+        return points;
+    }
 
+    /**
+     * Signals the end of the Game and calls the evaluation of Victory Points.
+     */
+    public void endGame() {
+        totalPoints = vatican.getPoints(faithTrackID);
+    }
+
+    /**
+     * Returns the total Victory Points obtained by the Player through the FaithTrack mechanic.
+     * @return the total of points obtained.
+     */
+    public int getTotalPoints() {
+        return totalPoints;
+    }
 }

@@ -4,63 +4,39 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** represent the deck of available action
- * @author patrick Niantcho
- * @author patrick.niantcho@gmail.com
+/**
+ * Class to represent full stack of Solo Action tokens.
+ * @author Patrick Niantcho
  */
 public class SoloActionDeck {
+    private final List<SoloAction> tokens;
+    private final List<SoloAction> tokensUsed;
 
-
-    private List<SoloAction> action;
-    private List<Integer> usedActionIndex;
-    private List<Integer> index;
-
-    /** constructor
-     * @param action represents the list of action
+    /**
+     * Constructs a shuffled stack of SoloAction tokens.
+     * @param soloActions the list of all SoloActions to shuffle in the stack.
      */
-    public SoloActionDeck(ArrayList<SoloAction> action) {
-        this.action = action;
-        this.usedActionIndex = new ArrayList<Integer>(0);
-        this.index = new ArrayList<Integer>(action.size());
-        initializeIndex();
-        Collections.shuffle(index);
+    public SoloActionDeck(ArrayList<SoloAction> soloActions) {
+        this.tokens = soloActions;
+        this.tokensUsed = new ArrayList<>(0);
+        Collections.shuffle(tokens);
     }
 
     /**
-     * initialize the index list with number from 0 to the number of action available without duplicate
-     */
-    public void initializeIndex () {
-        for (int i = 0; i < action.size(); i++){
-            if (!index.contains(i))
-                index.add(i);
-        }
-
-    }
-
-    /**
-     * @return return a random action, removing its index in the index list
+     * Returns the first SoloAction in the stack.
+     * @return the first SoloAction of the SoloActionDeck.
      */
     public SoloAction getSoloAction() {
-        usedActionIndex.add(index.get(0));
-        return action.get(index.remove(0));
+        tokensUsed.add(tokens.get(0));
+        return tokens.remove(0);
     }
 
     /**
-     * shuffle the list of index of actions
+     * Shuffles the full stack of SoloActions, used tokens included.
      */
-    public void Shuffle (){
-
-        //reset index list
-        initializeIndex();
-        Collections.shuffle(index);
-
-        //  empty the index list of used actions
-        int length = usedActionIndex.size();
-        for (int i = 0; i < length; i++) {
-            usedActionIndex.remove(0);
-        }
-
+    public void shuffle() {
+        tokens.addAll(tokensUsed);
+        Collections.shuffle(tokens);
+        tokensUsed.clear();
     }
-
-
 }
