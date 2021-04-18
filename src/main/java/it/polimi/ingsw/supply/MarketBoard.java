@@ -147,7 +147,7 @@ public class MarketBoard {
                 this.decksMap.put(color,column);
             }
             // Load Development Cards
-            List<DevelopmentCard> devCards = DevelopmentCard.getDevelopmentCardDeck("resources/JSON/DevelopmentCard.json");
+            List<DevelopmentCard> devCards = DevelopmentCard.getDevelopmentCardDeck("src/main/resources/JSON/DevelopmentCard.json");
             Collections.shuffle(devCards);
             for(DevelopmentCard card : devCards)
                 this.decksMap.get(card.getColor()).get(card.getLevel() - 1).add(card);

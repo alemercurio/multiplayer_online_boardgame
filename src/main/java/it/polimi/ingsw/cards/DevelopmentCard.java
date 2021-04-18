@@ -31,8 +31,8 @@ public class DevelopmentCard extends Card {
      * @param level      the level of the card.
      * @param production the Production associated with the card.
      */
-    public DevelopmentCard(int points, ResourcePack cost, Color color, int level, Production production) {
-        // TODO: il costruttore è opportuno che sia private.
+    public DevelopmentCard(int points, ResourcePack cost, Color color, int level, Production production)
+    {
         super(points);
         this.cost = cost.getCopy();
         this.color = color;

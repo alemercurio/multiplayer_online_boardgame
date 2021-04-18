@@ -1,5 +1,6 @@
 package it.polimi.ingsw.cards;
 
+import it.polimi.ingsw.PlayerBoard;
 import it.polimi.ingsw.supply.ResourcePack;
 
 /**
