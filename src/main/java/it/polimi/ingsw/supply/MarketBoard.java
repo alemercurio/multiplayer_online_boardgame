@@ -154,17 +154,36 @@ public class MarketBoard {
         }
 
         /**
+         * Returns the cost of the first DevelopmentCard available with
+         * the specified Color and level; if no card matches
+         * the given parameters throws NoSuchDevelopmentCardException.
+         * @param level the level of the required card.
+         * @param color the color of the required card.
+         * @return the ResourcePack representing the cost of the required card.
+         * @throws NoSuchDevelopmentCardException if no card matches the given parameters.
+         */
+        public ResourcePack getCost(int level, Color color) throws NoSuchDevelopmentCardException
+        {
+            LinkedList<DevelopmentCard> stack = this.decksMap.get(color).get(level - 1);
+
+            if(stack.isEmpty()) throw new NoSuchDevelopmentCardException();
+            else return stack.getFirst().getCost();
+        }
+
+        /**
          * Returns the DevelopmentCard on top of the specified deck;
          * the given color specifies the column as level does for the row;
-         * if the deck is empty returns null.
+         * if the deck is empty throws NoSuchDevelopmentCardException.
          * @param level the level of the required DevelopmentCard.
          * @param color the color of the required DevelopmentCard.
          * @return the required DevelopmentCard.
+         * @throws NoSuchDevelopmentCardException if the specified deck is empty.
          */
-        public DevelopmentCard getDevelopmentCard(int level, Color color)
+        public DevelopmentCard getDevelopmentCard(int level, Color color) throws NoSuchDevelopmentCardException
         {
-            // TODO: Potrebbe generare un'eccezione (anzichè tornare null)
-            return this.decksMap.get(color).get(level - 1).pollFirst();
+            LinkedList<DevelopmentCard> stack = this.decksMap.get(color).get(level - 1);
+            if(stack.isEmpty()) throw new NoSuchDevelopmentCardException();
+            else return stack.pollFirst();
         }
 
         /**
@@ -257,14 +276,29 @@ public class MarketBoard {
     }
 
     /**
+     * Returns the cost of the first available DevelopmentCard from the market
+     * with the specified Color and level; if there are no available cards
+     * that matches the requirement throws NoSuchDevelopmentCardException.
+     * @param level the level of the required DevelopmentCard.
+     * @param color the color of the required DevelopmentCard.
+     * @return the ResourcePack representing the cost of the required card.
+     * @throws NoSuchDevelopmentCardException if no card matches the requirement.
+     */
+    public ResourcePack getCost(int level, Color color) throws NoSuchDevelopmentCardException
+    {
+        return this.cardMarket.getCost(level,color);
+    }
+
+    /**
      * Returns the first available DevelopmentCard from the market
-     * with the specified Color and level;
-     * if there are no available cards that match the requirement returns null.
+     * with the specified Color and level; if there are no available cards
+     * that matches the requirement throws NoSuchDevelopmentCardException.
      * @param level the level of the required DevelopmentCard.
      * @param color the Color of the required DevelopmentCard.
      * @return the first available DevelopmentCard with the given color and level.
+     * @throws NoSuchDevelopmentCardException if no card matches the requirement.
      */
-    public DevelopmentCard getDevelopmentCard(int level, Color color)
+    public DevelopmentCard getDevelopmentCard(int level, Color color) throws NoSuchDevelopmentCardException
     {
         return this.cardMarket.getDevelopmentCard(level,color);
     }

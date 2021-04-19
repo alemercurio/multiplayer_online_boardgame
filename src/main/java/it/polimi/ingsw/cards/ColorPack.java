@@ -73,9 +73,20 @@ public class ColorPack {
      */
     public boolean testRequirements(ColorPack required)
     {
-        for(Map.Entry<CardKey,Integer> e : required.cardSet.entrySet())
+        /*for(Map.Entry<CardKey,Integer> e : required.cardSet.entrySet())
             if(this.cardSet.getOrDefault(e.getKey(),0) < e.getValue())
-                return false;
+                return false;*/
+
+        for(Map.Entry<CardKey,Integer> e : required.cardSet.entrySet())
+        {
+            int available = 0;
+            for(int level = e.getKey().level; level <= 3; level++)
+            {
+                available += this.cardSet.getOrDefault(new CardKey(e.getKey().color,level),0);
+            }
+
+            if(available < e.getValue()) return false;
+        }
         return true;
     }
 
