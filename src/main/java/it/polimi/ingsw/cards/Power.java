@@ -1,5 +1,7 @@
 package it.polimi.ingsw.cards;
 
+import it.polimi.ingsw.PlayerBoard;
+
 /**
  * Interface for all type of Leader Card special abilities, sharing the possibility to be activated.
  * @author Alessandro Mercurio

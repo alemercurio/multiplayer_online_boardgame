@@ -27,13 +27,20 @@ public class DevelopmentCardStack {
      * @param card     the DevelopmentCard to add.
      * @param position the index of the chosen stack.
      */
-    public void storeDevCard(DevelopmentCard card, int position) {
-        // TODO: potrebbe sollevare un'eccezione nel caso in cui si tenti di porre
-        //  una carte di livello inferiore su una di livello superiore.
-        if (position >= 1 && position <= 3) {
+    public void storeDevCard(DevelopmentCard card, int position) throws NonPositionableCardException {
+        if (position >= 1 && position <= 3)
+        {
+            int current;
+
+            LinkedList<DevelopmentCard> stack = this.devCards.get(position - 1);
+            if(stack.isEmpty()) current = 0;
+            else current = stack.getFirst().getLevel();
+
             // Because DevelopmentCard objects are immutable it is not necessary to make a copy.
-            devCards.get(position - 1).addFirst(card);
+            if(card.getLevel() == current + 1) stack.addFirst(card);
+            else throw new NonPositionableCardException();
         }
+        else throw new NonPositionableCardException();
     }
 
     /**
@@ -42,8 +49,10 @@ public class DevelopmentCardStack {
      * @param position the chosen stack (1,2 or 3).
      * @return the DevelopmentCard on top of the stack or null.
      */
-    public DevelopmentCard getDevCard(int position) {
-        if (position >= 1 && position <= 3) {
+    public DevelopmentCard getDevCard(int position)
+    {
+        if (position >= 1 && position <= 3)
+        {
             if (this.devCards.get(position - 1).isEmpty()) return null;
             else return this.devCards.get(position - 1).getFirst();
         } else return null;

@@ -129,7 +129,6 @@ public class ResourcePack {
         }
     }
 
-
     /**
      * Consumes the specified amount of resources of the given type.
      * If the current pack has not enough resources nothing happens.
@@ -252,9 +251,7 @@ public class ResourcePack {
         else
         {
             ResourcePack rp = (ResourcePack) o;
-            for(Map.Entry<Resource,Integer> e : this.resources.entrySet())
-                if(rp.get(e.getKey()) != e.getValue()) return false;
-            return true;
+            return this.resources.equals(rp.resources);
         }
     }
 

@@ -1,5 +1,7 @@
 package it.polimi.ingsw.faith;
 
+import it.polimi.ingsw.Game;
+
 import java.util.ArrayList;
 
 /**

@@ -1,8 +1,16 @@
 package it.polimi.ingsw.cards;
 
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import it.polimi.ingsw.PlayerBoard;
 import it.polimi.ingsw.supply.ResourcePack;
 
-import java.util.LinkedList;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,13 +29,11 @@ public class LeaderCard extends Card {
      * @param reqDevCards  the requirement in terms of DevelopmentCards.
      * @param power        the Power granted by the LeaderCard.
      */
-    public LeaderCard(int points, ResourcePack reqResources, ColorPack reqDevCards, Power power) {
-        // TODO: il costruttore è opportuno che sia private.
+    public LeaderCard(int points, ResourcePack reqResources, ColorPack reqDevCards, Power power)
+    {
         super(points);
         this.reqResources = reqResources.getCopy();
         this.reqDevCards = reqDevCards.getCopy();
-
-        // note: powers may be mutable objects.
         this.power = power;
     }
 
@@ -35,16 +41,27 @@ public class LeaderCard extends Card {
      * Returns a List of all the available LeaderCards.
      * @return a list of all the LeaderCards.
      */
-    public static List<LeaderCard> getLeaderCardDeck() {
-        // TODO: aggiungere il codice relativo al caricamento delle carte.
-        ResourcePack rp = new ResourcePack(1);
-        ColorPack cp = new ColorPack();
-        cp.addColor(Color.GREEN, 1);
-        Power pow = new DiscountPower(rp);
+    public static List<LeaderCard> getLeaderCardDeck(String filePath)
+    {
+        File file = new File(filePath);
 
-        List<LeaderCard> leaderCardDeck = new LinkedList<>();
-        leaderCardDeck.add(new LeaderCard(1, rp, cp, pow));
-        return leaderCardDeck;
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(Power.class,new LeaderCard.PowerReader());
+        builder.enableComplexMapKeySerialization();
+        Gson parser = builder.create();
+
+        Type leaderCardType = new TypeToken<List<LeaderCard>>() {}.getType();
+
+        try
+        {
+            FileReader leaderCard = new FileReader(file);
+            JsonReader reader = new JsonReader(leaderCard);
+            return parser.fromJson(reader,leaderCardType);
+        }
+        catch (FileNotFoundException e)
+        {
+            return new ArrayList<LeaderCard>();
+        }
     }
 
     /**
@@ -70,5 +87,33 @@ public class LeaderCard extends Card {
      */
     public ColorPack getReqDevCards() {
         return this.reqDevCards.getCopy();
+    }
+
+    public static class PowerReader implements JsonSerializer<Power>, JsonDeserializer<Power>
+    {
+        @Override
+        public JsonElement serialize(Power power, Type typeOfPower, JsonSerializationContext context)
+        {
+            JsonObject result = new JsonObject();
+            result.add("type", new JsonPrimitive(power.getClass().getSimpleName()));
+            result.add("description", context.serialize(power, power.getClass()));
+
+            return result;
+        }
+
+        @Override
+        public Power deserialize(JsonElement json, Type typeOfPower, JsonDeserializationContext context) throws JsonParseException
+        {
+            JsonObject power = json.getAsJsonObject();
+            String type = power.get("type").getAsString();
+            JsonElement powerDescriptor = power.get("description");
+
+            try {
+                return context.deserialize(powerDescriptor, Class.forName("it.polimi.ingsw.cards." + type));
+            } catch (ClassNotFoundException e)
+            {
+                throw new JsonParseException("Unknown Leader's power type: " + type, e);
+            }
+        }
     }
 }
