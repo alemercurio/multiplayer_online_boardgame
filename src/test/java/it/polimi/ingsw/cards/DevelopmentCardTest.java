@@ -60,7 +60,6 @@ public class DevelopmentCardTest {
         assertEquals( devCard1.getProduction(),p1);
         assertEquals( devCard2.getProduction(),p2);
         assertEquals( devCard3.getProduction(),p3);
-
     }
 
     @Test
@@ -116,7 +115,5 @@ public class DevelopmentCardTest {
         assertEquals( devCard1.getLevel(), 2);
         assertEquals( devCard2.getLevel(), 1);
         assertEquals( devCard3.getLevel(), 3);
-
     }
-
 }
