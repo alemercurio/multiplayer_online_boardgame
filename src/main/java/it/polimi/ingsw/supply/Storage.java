@@ -222,7 +222,7 @@ public class Storage {
      * If the requirement is not satisfiable nothing happens.
      * @param pack the ResourcePack to consume from the Storage.
      */
-    public void autoConsume(ResourcePack pack)
+    public void autoConsume(ResourcePack pack) throws NonConsumablePackException
     {
         // TODO: potrebbe sollevare un'eccezione nel caso non sia possibile
         if(this.getAllResource().isConsumable(pack))
@@ -246,7 +246,7 @@ public class Storage {
      * @param pack the ResourcePack to consume from the Warehouse.
      * @return the ResourcePack of non satisfiable requirement.
      */
-    public ResourcePack consumeWarehouse(ResourcePack pack)
+    public ResourcePack consumeWarehouse(ResourcePack pack) throws NonConsumablePackException
     {
         return this.warehouse.consume(pack);
     }
@@ -267,7 +267,7 @@ public class Storage {
      * if the requirement is not satisfiable, nothing happens.
      * @param pack the ResourcePack to consume from the Strongbox.
      */
-    public void consumeStrongbox(ResourcePack pack)
+    public void consumeStrongbox(ResourcePack pack) throws NonConsumablePackException
     {
         this.strongbox.consume(pack);
     }

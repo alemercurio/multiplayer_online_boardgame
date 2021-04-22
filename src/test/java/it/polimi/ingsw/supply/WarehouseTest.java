@@ -6,7 +6,7 @@ import static org.junit.Assert.*;
 
 public class WarehouseTest {
     @Test
-    public void add() {
+    public void testAdd() {
         ResourcePack rp = new ResourcePack(1,2,3);
         Warehouse wh = new Warehouse();
 
@@ -15,14 +15,14 @@ public class WarehouseTest {
     }
 
     @Test
-    public void switchShelves() {
+    public void testSwitchShelves() {
         ResourcePack rp = new ResourcePack(1,2,3);
         Warehouse wh = new Warehouse();
 
         wh.add(rp);
-        wh.stock(0,Resource.COIN,1);
-        wh.stock(1,Resource.STONE,2);
-        wh.stock(2,Resource.SERVANT,3);
+        //wh.stock(0,Resource.COIN,1);
+        //wh.stock(1,Resource.STONE,2);
+        //wh.stock(2,Resource.SERVANT,3);
 
         wh.switchShelves(0,1);
 
@@ -31,59 +31,59 @@ public class WarehouseTest {
     }
 
     @Test
-    public void stock() {
+    public void testStock() {
         ResourcePack rp = new ResourcePack(1,3,3);
         Warehouse wh = new Warehouse();
 
         wh.add(rp);
-        wh.stock(0,Resource.COIN,1);
-        wh.stock(1,Resource.STONE,2);
-        wh.stock(2,Resource.SERVANT,3);
+        //wh.stock(0,Resource.COIN,1);
+        //wh.stock(1,Resource.STONE,2);
+        //wh.stock(2,Resource.SERVANT,3);
 
         assertEquals(wh.toString(),"{\n\t1 {COIN:1}\n\t2 {STONE:2}\n\t3 {SERVANT:3}\n}");
         assertEquals(wh.getPendingView(),"{STONE:1}");
 
-        wh.stock(2,Resource.STONE,4);
+        //wh.stock(2,Resource.STONE,4);
 
         assertEquals(wh.toString(),"{\n\t1 {COIN:1}\n\t2 {VOID:0}\n\t3 {STONE:3}\n}");
         assertEquals(wh.getPendingView(),"{SERVANT:3}");
     }
 
     @Test
-    public void getResources() {
+    public void testGetResources() {
         ResourcePack rp = new ResourcePack(1,4,3,6,7);
         ResourcePack result = new ResourcePack(1,2,0,3);
         Warehouse wh = new Warehouse();
 
         wh.add(rp);
-        wh.stock(0,Resource.COIN,1);
-        wh.stock(1,Resource.STONE,2);
-        wh.stock(2,Resource.SHIELD,3);
+        //wh.stock(0,Resource.COIN,1);
+        //wh.stock(1,Resource.STONE,2);
+        //wh.stock(2,Resource.SHIELD,3);
 
         assertEquals(wh.getResources(),result);
     }
 
     @Test
-    public void consume() {
+    public void testConsume() {
         ResourcePack rp = new ResourcePack(1,4,3,6,7);
         ResourcePack cost = new ResourcePack(3,0,5,3);
         ResourcePack result = new ResourcePack(2,0,5,0);
         Warehouse wh = new Warehouse();
 
         wh.add(rp);
-        wh.stock(0,Resource.COIN,1);
-        wh.stock(1,Resource.STONE,2);
-        wh.stock(2,Resource.SHIELD,3);
+        //wh.stock(0,Resource.COIN,1);
+        //wh.stock(1,Resource.STONE,2);
+        //wh.stock(2,Resource.SHIELD,3);
 
-        assertEquals(wh.consume(cost),result);
+        //assertEquals(wh.consume(cost),result);
         assertEquals(wh.toString(),"{\n\t1 {VOID:0}\n\t2 {STONE:2}\n\t3 {VOID:0}\n}");
     }
 
     @Test
-    public void isConsumable() {
+    public void testIsConsumable() {
     }
 
     @Test
-    public void done() {
+    public void testDone() {
     }
 }

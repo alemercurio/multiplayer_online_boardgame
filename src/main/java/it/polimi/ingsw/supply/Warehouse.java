@@ -82,7 +82,7 @@ public class Warehouse
      * @param type the specific kind of resource to store.
      * @param num the amount of resource to store.
      */
-    public void stock(int shelf, Resource type, int num)
+    public void stock(int shelf, Resource type, int num) throws NonConsumablePackException
     {
         int tmp_amount = 0;
 
@@ -138,7 +138,7 @@ public class Warehouse
      * @param pack the pack of resources that are to consume if available.
      * @return the pack of resources yet to be consumed.
      */
-    public ResourcePack consume(ResourcePack pack)
+    public ResourcePack consume(ResourcePack pack) throws NonConsumablePackException
     {
         int required;
         ResourcePack toConsume = pack.getCopy();

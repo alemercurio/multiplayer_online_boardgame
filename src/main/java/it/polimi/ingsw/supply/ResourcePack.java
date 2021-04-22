@@ -5,270 +5,243 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Represents a pack of resources with both special and non-special ones.
+ * Represents a pack of Resources with both special and non-special ones.
  * @see Resource
  * @author Francesco Tosini
  */
 public class ResourcePack {
-
     final private Map<Resource,Integer> resources;
 
     /**
-     * Constructs an empty pack of resources.
+     * Constructs an empty pack of Resources.
      */
-    public ResourcePack()
-    {
+    public ResourcePack() {
         this.resources = new HashMap<>();
     }
 
     /**
      * Constructs a pack with the given amounts of resources.
-     * The order is the same as in Resource; non specified amounts
-     * are treated as zeros, while exceeding parameters are ignored.
-     * @param resourceAmounts the quantity of each resource.
+     * The order is the same as the one in the Resource enumeration;
+     * non specified amounts are treated as zeros, while exceeding parameters are ignored.
+     * @param resourceAmounts the quantity of each Resource.
      * @see Resource
      */
-    public ResourcePack(int...resourceAmounts)
-    {
+    public ResourcePack(int...resourceAmounts) {
         this();
-
         Resource[] res = Resource.values();
-        for(int i = 0; i < resourceAmounts.length && i < 6; i++)
-        {
-            // convention: If the a amount of a resource is zero its record is omitted or removed from the map.
-            if(resourceAmounts[i] != 0) this.resources.put(res[i], resourceAmounts[i]);
+        for(int i = 0; i < resourceAmounts.length && i < 6; i++) {
+            //if the amount of a Resource is zero, its record is omitted or removed from the map
+            if(resourceAmounts[i] != 0) {
+                this.resources.put(res[i], resourceAmounts[i]);
+            }
         }
     }
 
     /**
-     * Returns the amount of non-special resources stored in the ResourcePack;
-     * @return the quantity of non-special resources
+     * Returns the amount of non-special Resources stored in the ResourcePack.
+     * @return the sum of all quantities of non-special Resources.
      * @see Resource
      */
-    public int size()
-    {
-        // Selects non-special resources and then evaluate their quantity by using a reduce function
+    public int size() {
+        //selects non-special resources and then evaluate their quantity by using a reduce function
         return this.resources.entrySet().stream().filter(e -> !(e.getKey().isSpecial()))
                 .map(Map.Entry::getValue).reduce(0,Integer::sum);
     }
 
     /**
-     * Returns the amount of a particular resource stored in the ResourcePack;
+     * Returns the amount of a particular Resource stored in the ResourcePack;
      * Unlike "consume" or "flush" it does not actually decrease its quantity.
-     * @param resource the kind of resource whose amount is desired
-     * @return the amount of the specified resource
+     * @param resource the type of Resource whose amount is desired.
+     * @return the quantity of the specified Resource contained.
      * @see Resource
      */
-    public int get(Resource resource)
-    {
+    public int get(Resource resource) {
         return resources.getOrDefault(resource,0);
     }
 
     /**
-     * Adds the content of the given pack to the current one;
+     * Adds the content of the given ResourcePack to the current one;
      * no resources are consumed in the process (even the ones from the given pack).
-     * @param pack the resources to add to the current pack.
-     * @return the current pack.
+     * @param pack the Resources to add to the current pack.
+     * @return the current pack with the added Resources.
      */
-    public ResourcePack add(ResourcePack pack)
-    {
+    public ResourcePack add(ResourcePack pack) {
         pack.resources.forEach((res,amt) -> resources.merge(res,amt, Integer::sum));
         return this;
     }
 
     /**
-     * Add the specified amount of the given resource to the current pack;
+     * Adds the specified amount of the given Resource to the current pack;
      * negative amounts are ignored.
-     * @param resource the specific kind of resource to add.
-     * @param amount the quantity of resource to add.
-     * @return the current pack.
+     * @param resource the specific type of Resource to add.
+     * @param amount the quantity of Resource to add.
+     * @return the current pack with the added Resources.
      */
-    public ResourcePack add(Resource resource, int amount)
-    {
-        if(amount > 0)
-        {
+    public ResourcePack add(Resource resource, int amount) {
+        if(amount > 0) {
             int newAmount = this.get(resource) + amount;
-            if (newAmount != 0) this.resources.put(resource, newAmount);
+            this.resources.put(resource, newAmount);
         }
         return this;
     }
 
     /**
-     * Compares two ResourcePacks; Return true if the first has enough resources to satisfy the given one.
-     * No side-effect are produced on the ResourcePacks. Resources are treated equally.
-     * @param required the resources whose availability is to be tested.
-     * @return true if it is possible to consume the required pack from the current one
+     * Compares two ResourcePacks; returns true if the first "contains" the second.
+     * No side-effects are produced on the ResourcePacks. Resources are treated equally.
+     * @param required the ResourcePack with Resources whose availability is to be tested.
+     * @return true if it is possible to consume the required pack from the current one.
      */
-    public boolean isConsumable(ResourcePack required)
-    {
-        if(required != null)
-        {
+    public boolean isConsumable(ResourcePack required) {
+        if(required != null) {
             for (Map.Entry<Resource, Integer> req : required.resources.entrySet())
                 if (this.get(req.getKey()) < req.getValue()) return false;
         }
-        // null is considered as an empty pack so the result is true in that particular case.
+        //null is considered as an empty pack so the result is true in that particular case
         return true;
     }
 
     /**
-     * Consumes the resources in the current pack according to the given one.
-     * If the specified pack is not consumable nothing happens. Resources are treated equally.
-     * @param pack the amount of resources to consume.
+     * Consumes the Resources in the current pack, removing the contents of the given one from it.
+     * If the specified pack is not consumable an exception is raised.
+     * Resources are treated equally.
+     * @param pack the ResourcePack with the amount of Resources to consume.
+     * @throws NonConsumablePackException if the are not enough Resources in the current pack.
      */
-    public void consume(ResourcePack pack)
-    {
-        int reg;
-        if(this.isConsumable(pack))
-        {
-            for(Map.Entry<Resource,Integer> e : pack.resources.entrySet())
-            {
-                reg = this.get(e.getKey()) - e.getValue();
-                if(reg == 0) this.resources.remove(e.getKey());
-                else this.resources.put(e.getKey(),reg);
+    public void consume(ResourcePack pack) throws NonConsumablePackException {
+        int remaining;
+        if(this.isConsumable(pack)) {
+            for(Map.Entry<Resource,Integer> e : pack.resources.entrySet()) {
+                remaining = this.get(e.getKey()) - e.getValue();
+                if(remaining == 0) this.resources.remove(e.getKey());
+                else this.resources.put(e.getKey(),remaining);
             }
         }
+        else throw new NonConsumablePackException();
     }
 
     /**
-     * Consumes the specified amount of resources of the given type.
-     * If the current pack has not enough resources nothing happens.
+     * Consumes the specified amount of Resources of the given type.
+     * If the current pack has not enough Resources an exception is raised.
      * Negative amounts are ignored.
      * @param resource the kind of resource to consume.
      * @param amount the amount of resources to consume.
+     * @throws NonConsumablePackException if the are not enough Resources in the current pack.
      */
-    public void consume(Resource resource, int amount)
-    {
-        if(amount > 0)
-        {
-            // the non-consumeability is implicitly handled.
-            int tmp_amount = this.get(resource) - amount;
-            if (tmp_amount == 0) this.resources.remove(resource);
-            else if (tmp_amount > 0) this.resources.put(resource, tmp_amount);
+    public void consume(Resource resource, int amount) throws NonConsumablePackException {
+        if(amount > 0) {
+            //the possibility of non-consumable is implicitly handled (do nothing)
+            int remaining = this.get(resource) - amount;
+            if (remaining == 0) this.resources.remove(resource);
+            else if (remaining > 0) this.resources.put(resource, remaining);
+            else throw new NonConsumablePackException();
         }
     }
 
-
     /**
-     * Apply a discount based on the resources contained in the given pack.
+     * Applies a "discount" based on the Resources contained in a given pack.
+     * Differently from .consume(), the maximum possible amount of each Resource is removed.
      * Special and non-special resources are equally treated.
-     * The amount of each kind of resource is decreased at most to zero;
-     * further discount is ignored.
-     * @param pack the ResourcePack representing the discount to apply
+     * @param pack the ResourcePack representing the total maximum Resources to remove.
      */
-    public void discountPack(ResourcePack pack)
-    {
-        int reg;
-        // null is considered as an empty pack.
-        if(pack != null)
-        {
-            for (Map.Entry<Resource, Integer> e : pack.resources.entrySet())
-            {
-                reg = this.get(e.getKey()) - e.getValue();
-                if (reg <= 0) this.resources.remove(e.getKey());
-                else this.resources.put(e.getKey(), reg);
+    public void discount(ResourcePack pack) {
+        int remaining;
+        // null is considered as an empty pack
+        if(pack != null) {
+            for (Map.Entry<Resource, Integer> e : pack.resources.entrySet()) {
+                remaining = this.get(e.getKey()) - e.getValue();
+                if (remaining <= 0) this.resources.remove(e.getKey());
+                else this.resources.put(e.getKey(), remaining);
             }
         }
     }
 
     /**
-     * Equals to flushing the special resource faithpoint.
-     * @return the amount of faithpoints that have been consumed.
-     */
-    public int consumeFaithPoints()
-    {
-        return this.flush(Resource.FAITHPOINT);
-    }
-
-    /**
-     * Consume a random resource from the pack and returns its type;
-     * if the given pack is empty returns VOID.
-     * @return a random kind of resource previously contained in the pack.
-     */
-    public Resource getRandom()
-    {
-        if(this.isEmpty()) return Resource.VOID;
-        else {
-            Random random = new Random();
-            Resource[] res = this.resources.keySet().toArray(new Resource[0]);
-            int rnd = random.nextInt(res.length);
-            this.consume(res[rnd], 1);
-            return res[rnd];
-        }
-    }
-
-    /**
-     * Empty the pack from every resource.
-     * The return value does not count special-resources even though they are also discarded.
+     * Empties the pack from every Resource it contains.
+     * The return value does not count special Resources even though they are also discarded.
      * @return the amount of non-special resources that have been flushed.
      */
-    public int flush()
-    {
+    public int flush() {
         int flushedResources = this.size();
         this.resources.clear();
         return flushedResources;
     }
 
     /**
-     * Flushes every resource of the specified type and returns the amount of them;
-     * @param resource the kind of resource to fully consume.
-     * @return the amount of resources of the given kind that have been consumed.
+     * Flushes every Resource of the specified type and returns the amount of them;
+     * @param resource the type of Resource to fully consume.
+     * @return the amount of Resource of the specified type previously contained.
      */
-    public int flush(Resource resource)
-    {
-        int tmp_amount = this.get(resource);
-        // note: if the amount of resources is zero its record does not exists.
-        if(tmp_amount != 0) this.resources.remove(resource);
-        return tmp_amount;
+    public int flush(Resource resource) {
+        int amount = this.get(resource);
+        // note: if the amount of resources is zero its record does not exists
+        if(amount != 0) this.resources.remove(resource);
+        return amount;
     }
 
     /**
-     * Test if the current pack does not contain any resource, including special ones.
+     * Consumes a random Resource from the pack and returns its type;
+     * if the given pack is empty returns VOID.
+     * @return a random type of Resource previously contained in the pack.
+     */
+    public Resource getRandom() {
+        if(this.isEmpty()) return Resource.VOID;
+        else {
+            Random random = new Random();
+            Resource[] resourceTypes = this.resources.keySet().toArray(new Resource[0]);
+            int randomIndex = random.nextInt(resourceTypes.length);
+            try {
+                this.consume(resourceTypes[randomIndex], 1);
+            }
+            catch (NonConsumablePackException e) {
+                //this is something that cannot happen
+                return Resource.VOID;
+            }
+            return resourceTypes[randomIndex];
+        }
+    }
+
+    /**
+     * Tests if the current pack does not contain any Resource, including special ones.
      * @return true if the ResourcePack is empty.
      */
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         // note: void is considered as a generic resource whose type is unknown.
         return resources.isEmpty();
     }
 
     /**
-     * Create a copy of the current pack with the same amount of resources, including special ones.
-     * @return a copy of the current ResourcePack
+     * Creates a copy of the current pack with the same amount of Resources, including special ones.
+     * @return a copy of the current ResourcePack.
      */
-    public ResourcePack getCopy()
-    {
+    public ResourcePack getCopy() {
         ResourcePack clone = new ResourcePack();
         clone.add(this);
         return clone;
     }
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if(o == null) return false;
         else if(o == this) return true;
         else if(!(o instanceof ResourcePack)) return false;
-        else
-        {
+        else {
             ResourcePack rp = (ResourcePack) o;
             return this.resources.equals(rp.resources);
         }
     }
 
     @Override
-    public String toString()
-    {
-        String res;
+    public String toString() {
+        StringBuilder res;
         boolean first = true;
 
-        res = "{";
-        for(Map.Entry<Resource,Integer> e : this.resources.entrySet())
-        {
-            if(!first)  res = res + ", ";
+        res = new StringBuilder("{");
+        for(Map.Entry<Resource,Integer> e : this.resources.entrySet()) {
+            if(!first)  res.append(", ");
             else first = false;
-            res = res + e.getKey() + ":" + e.getValue();
+            res.append(e.getKey()).append(":").append(e.getValue());
         }
-        res = res + "}";
-        return res;
+        res.append("}");
+        return res.toString();
     }
 }
