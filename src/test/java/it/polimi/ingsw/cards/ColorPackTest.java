@@ -7,7 +7,7 @@ import static org.junit.Assert.*;
 public class ColorPackTest {
 
     @Test
-    public void addColor() {
+    public void testAddColor() {
 
         ColorPack colorPack = new ColorPack();
         assertEquals(colorPack.toString(), "{\n}");
@@ -74,7 +74,7 @@ public class ColorPackTest {
     }
 
     @Test
-    public void getCopy() {
+    public void testGetCopy() {
 
         ColorPack colorPack = new ColorPack();
         colorPack.addColor(Color.GREEN, 1);

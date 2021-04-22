@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 public class DevelopmentCardStackTest {
 
     @Test
-    public void storeDevCard() throws NonPositionableCardException {
+    public void testStoreDevCard()  {
 
         ResourcePack rp1_input = new ResourcePack(0,0,3,0,0);
         ResourcePack rp2_input = new ResourcePack(1,0,2,0,0);
@@ -77,7 +77,7 @@ public class DevelopmentCardStackTest {
     }
 
     @Test
-    public void getDevCard() throws NonPositionableCardException {
+    public void testGetDevCard()  {
         ResourcePack rp1_input = new ResourcePack(0,0,3,0,0);
         ResourcePack rp2_input = new ResourcePack(1,0,2,0,0);
         ResourcePack rp3_input = new ResourcePack(1,4,3,5,3);
@@ -122,7 +122,7 @@ public class DevelopmentCardStackTest {
     }
 
     @Test
-    public void testGetDevCard() throws NonPositionableCardException{
+    public void testGetDevCardOverload() {
 
         ResourcePack rp1_input = new ResourcePack(0,0,3,0,0);
         ResourcePack rp2_input = new ResourcePack(1,0,2,0,0);
@@ -166,7 +166,7 @@ public class DevelopmentCardStackTest {
 
         DevelopmentCardStack stack = new DevelopmentCardStack();
 
-        List<DevelopmentCard> activeCards = new ArrayList<DevelopmentCard>();
+        List<DevelopmentCard> activeCards = new ArrayList<>();
 
         for(int i = 0; i < 3; i++)
             activeCards.add(null);
@@ -210,7 +210,7 @@ public class DevelopmentCardStackTest {
     }
 
     @Test
-    public void getColorPack() throws NonPositionableCardException{
+    public void testGetColorPack() {
         ResourcePack rp1_input = new ResourcePack(0,0,3,0,0);
         ResourcePack rp2_input = new ResourcePack(1,0,2,0,0);
         ResourcePack rp3_input = new ResourcePack(1,4,3,0,0);
@@ -296,7 +296,7 @@ public class DevelopmentCardStackTest {
         assertEquals(stack.getColorPack(), colorPack4);
     }
 
-    public boolean testStoreDevCardThrowsException(DevelopmentCardStack stack, DevelopmentCard card, int position)throws NonPositionableCardException{
+    public boolean testStoreDevCardThrowsException(DevelopmentCardStack stack, DevelopmentCard card, int position){
 
         boolean thrown = false;
 

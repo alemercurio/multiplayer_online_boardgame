@@ -9,7 +9,7 @@ import static org.junit.Assert.*;
 public class DevelopmentCardTest {
 
     @Test
-    public void getCost() {
+    public void testGetCost() {
         ResourcePack rp1_input = new ResourcePack(0,0,3,0,0);
         ResourcePack rp2_input = new ResourcePack(1,0,2,0,0);
         ResourcePack rp3_input = new ResourcePack(1,4,3,5,3);
@@ -36,7 +36,7 @@ public class DevelopmentCardTest {
     }
 
     @Test
-    public void getProduction() {
+    public void testGetProduction() {
         ResourcePack rp1_input = new ResourcePack(0,0,3,0,0);
         ResourcePack rp2_input = new ResourcePack(1,0,2,0,0);
         ResourcePack rp3_input = new ResourcePack(1,4,3,5,3);
@@ -63,7 +63,7 @@ public class DevelopmentCardTest {
     }
 
     @Test
-    public void getColor() {
+    public void testGetColor() {
         ResourcePack rp1_input = new ResourcePack(0,0,3,0,0);
         ResourcePack rp2_input = new ResourcePack(1,0,2,0,0);
         ResourcePack rp3_input = new ResourcePack(1,4,3,5,3);
@@ -90,7 +90,7 @@ public class DevelopmentCardTest {
     }
 
     @Test
-    public void getLevel() {
+    public void testGetLevel() {
 
         ResourcePack rp1_input = new ResourcePack(0,0,3,0,0);
         ResourcePack rp2_input = new ResourcePack(1,0,2,0,0);

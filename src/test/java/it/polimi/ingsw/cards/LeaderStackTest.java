@@ -6,7 +6,6 @@ import it.polimi.ingsw.supply.MarketBoard;
 import it.polimi.ingsw.supply.Production;
 import it.polimi.ingsw.supply.Resource;
 import it.polimi.ingsw.supply.ResourcePack;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -17,7 +16,7 @@ import static org.junit.Assert.*;
 public class LeaderStackTest {
 
     @Test
-    public void addLeaders() {
+    public void testAddLeaders() {
         LeaderStack stack = new LeaderStack();
 
         ResourcePack rp1_cost = new ResourcePack(0,0,3,0,0);
@@ -68,7 +67,7 @@ public class LeaderStackTest {
     }
 
     @Test
-    public void activate() {
+    public void testActivate() {
         MarketBoard marketBoard = new MarketBoard();
         FaithTrack faithTrack = new FaithTrack (null, null, 1,null);
         PlayerBoard playerBoard = new PlayerBoard(marketBoard, faithTrack);
@@ -141,7 +140,7 @@ public class LeaderStackTest {
     }
 
     @Test
-    public void discard() {
+    public void testDiscard() {
 
         LeaderStack stack = new LeaderStack();
 
@@ -202,7 +201,7 @@ public class LeaderStackTest {
     }
 
     @Test
-    public void getActiveLeader() {
+    public void testGetActiveLeader() {
 
         MarketBoard marketBoard = new MarketBoard();
         FaithTrack faithTrack = new FaithTrack (null, null, 1,null);
@@ -262,7 +261,7 @@ public class LeaderStackTest {
     }
 
     @Test
-    public void testGetActiveLeader() {
+    public void testGetActiveLeaderOverload() {
         MarketBoard marketBoard = new MarketBoard();
         FaithTrack faithTrack = new FaithTrack (null, null, 1,null);
         PlayerBoard playerBoard = new PlayerBoard(marketBoard, faithTrack);
@@ -319,7 +318,7 @@ public class LeaderStackTest {
     }
 
     @Test
-    public void getInactiveLeader() {
+    public void testGetInactiveLeader() {
 
         LeaderStack stack = new LeaderStack();
 
@@ -371,7 +370,7 @@ public class LeaderStackTest {
     }
 
     @Test
-    public void testGetInactiveLeader() {
+    public void testGetInactiveLeaderOverload() {
 
         LeaderStack stack = new LeaderStack();
         assertEquals(stack.getInactiveLeader().size(), 0);
@@ -419,7 +418,7 @@ public class LeaderStackTest {
     }
 
     @Test
-    public void getPoints() {
+    public void testGetPoints() {
         MarketBoard marketBoard = new MarketBoard();
         FaithTrack faithTrack = new FaithTrack (null, null, 1,null);
         PlayerBoard playerBoard = new PlayerBoard(marketBoard, faithTrack);
