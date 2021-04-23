@@ -102,11 +102,7 @@ public class WarehouseTest {
             fail();
         }
 
-        try {
-            assertEquals(wh.consume(cost), result);
-        } catch (NonConsumablePackException e) {
-            fail();
-        }
+        assertEquals(wh.consume(cost), result);
         assertEquals(wh.toString(),"{\n\t1 {VOID:0}\n\t2 {STONE:2}\n\t3 {VOID:0}\n}");
     }
 

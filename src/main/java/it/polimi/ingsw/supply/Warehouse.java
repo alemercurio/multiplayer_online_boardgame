@@ -127,20 +127,31 @@ public class Warehouse {
      * @param pack the pack of resources that are to consume if available.
      * @return the pack of resources yet to be consumed.
      */
-    public ResourcePack consume(ResourcePack pack) throws NonConsumablePackException {
+    public ResourcePack consume(ResourcePack pack) {
         int required;
         ResourcePack toConsume = pack.getCopy();
         for(int i = 0; i < this.type.length; i++) {
             required = toConsume.get(type[i]);
             if(required >= this.amount[i]) {
                 //available resources of this kind are insufficient or exactly enough.
-                toConsume.consume(this.type[i],this.amount[i]);
+                try {
+                    toConsume.consume(this.type[i], this.amount[i]);
+                } catch (NonConsumablePackException e)
+                {
+                    // TODO: this is something that cannot happen
+                    return null;
+                }
                 this.amount[i] = 0;
                 this.type[i] = Resource.VOID;
             }
             else {
                 //available resources of this kind are more than required.
-                toConsume.consume(this.type[i],required);
+                try {
+                    toConsume.consume(this.type[i], required);
+                } catch (NonConsumablePackException e) {
+                    // TODO: this is something that cannot happen
+                    return null;
+                }
                 this.amount[i] -= required;
             }
         }
