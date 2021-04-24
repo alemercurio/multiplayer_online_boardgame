@@ -3,91 +3,36 @@ package it.polimi.ingsw.supply;
 import it.polimi.ingsw.cards.StockPower;
 import org.junit.Test;
 
-import java.util.LinkedList;
-
 import static org.junit.Assert.*;
 
 public class StorageTest {
-
-    @Test
-    public void testAddStockPower() {
-        Storage storage = new Storage();
-        StockPower power1 = new StockPower(2, Resource.STONE);
-        storage.addStockPower(power1);
-
-        assertTrue(storage.getStockPower().contains(power1));
-
-        StockPower power2 = new StockPower(1, Resource.STONE);
-        StockPower power3 = new StockPower(3, Resource.SERVANT);
-        storage.addStockPower(power2);
-        storage.addStockPower(power3);
-
-        LinkedList<StockPower> listOfPowersCorrect = new LinkedList<>();
-        listOfPowersCorrect.add(power1);
-        listOfPowersCorrect.add(power2);
-        listOfPowersCorrect.add(power3);
-
-        LinkedList<StockPower> listOfPowersWrong = new LinkedList<>();
-        listOfPowersWrong.add(new StockPower(3, Resource.STONE));
-        listOfPowersWrong.add(power3);
-
-        assertEquals(listOfPowersCorrect, storage.getStockPower());
-        assertNotEquals(listOfPowersWrong, storage.getStockPower());
-    }
-
-    @Test
-    public void testGetLeaderStockLimit() {
-        Storage storage = new Storage();
-        StockPower power1 = new StockPower(2, Resource.STONE);
-        StockPower power2 = new StockPower(1, Resource.STONE);
-        StockPower power3 = new StockPower(3, Resource.SERVANT);
-        StockPower power4 = new StockPower(2, Resource.SHIELD);
-        storage.addStockPower(power1);
-        storage.addStockPower(power2);
-        storage.addStockPower(power3);
-        storage.addStockPower(power4);
-
-        ResourcePack pack = new ResourcePack(0,3,3,2);
-
-        assertEquals(pack, storage.getLeaderStockLimit());
-        assertEquals(3, storage.getLeaderStockLimit(Resource.SERVANT));
-        assertEquals(3, storage.getLeaderStockLimit(Resource.STONE));
-        assertEquals(0, storage.getLeaderStockLimit(Resource.COIN));
-    }
 
     @Test
     public void testGetAllResource() {
         Storage storage = new Storage();
         StockPower power1 = new StockPower(2, Resource.STONE);
         StockPower power2 = new StockPower(1, Resource.SHIELD);
-        storage.addStockPower(power1);
-        storage.addStockPower(power2);
+        storage.warehouse.addStockPower(power1);
+        storage.warehouse.addStockPower(power2);
 
-        ResourcePack rp1 = new ResourcePack(5,5,5,0,0);
-        ResourcePack rp2 = new ResourcePack(2,2,2,0,0);
-        ResourcePack rp3 = new ResourcePack(5);
-        ResourcePack all = rp1.getCopy().add(rp2).add(rp3);
+        ResourcePack rp1 = new ResourcePack(2,2,2,2);
+        ResourcePack rp2 = new ResourcePack(5);
 
-        storage.stockWarehouse(rp1);
-        ResourcePack remaining = storage.stockLeaderStock(rp2);
-        storage.stockStrongbox(rp3);
+        storage.warehouse.stockLeaderStock(rp1);
+        storage.warehouse.stock(0, Resource.COIN, 2);
+        storage.warehouse.stock(1, Resource.SHIELD, 1);
+        storage.warehouse.stock(2, Resource.SERVANT, 1);
+        storage.stockStrongbox(rp2);
 
-        assertNotEquals(all, storage.getAllResource());
-
-        try {
-            all.consume(rp1); //resources are pending in the warehouse, not stocked
-            all.consume(remaining);
-        } catch (NonConsumablePackException e) {
-            fail();
-        }
-        assertEquals(all, storage.getAllResource());
+        assertEquals(new ResourcePack(6,2,1,2), storage.getAllResource());
+        assertEquals(2, storage.done());
     }
 
     @Test
     public void testStockWarehouse() {
         Storage storage = new Storage();
         ResourcePack pack = new ResourcePack(1,2,3,4,5,6);
-        storage.stockWarehouse(pack);
+        storage.addToWarehouse(pack);
 
         assertEquals(10, storage.done());
     }
@@ -97,14 +42,14 @@ public class StorageTest {
         Storage storage = new Storage();
         StockPower power1 = new StockPower(2, Resource.STONE);
         StockPower power2 = new StockPower(1, Resource.SHIELD);
-        storage.addStockPower(power1);
-        storage.addStockPower(power2);
+        storage.warehouse.addStockPower(power1);
+        storage.warehouse.addStockPower(power2);
 
         ResourcePack rp = new ResourcePack(5,2,5,2,1,1);
 
-        ResourcePack remaining2 = storage.stockLeaderStock(rp);
+        storage.warehouse.stockLeaderStock(rp);
         assertEquals(new ResourcePack(0,2,0,1), storage.getAllResource());
-        assertEquals(new ResourcePack(5,0,5,1,1,1), remaining2);
+        assertEquals(11, storage.done());
     }
 
     @Test
@@ -128,13 +73,13 @@ public class StorageTest {
         Storage storage = new Storage();
         StockPower power1 = new StockPower(2, Resource.STONE);
         StockPower power2 = new StockPower(1, Resource.SHIELD);
-        storage.addStockPower(power1);
-        storage.addStockPower(power2);
+        storage.warehouse.addStockPower(power1);
+        storage.warehouse.addStockPower(power2);
 
         ResourcePack rp1 = new ResourcePack(0,2,0,1);
         ResourcePack rp2 = new ResourcePack(1,2,3,4);
 
-        storage.stockLeaderStock(rp1);
+        storage.warehouse.stockLeaderStock(rp1);
         storage.stockStrongbox(rp2);
 
         assertTrue(storage.isConsumable(new ResourcePack(1,2,3)));
@@ -145,17 +90,87 @@ public class StorageTest {
 
     @Test
     public void testAutoConsume() {
+        Storage storage = new Storage();
+        StockPower power1 = new StockPower(2, Resource.STONE);
+        StockPower power2 = new StockPower(1, Resource.SHIELD);
+        storage.warehouse.addStockPower(power1);
+        storage.warehouse.addStockPower(power2);
+
+        ResourcePack rp1 = new ResourcePack(2,2,2,2);
+        ResourcePack rp2 = new ResourcePack(5);
+
+        storage.warehouse.stockLeaderStock(rp1);
+        storage.warehouse.stock(0, Resource.COIN, 2);
+        storage.warehouse.stock(1, Resource.SHIELD, 1);
+        storage.warehouse.stock(2, Resource.SERVANT, 1);
+        storage.stockStrongbox(rp2);
+        storage.done();
+
+        try {
+            storage.autoConsume(new ResourcePack(8,9,10,2));
+        } catch (NonConsumablePackException e) {
+            assertTrue(true);
+        }
+
+        try {
+            storage.autoConsume(new ResourcePack(3,1,0,1));
+        } catch (NonConsumablePackException e) {
+            fail();
+        }
+
+        assertEquals(new ResourcePack(3,1,1,1), storage.getAllResource());
+
+        try {
+            storage.autoConsume(new ResourcePack(3,1,1,1));
+        } catch (NonConsumablePackException e) {
+            fail();
+        }
+
+        assertEquals(0, storage.getAllResource().size());
     }
 
     @Test
     public void testConsumeWarehouse() {
-    }
+        Storage storage = new Storage();
 
-    @Test
-    public void testConsumeLeaderStock() {
+        ResourcePack stored = new ResourcePack(1,2,3);
+        ResourcePack toConsume = new ResourcePack(2,3,4,5);
+
+        storage.addToWarehouse(stored);
+        storage.warehouse.stock(0, Resource.COIN, 1);
+        storage.warehouse.stock(1, Resource.STONE, 2);
+        storage.warehouse.stock(2, Resource.SERVANT, 3);
+        storage.done();
+
+        assertEquals(new ResourcePack(1,2,3), storage.getAllResource());
+        assertEquals(new ResourcePack(1,1,1,5), storage.consumeWarehouse(toConsume));
+        assertTrue(storage.getAllResource().isEmpty());
     }
 
     @Test
     public void testConsumeStrongbox() {
+        Storage storage = new Storage();
+
+        ResourcePack stored = new ResourcePack(10,20,30,40);
+        ResourcePack toConsume1 = new ResourcePack(11);
+        ResourcePack toConsume2 = new ResourcePack(10,20,0,35);
+
+        storage.stockStrongbox(stored);
+
+        assertEquals(new ResourcePack(10,20,30,40), storage.getAllResource());
+
+        try {
+            storage.consumeStrongbox(toConsume1);
+        } catch (NonConsumablePackException e) {
+            assertTrue(true);
+        }
+
+        try {
+            storage.consumeStrongbox(toConsume2);
+        } catch (NonConsumablePackException e) {
+            fail();
+        }
+
+        assertEquals(new ResourcePack(0,0,30,5), storage.getAllResource());
     }
 }

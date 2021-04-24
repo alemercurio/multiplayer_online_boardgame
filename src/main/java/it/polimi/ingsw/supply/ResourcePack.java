@@ -193,7 +193,7 @@ public class ResourcePack {
                 this.consume(resourceTypes[randomIndex], 1);
             }
             catch (NonConsumablePackException e) {
-                // TODO: this is something that cannot happen
+                // this is something that cannot happen
                 return Resource.VOID;
             }
             return resourceTypes[randomIndex];

@@ -29,7 +29,7 @@ public class PlayerBoard
         this.faithTrack = faithTrack;
 
         this.marketDiscounts = new ResourcePack();
-        this.whiteExchange = new ArrayList<Resource>();
+        this.whiteExchange = new ArrayList<>();
     }
 
     public void giveResources(ResourcePack rp)
@@ -128,7 +128,7 @@ public class PlayerBoard
     public void addLeaderStock(StockPower stock)
     {
         // StockPower objects are immutable so it is not necessary to make a copy
-        this.storage.addStockPower(stock);
+        this.storage.warehouse.addStockPower(stock);
         System.out.println("<PB> Add Leader Stock >> " + stock);
     }
 }

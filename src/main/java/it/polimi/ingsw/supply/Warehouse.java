@@ -1,10 +1,13 @@
 package it.polimi.ingsw.supply;
 
-import java.util.Arrays;
+import it.polimi.ingsw.cards.StockPower;
+
+import java.util.*;
 
 /**
- * Represents the Warehouse with three shelves, each one with limited capacity.
- * Each shelf can store up to its index + 1 resources of the same type.
+ * Represents the Warehouse with three shelves, each one with limited capacity,
+ * and the additional depots obtained by playing Leader Cards during the Game.
+ * Each Warehouse shelf can store up to its index + 1 resources of the same type.
  * Only non-special Resources can be contained; to store a resource it is necessary
  * to add it as pending first and then move it internally.
  * @see Resource
@@ -13,7 +16,111 @@ import java.util.Arrays;
 public class Warehouse {
     private final Resource[] type;
     private final int[] amount;
+    private final LeaderStock leaderStock;
     private final ResourcePack pendingResources;
+
+    /**
+     * The LeaderStock inner class represents a group of additional
+     * depots gained during the Game by playing LeaderCards.
+     */
+    static class LeaderStock {
+        List<StockPower> powers;
+        Map<Resource,Integer> maxAmount;
+        ResourcePack resources;
+
+        /**
+         * Constructs an empty LeaderStock.
+         */
+        public LeaderStock() {
+            this.powers = new LinkedList<>();
+            this.maxAmount = new HashMap<>();
+            this.resources = new ResourcePack();
+        }
+
+        /**
+         * Adds to the set of additional depots the one granted by the new StockPower.
+         * @param stock the StockPower to activate.
+         */
+        public void addStockPower(StockPower stock) {
+            //because StockPower objects are immutable, it is not necessary to make a copy
+            this.powers.add(stock);
+            //update max amount of containable resources
+            this.maxAmount.put(stock.getType(),
+                    this.maxAmount.getOrDefault(stock.getType(),0) + stock.getLimit());
+        }
+
+        /**
+         * Returns all the StockPowers currently active.
+         * @return the list of active StockPowers.
+         */
+        public List<StockPower> getStockPower() {
+            return new LinkedList<>(this.powers);
+        }
+
+        /**
+         * Returns a ResourcePack representing the collective capacity of
+         * the current LeaderStock, considering all additional depots.
+         * @return the capacity of the current LeaderStock as a ResourcePack.
+         */
+        public ResourcePack getLimit() {
+            ResourcePack limits = new ResourcePack();
+            for(Map.Entry<Resource,Integer> e : this.maxAmount.entrySet())
+                limits.add(e.getKey(),e.getValue());
+            return limits;
+        }
+
+        /**
+         * Returns a ResourcePack representing all available Resources
+         * contained in the current LeaderStock.
+         * @return the ResourcePack with all the stored Resources.
+         */
+        public ResourcePack getResources() {
+            return this.resources.getCopy();
+        }
+
+        /**
+         * Stores the maximum amount of Resources, according to limits
+         * on both type and amount, from the given pack.
+         * Exceeding Resources are collected and returned as a new ResourcePack.
+         * @param loot the pack of Resources to store.
+         */
+        public ResourcePack add(ResourcePack loot) {
+            ResourcePack toStore = loot.getCopy();
+            // TODO: un iteratore in ResourcePack può tornare utile, come un metodo contains.
+            for(Resource res : this.maxAmount.keySet()) {
+                if(toStore.get(res) != 0) {
+                    //adds all the available resources of the right type
+                    int tmp_amount = this.resources.flush(res) + toStore.flush(res);
+                    if(tmp_amount > this.maxAmount.get(res)) {
+                        //overflow is collected
+                        toStore.add(res,tmp_amount - this.maxAmount.get(res));
+                        tmp_amount = this.maxAmount.get(res);
+                    }
+                    this.resources.add(res,tmp_amount);
+                }
+            }
+            return toStore;
+        }
+
+        /**
+         * If there are enough Resources, consumes the amounts specified in the input ResourcePack;
+         * partial consuming is allowed and returns the pack of exceeding Resources.
+         * @param pack the pack of Resources to consume.
+         * @return the pack of non-consumable Resources.
+         */
+        public ResourcePack consume(ResourcePack pack) {
+            ResourcePack toConsume = pack.getCopy();
+            for(Resource res : this.maxAmount.keySet()) {
+                int required = toConsume.flush(res);
+                if(required != 0) {
+                    required = required - this.resources.flush(res);
+                    if(required < 0) this.resources.add(res, ( - required)); //non used resources are collected
+                    else if(required > 0) toConsume.add(res,required); //non satisfiable requirements are returned
+                }
+            }
+            return toConsume;
+        }
+    }
 
     /**
      * Constructs an empty warehouse.
@@ -22,8 +129,61 @@ public class Warehouse {
         this.type = new Resource[]{Resource.VOID, Resource.VOID, Resource.VOID};
         this.amount = new int[]{0,0,0};
         this.pendingResources = new ResourcePack();
+        this.leaderStock = new LeaderStock();
     }
 
+    /**
+     * Adds the additional depots granted from the given StockPower.
+     * @param stock the StockPower to activate.
+     */
+    public void addStockPower(StockPower stock) {
+        this.leaderStock.addStockPower(stock);
+    }
+
+    /**
+     * Returns a ResourcePack representing the collective capacity of
+     * the current LeaderStock, considering all additional depots.
+     * @return the capacity of the current LeaderStock as a ResourcePack.
+     */
+    public ResourcePack getLeaderStockLimit() {
+        return leaderStock.getLimit();
+    }
+
+    /**
+     * Returns the maximum amount of a given Resource that can be stored in
+     * the additional depots of the LeaderStock.
+     */
+    public int getLeaderStockLimit(Resource type) {
+        return leaderStock.getLimit().get(type);
+    }
+
+    /**
+     * Returns all the StockPowers currently active in the LeaderStock.
+     * @return the list of active StockPowers.
+     */
+    public List<StockPower> getStockPower() {
+        return new LinkedList<>(leaderStock.getStockPower());
+    }
+
+    /**
+     * Stores the maximum amount of Resources from the given pack across all the available
+     * additional Leader depots. Exceeding Resources are moved to pending.
+     * @param loot the pack of Resources to store across Leader depots.
+     */
+    public void stockLeaderStock(ResourcePack loot) {
+        ResourcePack remaining = this.leaderStock.add(loot);
+        this.add(remaining);
+    }
+
+    /**
+     * Consumes the given pack of Resources from the LeaderStock;
+     * returns the exceeding, non-consumable Resources.
+     * @param pack the ResourcePack to consume from the LeaderStock.
+     * @return the ResourcePack of non-consumable Resources.
+     */
+    public ResourcePack consumeLeaderStock(ResourcePack pack) {
+        return this.leaderStock.consume(pack);
+    }
 
     /**
      * Makes the resources contained in the given pack able to be stored in the Warehouse;
@@ -31,9 +191,20 @@ public class Warehouse {
      * @param loot the ResourcePack be to store in the warehouse.
      */
     public void add(ResourcePack loot) {
+        ResourcePack toStock = loot.getCopy();
+        toStock.flush(Resource.FAITHPOINT);
+        toStock.flush(Resource.VOID);
         this.pendingResources.add(loot);
     }
 
+    /**
+     * Returns a pack with the pending Resources to manage, which will be discarded if not
+     * stocked properly before calling the done() method.
+     * @return the ResourcePack with pending Resources.
+     */
+    public ResourcePack getPendingResources() {
+        return this.pendingResources.getCopy();
+    }
 
     /**
      * Switches the Resources contained in two different shelves.
@@ -75,7 +246,7 @@ public class Warehouse {
      * @param type the specific type of Resource to store.
      * @param num the amount of Resource to store.
      */
-    public void stock(int shelf, Resource type, int num) throws NonConsumablePackException {
+    public void stock(int shelf, Resource type, int num) {
         int tmp_amount = 0;
 
         //note: only non-special resources can be stored
@@ -97,7 +268,14 @@ public class Warehouse {
         }
 
         if(tmp_amount > num) this.pendingResources.add(type, tmp_amount - num); //exceeding resources to pending
-        else if(tmp_amount < num) this.pendingResources.consume(type,num - tmp_amount); //collect required resources
+        else if(tmp_amount < num)
+            try {
+                this.pendingResources.consume(type,num - tmp_amount); //collect required resources
+            } catch (NonConsumablePackException e) {
+                // TODO: this can happen if pending resources are not enough...
+                e.printStackTrace();
+                return;
+            }
 
         //empty the shelf if it is already occupied by another kind of resource
         if(this.type[shelf] != Resource.VOID) {
@@ -110,7 +288,7 @@ public class Warehouse {
     }
 
     /**
-     * Returns all the Resources stored in the Warehouse;
+     * Returns all the Resources stored in the Warehouse and additional depots;
      * no side-effect are produced; pending Resources are ignored.
      * @return the ResourcePack with all the Resources contained in the Warehouse.
      */
@@ -118,6 +296,7 @@ public class Warehouse {
         ResourcePack resources = new ResourcePack();
         for(int i = 0; i < this.type.length; i++)
             resources.add(this.type[i], this.amount[i]);
+        resources.add(leaderStock.getResources());
         return resources;
     }
 
@@ -138,8 +317,8 @@ public class Warehouse {
                     toConsume.consume(this.type[i], this.amount[i]);
                 } catch (NonConsumablePackException e)
                 {
-                    // TODO: this is something that cannot happen
-                    return null;
+                    //this is something that cannot happen
+                    e.printStackTrace();
                 }
                 this.amount[i] = 0;
                 this.type[i] = Resource.VOID;
@@ -149,12 +328,13 @@ public class Warehouse {
                 try {
                     toConsume.consume(this.type[i], required);
                 } catch (NonConsumablePackException e) {
-                    // TODO: this is something that cannot happen
-                    return null;
+                    //this is something that cannot happen
+                    e.printStackTrace();
                 }
                 this.amount[i] -= required;
             }
         }
+        toConsume = this.consumeLeaderStock(toConsume);
         return toConsume;
     }
 
@@ -175,7 +355,7 @@ public class Warehouse {
     }
 
     /**
-     * Discard pending Resources.
+     * Discards pending Resources.
      * @return the amount of non-special Resources discarded.
      */
     public int done() {

@@ -1,10 +1,59 @@
 package it.polimi.ingsw.supply;
 
+import it.polimi.ingsw.cards.StockPower;
 import org.junit.Test;
+
+import java.util.LinkedList;
 
 import static org.junit.Assert.*;
 
 public class WarehouseTest {
+
+    @Test
+    public void testAddStockPower() {
+        Warehouse wh = new Warehouse();
+        StockPower power1 = new StockPower(2, Resource.STONE);
+        wh.addStockPower(power1);
+
+        assertTrue(wh.getStockPower().contains(power1));
+
+        StockPower power2 = new StockPower(1, Resource.STONE);
+        StockPower power3 = new StockPower(3, Resource.SERVANT);
+        wh.addStockPower(power2);
+        wh.addStockPower(power3);
+
+        LinkedList<StockPower> listOfPowersCorrect = new LinkedList<>();
+        listOfPowersCorrect.add(power1);
+        listOfPowersCorrect.add(power2);
+        listOfPowersCorrect.add(power3);
+
+        LinkedList<StockPower> listOfPowersWrong = new LinkedList<>();
+        listOfPowersWrong.add(new StockPower(3, Resource.STONE));
+        listOfPowersWrong.add(power3);
+
+        assertEquals(listOfPowersCorrect, wh.getStockPower());
+        assertNotEquals(listOfPowersWrong, wh.getStockPower());
+    }
+
+    @Test
+    public void testGetLeaderStockLimit() {
+        Warehouse wh = new Warehouse();
+        StockPower power1 = new StockPower(2, Resource.STONE);
+        StockPower power2 = new StockPower(1, Resource.STONE);
+        StockPower power3 = new StockPower(3, Resource.SERVANT);
+        StockPower power4 = new StockPower(2, Resource.SHIELD);
+        wh.addStockPower(power1);
+        wh.addStockPower(power2);
+        wh.addStockPower(power3);
+        wh.addStockPower(power4);
+
+        ResourcePack pack = new ResourcePack(0,3,3,2);
+
+        assertEquals(pack, wh.getLeaderStockLimit());
+        assertEquals(3, wh.getLeaderStockLimit(Resource.SERVANT));
+        assertEquals(3, wh.getLeaderStockLimit(Resource.STONE));
+        assertEquals(0, wh.getLeaderStockLimit(Resource.COIN));
+    }
 
     @Test
     public void testAdd() {
@@ -21,13 +70,10 @@ public class WarehouseTest {
         Warehouse wh = new Warehouse();
 
         wh.add(rp);
-        try {
-            wh.stock(0, Resource.COIN, 1);
-            wh.stock(1, Resource.STONE, 2);
-            wh.stock(2, Resource.SERVANT, 3);
-        } catch (NonConsumablePackException e) {
-            fail();
-        }
+
+        wh.stock(0, Resource.COIN, 1);
+        wh.stock(1, Resource.STONE, 2);
+        wh.stock(2, Resource.SERVANT, 3);
 
         wh.switchShelves(0,1);
 
@@ -47,22 +93,16 @@ public class WarehouseTest {
         Warehouse wh = new Warehouse();
 
         wh.add(rp);
-        try {
-            wh.stock(0, Resource.COIN, 1);
-            wh.stock(1, Resource.STONE, 2);
-            wh.stock(2, Resource.SERVANT, 3);
-        } catch (NonConsumablePackException e) {
-            fail();
-        }
+
+        wh.stock(0, Resource.COIN, 1);
+        wh.stock(1, Resource.STONE, 2);
+        wh.stock(2, Resource.SERVANT, 3);
 
         assertEquals("{\n\t1 {COIN:1}\n\t2 {STONE:2}\n\t3 {SERVANT:3}\n}", wh.toString());
         assertEquals("{STONE:1}", wh.getPendingView());
 
-        try {
-            wh.stock(2, Resource.STONE, 4);
-        } catch (NonConsumablePackException e) {
-            fail();
-        }
+
+        wh.stock(2, Resource.STONE, 4);
 
         assertEquals("{\n\t1 {COIN:1}\n\t2 {VOID:0}\n\t3 {STONE:3}\n}", wh.toString());
         assertEquals("{SERVANT:3}", wh.getPendingView());
@@ -75,13 +115,10 @@ public class WarehouseTest {
         Warehouse wh = new Warehouse();
 
         wh.add(rp);
-        try {
-            wh.stock(0, Resource.COIN, 1);
-            wh.stock(1, Resource.STONE, 2);
-            wh.stock(2, Resource.SHIELD, 3);
-        } catch (NonConsumablePackException e) {
-            fail();
-        }
+
+        wh.stock(0, Resource.COIN, 1);
+        wh.stock(1, Resource.STONE, 2);
+        wh.stock(2, Resource.SHIELD, 3);
 
         assertEquals(wh.getResources(),result);
     }
@@ -94,13 +131,10 @@ public class WarehouseTest {
         Warehouse wh = new Warehouse();
 
         wh.add(rp);
-        try {
-            wh.stock(0, Resource.COIN, 1);
-            wh.stock(1, Resource.STONE, 2);
-            wh.stock(2, Resource.SERVANT, 3);
-        } catch (NonConsumablePackException e) {
-            fail();
-        }
+
+        wh.stock(0, Resource.COIN, 1);
+        wh.stock(1, Resource.STONE, 2);
+        wh.stock(2, Resource.SERVANT, 3);
 
         assertEquals(wh.consume(cost), result);
         assertEquals(wh.toString(),"{\n\t1 {VOID:0}\n\t2 {STONE:2}\n\t3 {VOID:0}\n}");
@@ -116,13 +150,10 @@ public class WarehouseTest {
         Warehouse wh = new Warehouse();
 
         wh.add(rp);
-        try {
-            wh.stock(0, Resource.COIN, 1);
-            wh.stock(1, Resource.STONE, 2);
-            wh.stock(2, Resource.SERVANT, 3);
-        } catch (NonConsumablePackException e) {
-            fail();
-        }
+
+        wh.stock(0, Resource.COIN, 1);
+        wh.stock(1, Resource.STONE, 2);
+        wh.stock(2, Resource.SERVANT, 3);
 
         assertTrue(wh.isConsumable(cost1));
         assertFalse(wh.isConsumable(cost2));
