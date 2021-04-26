@@ -14,19 +14,21 @@ public class SoloActionDeck {
 
     /**
      * Constructs a shuffled stack of SoloAction tokens.
-     * @param soloActions the list of all SoloActions to shuffle in the stack.
+     * @param soloActions the list of SoloActions that compose the stack.
      */
-    public SoloActionDeck(ArrayList<SoloAction> soloActions) {
-        this.tokens = soloActions;
-        this.tokensUsed = new ArrayList<>(0);
+    public SoloActionDeck(List<SoloAction> soloActions) {
+        this.tokens = new ArrayList<>(soloActions);
+        this.tokensUsed = new ArrayList<>();
         Collections.shuffle(tokens);
     }
 
     /**
      * Returns the first SoloAction in the stack.
+     * If no more SoloActions are available forces a shuffle.
      * @return the first SoloAction of the SoloActionDeck.
      */
     public SoloAction getSoloAction() {
+        if(tokens.isEmpty()) this.shuffle();
         tokensUsed.add(tokens.get(0));
         return tokens.remove(0);
     }
