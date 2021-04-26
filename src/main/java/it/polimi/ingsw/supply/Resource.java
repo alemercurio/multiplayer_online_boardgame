@@ -1,8 +1,8 @@
 package it.polimi.ingsw.supply;
 
 /**
- * Represents a resource. Resources can be either
- * special or non-special and may be treated differently according to that.
+ * Represents a type of Resource. Resources can be either special (FAITHPOINT, VOID)
+ * or non-special, and may be treated differently according to that.
  * @author Francesco Tosini
  */
 public enum Resource {
@@ -16,40 +16,35 @@ public enum Resource {
     private final boolean special;
     private final String alias;
 
-    Resource(boolean special, String abbreviation)
-    {
+    Resource(boolean special, String abbreviation) {
         this.special = special;
         this.alias = abbreviation;
     }
 
     /**
-     * Test if the current resource is special or not.
-     * @return true if the current resource is special.
+     * Tests if the current Resource is special or not.
+     * @return true if the current Resource is special.
      */
-    public boolean isSpecial()
-    {
+    public boolean isSpecial() {
         return special;
     }
 
     /**
-     * Returns a short textual alias for the current resource.
-     * @return an alias for the current resource.
+     * Returns a short textual alias (representative of the Color) for the current Resource.
+     * @return an alias for the current Resource.
      */
-    public String getAlias()
-    {
+    public String getAlias() {
         return this.alias;
     }
 
     /**
-     * Returns the resource corresponding to the given alias.
+     * Returns the Resource corresponding to the given alias.
      * If there is no match for it, VOID is returned since the type is unknown.
-     * @param alias the alternative textual representation of a resource.
-     * @return the corresponding resource to the given alias.
+     * @param alias the alternative textual representation of the Resource.
+     * @return the corresponding Resource with the given alias.
      */
-    public static Resource toResource(String alias)
-    {
-        for(Resource res : Resource.values())
-        {
+    public static Resource toResource(String alias) {
+        for(Resource res : Resource.values()) {
             if(res.alias.equals(alias)) return res;
         }
         return Resource.VOID;

@@ -7,21 +7,19 @@ import java.util.List;
 
 /**
  * The Factory class collects different productions and manages to get collective
- * requirement and products; only active productions are considered, while others are
- * temporarily ignored.
+ * requirements and products; only active (available) productions are considered,
+ * while others are temporarily ignored.
  * @author Francesco Tosini
  */
-public class Factory
-{
+public class Factory {
     private final List<ProductionEntry> productions;
 
     /**
-     * The ProductionEntry class represent a single production in a Factory.
+     * The ProductionEntry inner class represent a single production in a Factory.
      * It handles the state of the production (active/inactive).
      * @author Francesco Tosini
      */
-    private static class ProductionEntry
-    {
+    private static class ProductionEntry {
         private final Production production;
         private boolean active;
 
@@ -30,34 +28,30 @@ public class Factory
          * its state is initially set to inactive.
          * @param p the corresponding production.
          */
-        ProductionEntry(Production p)
-        {
+        ProductionEntry(Production p) {
             this.production = p;
             this.active = false;
         }
 
         /**
-         * Set the current ProductionEntry to active.
+         * Sets the current ProductionEntry to active.
          */
-        void activate()
-        {
+        void activate() {
             this.active = true;
         }
 
         /**
-         * Set the current ProductionEntry to inactive.
+         * Sets the current ProductionEntry to inactive.
          */
-        void deactivate()
-        {
+        void deactivate() {
             this.active = false;
         }
 
         /**
-         * Test if the current ProductionEntry is active.
+         * Tests if the current ProductionEntry is active.
          * @return true if active, false otherwise.
          */
-        boolean isActive()
-        {
+        boolean isActive() {
             return this.active;
         }
     }
@@ -65,31 +59,26 @@ public class Factory
     /**
      * Constructs an empty Factory.
      */
-    public Factory()
-    {
-        this.productions = new ArrayList<ProductionEntry>();
+    public Factory() {
+        this.productions = new ArrayList<>();
     }
 
     /**
-     * Add the given production and set it as inactive.
+     * Adds the given production and set it as inactive.
      * @param p the production to add.
      */
-    public void addProductionPower(Production p)
-    {
+    public void addProductionPower(Production p) {
         this.productions.add(new ProductionEntry(p));
     }
 
     /**
      * Removes the given production if present;
-     * if exists multiple instances of the same production only one is removed.
+     * if multiple instances of the same production exist, only one is removed.
      * @param p the production to remove.
      */
-    public void discardProductionPower(Production p)
-    {
-        for(ProductionEntry prod : this.productions)
-        {
-            if(prod.production.equals(p))
-            {
+    public void discardProductionPower(Production p) {
+        for(ProductionEntry prod : this.productions) {
+            if(prod.production.equals(p)) {
                 this.productions.remove(prod);
                 return;
             }
@@ -101,8 +90,7 @@ public class Factory
      * indexes without a corresponding production are ignored.
      * @param index the indexes of the productions to discard.
      */
-    public void discardProductionPower(Integer...index)
-    {
+    public void discardProductionPower(Integer...index) {
         // Indexes are sorted in descending order
         // to avoid the re-indexing of the first productions.
         Arrays.sort(index, Collections.reverseOrder());
@@ -111,58 +99,50 @@ public class Factory
     }
 
     /**
-     * Set the productions with the given indexes to active;
-     * other productions are deactivated.
+     * Sets the productions with the given indexes to active;
+     * all other productions are set to inactive.
      * Invalid indexes are ignored.
      * @param index the indexes of the productions to activate.
      */
-    public void setActiveProduction(int...index)
-    {
-        deactivateProduction();
+    public void setActiveProduction(int...index) {
+        deactivateProductions();
         for(int i : index)
             if(i >= 0 && i < this.productions.size())
                 this.productions.get(i).activate();
     }
 
     /**
-     * Set all the productions to inactive.
+     * Sets all the productions to inactive.
      */
-    public void deactivateProduction()
-    {
+    public void deactivateProductions() {
         this.productions.forEach(ProductionEntry::deactivate);
     }
 
     /**
-     * Returns the collective requirement for all the active productions;
+     * Returns the collective requirements for all the active productions;
      * inactive productions are ignored.
-     * @return the required resources from all active productions.
+     * @return the ResourcePack with the required Resources for all active productions.
      */
-    public ResourcePack productionRequirements()
-    {
-        ResourcePack requirement = new ResourcePack();
-        for (ProductionEntry prod : this.productions)
-        {
-            if (prod.isActive())
-            {
-                requirement.add(prod.production.getRequired());
+    public ResourcePack productionRequirements() {
+        ResourcePack requirements = new ResourcePack();
+        for(ProductionEntry prod : this.productions) {
+            if (prod.isActive()) {
+                requirements.add(prod.production.getRequired());
             }
         }
-        return requirement;
+        return requirements;
     }
 
     /**
-     * Calls .produce() on every active production and set it to inactive.
-     * @return the collective products of previously active productions.
+     * Calls .produce() on every active production and sets it to inactive.
+     * @return the ResourcePack with the collective products of previously active productions.
      * @see Production
      */
-    public ResourcePack productionChain()
-    {
-        ResourcePack product= new ResourcePack();
-        for (ProductionEntry prod : this.productions)
-        {
-            if (prod.isActive())
-            {
-                product.add(prod.production.getRequired());
+    public ResourcePack productionChain() {
+        ResourcePack product = new ResourcePack();
+        for (ProductionEntry prod : this.productions) {
+            if (prod.isActive()) {
+                product.add(prod.production.produce());
                 prod.deactivate();
             }
         }

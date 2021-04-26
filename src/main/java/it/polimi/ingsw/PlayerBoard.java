@@ -29,7 +29,7 @@ public class PlayerBoard
         this.faithTrack = faithTrack;
 
         this.marketDiscounts = new ResourcePack();
-        this.whiteExchange = new ArrayList<Resource>();
+        this.whiteExchange = new ArrayList<>();
     }
 
     public void giveResources(ResourcePack rp)
@@ -46,7 +46,7 @@ public class PlayerBoard
         this.leaders.addLeaders(leaders);
     }
 
-    public void activateProduction()
+    public void activateProduction() throws NonConsumablePackException
     {
         ResourcePack required = this.factory.productionRequirements();
         ResourcePack available = this.storage.getAllResource();
@@ -59,7 +59,8 @@ public class PlayerBoard
         // TODO: potrebbe sollevare un'eccezione qualora non fosse possibile
     }
 
-    public void buyDevelopmentCard(int level, Color color, int position) throws NoSuchDevelopmentCardException, NonPositionableCardException
+    public void buyDevelopmentCard(int level, Color color, int position)
+            throws NoSuchDevelopmentCardException, NonPositionableCardException, NonConsumablePackException
     {
         DevelopmentCard top = this.devCards.getDevCard(position);
         int currentLevel = (top == null) ? 0 : top.getLevel();
@@ -127,7 +128,7 @@ public class PlayerBoard
     public void addLeaderStock(StockPower stock)
     {
         // StockPower objects are immutable so it is not necessary to make a copy
-        this.storage.addStockPower(stock);
+        this.storage.warehouse.addStockPower(stock);
         System.out.println("<PB> Add Leader Stock >> " + stock);
     }
 }
