@@ -1,7 +1,6 @@
 package it.polimi.ingsw.cards;
 
 import it.polimi.ingsw.PlayerBoard;
-import it.polimi.ingsw.faith.FaithTrack;
 import it.polimi.ingsw.supply.MarketBoard;
 import it.polimi.ingsw.supply.Production;
 import it.polimi.ingsw.supply.Resource;
@@ -69,8 +68,7 @@ public class LeaderStackTest {
     @Test
     public void testActivate() {
         MarketBoard marketBoard = new MarketBoard();
-        FaithTrack faithTrack = new FaithTrack (null, null, 1,null);
-        PlayerBoard playerBoard = new PlayerBoard(marketBoard, faithTrack);
+        PlayerBoard playerBoard = new PlayerBoard(marketBoard, null);
 
 
         LeaderStack stack = new LeaderStack();
@@ -204,8 +202,7 @@ public class LeaderStackTest {
     public void testGetActiveLeader() {
 
         MarketBoard marketBoard = new MarketBoard();
-        FaithTrack faithTrack = new FaithTrack (null, null, 1,null);
-        PlayerBoard playerBoard = new PlayerBoard(marketBoard, faithTrack);
+        PlayerBoard playerBoard = new PlayerBoard(marketBoard, null);
 
         LeaderStack stack = new LeaderStack();
 
@@ -263,8 +260,7 @@ public class LeaderStackTest {
     @Test
     public void testGetActiveLeaderOverload() {
         MarketBoard marketBoard = new MarketBoard();
-        FaithTrack faithTrack = new FaithTrack (null, null, 1,null);
-        PlayerBoard playerBoard = new PlayerBoard(marketBoard, faithTrack);
+        PlayerBoard playerBoard = new PlayerBoard(marketBoard, null);
 
         LeaderStack stack = new LeaderStack();
 
@@ -420,8 +416,7 @@ public class LeaderStackTest {
     @Test
     public void testGetPoints() {
         MarketBoard marketBoard = new MarketBoard();
-        FaithTrack faithTrack = new FaithTrack (null, null, 1,null);
-        PlayerBoard playerBoard = new PlayerBoard(marketBoard, faithTrack);
+        PlayerBoard playerBoard = new PlayerBoard(marketBoard, null);
 
         LeaderStack stack = new LeaderStack();
         assertEquals(stack.getPoints(),0);
