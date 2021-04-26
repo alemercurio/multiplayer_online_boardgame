@@ -5,7 +5,7 @@ import it.polimi.ingsw.faith.FaithTrack;
 import it.polimi.ingsw.supply.MarketBoard;
 
 /**
- * Singleton for the unique instance of Lorenzo il Magnifico, when playing a game in solo mode.
+ * Represents LorenzoIlMagnifico, the opponent player when playing a game in solo mode.
  * @author Patrick Niantcho
  */
 public class LorenzoIlMagnifico {
@@ -14,7 +14,7 @@ public class LorenzoIlMagnifico {
     private final SoloActionDeck deck;
 
     /**
-     * Constructs the Singleton instance.
+     * Constructs the single player opponent LorenzoIlMagnifico.
      * @param faithTrack the FaithTrack of LorenzoIlMagnifico.
      * @param market the reference to the MarketBoard.
      * @param deck the full stack of SoloAction tokens available for LorenzoIlMagnifico.
@@ -37,16 +37,19 @@ public class LorenzoIlMagnifico {
     }
 
     /**
-     * Calls the discarding of DevelopmentCards over the MarketBoard instance, which contains the full grid.
+     * Calls the discarding of DevelopmentCards over the MarketBoard instance,
+     * which contains the full grid.
      * @param color the color of the Cards.
      * @param amount the number of Cards of the specified color to discard.
      */
     public void discard (Color color, int amount){
+        // TODO: REFACTOR
         market.discard(color, amount);
     }
 
     /**
-     * Calls the method to make the Faith Marker of LorenzoIlMagnifico (the Black Cross) advance.
+     * Makes the Faith Marker of LorenzoIlMagnifico (the Black Cross)
+     * advance of the specified number of steps.
      * @param step the number of spaces the Black Cross must advance in the FaithTrack.
      */
     public void advance(int step){
