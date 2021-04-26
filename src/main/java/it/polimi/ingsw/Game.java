@@ -28,4 +28,9 @@ public class Game
             return true;
         }
     }
+
+    public void endGame()
+    {
+        this.finalRound = true;
+    }
 }
