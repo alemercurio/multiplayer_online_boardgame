@@ -22,7 +22,7 @@ public class FaithTrackTest {
     @Test
     public void wastedResourcesTest() throws InterruptedException {
         our.wastedResources(1);
-        Thread.sleep(1);
+        Thread.sleep(100);
         assertEquals(our.getFaithMarker(),0);
         assertEquals(other.getFaithMarker(),1);
         assertEquals(another.getFaithMarker(),1);
@@ -33,7 +33,7 @@ public class FaithTrackTest {
        our.advance(5);
        other.advance(8);
 
-       Thread.sleep(1);
+       Thread.sleep(100);
 
        assertEquals(our.countFavors(),2);
        assertEquals(other.countFavors(),2);
@@ -44,7 +44,7 @@ public class FaithTrackTest {
     public void countPointsTest() throws InterruptedException {
         our.advance(30);
 
-        Thread.sleep(10);
+        Thread.sleep(100);
 
         assertEquals(our.getTotalPoints(),79);
         assertEquals(other.getTotalPoints(),0);
