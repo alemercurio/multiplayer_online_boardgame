@@ -12,7 +12,7 @@ public class FaithTrackTest {
 
     @Before
     public void setUpFaithTracks() {
-        vatican = new Vatican(new Game(false),filePath);
+        vatican = new Vatican(new Game(3),filePath);
         vatican.start();
         our = vatican.getFaithTrack();
         other = vatican.getFaithTrack();

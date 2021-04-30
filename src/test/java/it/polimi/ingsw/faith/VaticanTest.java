@@ -14,7 +14,7 @@ public class VaticanTest {
         boolean endSet = false;
 
         public GameStub() {
-            super(false);
+            super(2);
         }
 
         @Override
@@ -28,8 +28,7 @@ public class VaticanTest {
     private final GameStub game = new GameStub();
 
     @Before
-    public void setUp()
-    {
+    public void setUp() {
         vatican = new Vatican(game,vaticanData);
         vatican.start();
         game.endSet = false;

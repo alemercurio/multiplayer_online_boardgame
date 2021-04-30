@@ -99,6 +99,7 @@ public class Storage {
             //consume resources from the strongbox
             this.consumeStrongbox(leftToConsume);
         }
+        else throw new NonConsumablePackException();
     }
 
     /**

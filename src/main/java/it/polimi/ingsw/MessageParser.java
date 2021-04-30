@@ -51,7 +51,8 @@ public class MessageParser
      */
     public int getNumberOfParameters()
     {
-        return this.parameters.length;
+        if(this.parameters == null) return 0;
+        else return this.parameters.length;
     }
 
     /**

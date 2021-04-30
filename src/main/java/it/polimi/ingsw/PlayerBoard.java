@@ -56,7 +56,7 @@ public class PlayerBoard
             this.storage.autoConsume(required);
             this.storage.stockStrongbox(this.factory.productionChain());
         }
-        // TODO: potrebbe sollevare un'eccezione qualora non fosse possibile
+        else throw new NonConsumablePackException();
     }
 
     public void buyDevelopmentCard(int level, Color color, int position)
@@ -109,26 +109,22 @@ public class PlayerBoard
     public void addDiscount(ResourcePack rp)
     {
         this.marketDiscounts.add(rp);
-        System.out.println("<PB> Add discount >> " + rp);
     }
 
     public void addProduction(Production p)
     {
         // Production objects are immutable so it is not necessary to make a copy
         this.factory.addProductionPower(p);
-        System.out.println("<PB> Add Production >> " + p);
     }
 
     public void addWhite(Resource res)
     {
         this.whiteExchange.add(res);
-        System.out.println("<PB> Add Resource >> " + res);
     }
 
     public void addLeaderStock(StockPower stock)
     {
         // StockPower objects are immutable so it is not necessary to make a copy
         this.storage.warehouse.addStockPower(stock);
-        System.out.println("<PB> Add Leader Stock >> " + stock);
     }
 }
