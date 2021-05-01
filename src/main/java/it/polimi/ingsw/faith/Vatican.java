@@ -4,33 +4,20 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import it.polimi.ingsw.Game;
-import it.polimi.ingsw.MessageParser;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 /**
  * Class to represent the game feature of the Vatican, meaning the set of Faith Tracks,
  * Report Sections, Pope Spaces, Pope's Favours.
  * It is shared by all the Players in a game.
- * Vatican can execute the following commands:
- * <pre>
- * <ul>
- *  <li>wasted(IDFaithTrack,numberOfWastedResources</li>
- *  <li>pope(index)</li>
- *  <li>restart</li>
- *  <li>stop</li>
- *  <li>endGame</li>
- * </ul>
- * </pre>
  * @author Patrick Niantcho
  */
-public class Vatican extends Thread{
+public class Vatican {
 
     /**
      * Represents a single space in the FaithTrack.
@@ -148,8 +135,6 @@ public class Vatican extends Thread{
     private final PopeSpace[] popeSpaces;
     private transient final List<FaithTrack> faithTracks;
 
-    private final Queue<String> notification;
-
     /**
      * Constructs the Vatican with all of its attributes.
      * @param game the Game that the Vatican is associated with.
@@ -159,7 +144,6 @@ public class Vatican extends Thread{
     {
         this.game = game;
         this.faithTracks = new ArrayList<FaithTrack>();
-        this.notification = new LinkedList<String>();
 
         File file = new File(filePath);
         PopeSpace[] gotPopeSpaces;
@@ -222,69 +206,11 @@ public class Vatican extends Thread{
         }
     }
 
-    // Runtime of Vatican management
-
     /**
-     * Enqueues the given instruction for execution in the current Vatican.
-     * @param str the String representing the instruction to execute.
+     * Signals to the corresponding Game that a FaithTrack has reached its end.
      */
-    public synchronized void report(String str)
+    public void endGame()
     {
-        this.notification.add(str);
-        notifyAll();
-    }
-
-    /**
-     * Dequeues an instruction from the current Vatican.
-     * @return the String representing the instruction to execute.
-     */
-    private synchronized String getReport()
-    {
-        while(this.notification.isEmpty())
-        {
-            try {
-                wait();
-            } catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
-        }
-        return this.notification.poll();
-    }
-
-    @Override
-    public void run()
-    {
-        MessageParser cmd = new MessageParser();
-        while(!cmd.getOrder().equals("stop"))
-        {
-            cmd.parse(this.getReport());
-            switch(cmd.getOrder())
-            {
-                case "wasted":
-                    if(cmd.getNumberOfParameters() == 2)
-                    {
-                        this.wastedResources(cmd.getIntParameter(0),cmd.getIntParameter(1));
-                    }
-                    break;
-
-                case "pope":
-                    if(cmd.getNumberOfParameters() == 1)
-                    {
-                        this.vaticanReport(cmd.getIntParameter(0));
-                    }
-                    break;
-
-                case "restart":
-                    this.faithTracks.clear();
-                    for(PopeSpace ps : this.popeSpaces) ps.toReport = true;
-                    this.notification.clear();
-                    break;
-
-                case "endGame":
-                    this.game.endGame();
-                    break;
-            }
-        }
+        this.game.endGame();
     }
 }

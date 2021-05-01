@@ -63,13 +63,13 @@ public class FaithTrack {
         if(space.needReport())
         {
             // Activates the Vatican report.
-            this.vatican.report("pope(" + space.popeSpace() + ")");
+            this.vatican.vaticanReport(space.popeSpace());
         }
 
         if(!end && this.faithMarker == this.track.size() - 1)
         {
             // Signals to Vatican that the current FaithTrack has reached the end.
-            this.vatican.report("endGame");
+            this.vatican.endGame();
             this.end = true;
         }
     }
@@ -89,9 +89,8 @@ public class FaithTrack {
      * has wasted the specified amount of resources.
      * @param amount the amount of wasted resources.
      */
-    public void wastedResources(int amount)
-    {
-        this.vatican.report("wasted(" + this.faithTrackID + "," + amount + ")");
+    public void wastedResources(int amount) {
+        this.vatican.wastedResources(this.faithTrackID,amount);
     }
 
     /**
