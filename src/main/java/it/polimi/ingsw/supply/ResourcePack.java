@@ -1,5 +1,7 @@
 package it.polimi.ingsw.supply;
 
+import com.google.gson.Gson;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -232,16 +234,12 @@ public class ResourcePack {
 
     @Override
     public String toString() {
-        StringBuilder res;
-        boolean first = true;
+        Gson parser = new Gson();
+        return parser.toJson(this);
+    }
 
-        res = new StringBuilder("{");
-        for(Map.Entry<Resource,Integer> e : this.resources.entrySet()) {
-            if(!first)  res.append(", ");
-            else first = false;
-            res.append(e.getKey()).append(":").append(e.getValue());
-        }
-        res.append("}");
-        return res.toString();
+    public static ResourcePack fromString(String resourcePack) {
+        Gson parser = new Gson();
+        return parser.fromJson(resourcePack,ResourcePack.class);
     }
 }

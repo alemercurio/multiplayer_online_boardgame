@@ -160,4 +160,14 @@ public class ResourcePackTest {
 
         assertNotEquals(rp, clone);
     }
+
+    @Test
+    public void testSerialization() {
+        ResourcePack rp = new ResourcePack(1,2,3,4);
+
+        String serialized = rp.toString();
+        ResourcePack gotBack = ResourcePack.fromString(serialized);
+
+        assertEquals(rp,gotBack);
+    }
 }
