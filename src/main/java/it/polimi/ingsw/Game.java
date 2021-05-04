@@ -1,6 +1,9 @@
 package it.polimi.ingsw;
 
 import it.polimi.ingsw.faith.Vatican;
+import it.polimi.ingsw.solo.LorenzoIlMagnifico;
+import it.polimi.ingsw.solo.SoloAction;
+import it.polimi.ingsw.solo.SoloActionDeck;
 import it.polimi.ingsw.supply.MarketBoard;
 
 import java.util.*;
@@ -13,6 +16,7 @@ public class Game
     private final Map<Integer,String> nameTable;
     private final Queue<Player> round;
     private Player playerWithInkwell;
+    private LorenzoIlMagnifico lorenzo;
 
     private boolean endGame;
     private final Vatican vatican;
@@ -21,11 +25,11 @@ public class Game
 
     public Game(int numPlayer)
     {
-        this.endGame = false;
         this.numPlayer = numPlayer;
         this.nameTable = new HashMap<Integer,String>();
         this.round = new LinkedList<Player>();
 
+        this.endGame = false;
         this.vatican = new Vatican(this,"src/main/resources/JSON/Vatican.json");
         this.market = new MarketBoard();
     }
@@ -56,14 +60,14 @@ public class Game
 
     public synchronized static Game newGame(Player creator, String nickname, int numPlayer)
     {
-        // TODO: gestire partita singola
         Game game = new Game(creator, nickname, numPlayer);
         if(numPlayer > 1)
         {
             Game.newGames.add(game);
-
-            //TODO: remove
-            System.out.println(">> New game with " + numPlayer + " players");
+        }
+        else
+        {
+            game.setSinglePlayer();
         }
         return game;
     }
@@ -176,8 +180,28 @@ public class Game
         }
     }
 
+    // SinglePlayer
+
+    public boolean isSinglePlayer()
+    {
+        return (this.numPlayer <= 1);
+    }
+
+    public void setSinglePlayer()
+    {
+        SoloActionDeck soloDeck = new SoloActionDeck(SoloAction.getSoloActionDeck("src/main/resources/JSON/SoloAction.json"));
+        this.lorenzo = new LorenzoIlMagnifico(this.vatican.getFaithTrack(),this.market,soloDeck);
+    }
+
+    public void playSolo()
+    {
+        SoloAction action = this.lorenzo.playSoloAction();
+        this.broadCast(action.toString());
+    }
+
     public synchronized void endGame()
     {
         this.endGame = true;
+        if(this.isSinglePlayer()) this.playerWithInkwell.setHasEnded();
     }
 }
