@@ -18,6 +18,12 @@ public class Client
         this.messageOut = new PrintWriter(this.socket.getOutputStream());
     }
 
+    public void send(String message)
+    {
+        this.messageOut.println(message);
+        this.messageOut.flush();
+    }
+
     public void close() throws IOException
     {
         this.messageOut.close();
@@ -45,11 +51,16 @@ public class Client
         {
             System.out.print(">> ");
             msg = input.nextLine();
-            client.messageOut.println(msg);
-            client.messageOut.flush();
 
-            String answer = client.messageIn.nextLine();
-            System.out.println(answer);
+            switch(msg)
+            {
+                case "new":
+                    client.newGame();
+                    break;
+                case "join":
+                    client.joinGame();
+                    break;
+            }
         }
 
         try {
@@ -57,5 +68,104 @@ public class Client
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void newGame()
+    {
+        String answer;
+        Scanner input = new Scanner(System.in);
+
+        this.send("NewGame");
+        if(!this.messageIn.nextLine().equals("OK"))
+        {
+            System.out.println(">> Something went wrong...");
+            return;
+        }
+
+        System.out.print("\tChoose a nickname! << ");
+        this.send("setNickname(" + input.nextLine() + ")");
+        if(!this.messageIn.nextLine().equals("OK"))
+        {
+            System.out.println(">> Something went wrong...");
+            return;
+        }
+
+        System.out.print("\tHow many players? << ");
+        this.send("setNumPlayer(" + input.nextInt() + ")");
+
+        answer = this.messageIn.nextLine();
+        while(answer.equals("invalidNumPlayer"))
+        {
+            System.out.print("\tChoose another number of player << ");
+            this.send("setNumPlayer(" + input.nextInt() + ")");
+        }
+
+        if(!answer.equals("WAIT")) System.out.println("Something went wrong... >> " + answer);
+
+        this.playGame();
+    }
+
+    public void joinGame()
+    {
+        String answer;
+        Scanner input = new Scanner(System.in);
+
+        this.send("JoinGame");
+
+        if(!this.messageIn.nextLine().equals("OK"))
+        {
+            System.out.println(">> No game available!");
+            return;
+        }
+
+        System.out.print("\tChoose a nickname! << ");
+        this.send("setNickname(" + input.nextLine() + ")");
+        while(!this.messageIn.nextLine().equals("WAIT"))
+        {
+            System.out.print("\tChoose another nickname! << ");
+            this.send("setNickname(" + input.nextLine() + ")");
+        }
+
+        this.playGame();
+    }
+
+    public void playGame()
+    {
+        String answer;
+        Scanner input = new Scanner(System.in);
+
+        do { answer = this.messageIn.nextLine(); } while(!answer.equals("GameStart"));
+
+        boolean active = true;
+        while(active)
+        {
+            do {
+                answer = this.messageIn.nextLine();
+                if(answer.equals("GameEnd")) active = false;
+                else if(!answer.equals("PLAY")) System.out.println(">> " + answer);
+
+            } while(!answer.equals("PLAY") && active);
+
+            if(answer.equals("PLAY"))
+            {
+                String cmd;
+                System.out.print("playing >> ");
+                cmd = input.nextLine();
+
+                switch(cmd)
+                {
+                    case "buyDevCard":
+                        this.send("buyDevCard");
+                        break;
+                    case "getResources":
+                        this.send("getResources");
+                        break;
+                }
+
+                System.out.println(">> " + this.messageIn.nextLine());
+            }
+        }
+
+        System.out.println(">> Game has ended...");
     }
 }

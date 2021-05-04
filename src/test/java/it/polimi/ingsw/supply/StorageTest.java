@@ -32,7 +32,7 @@ public class StorageTest {
     public void testStockWarehouse() {
         Storage storage = new Storage();
         ResourcePack pack = new ResourcePack(1,2,3,4,5,6);
-        storage.addToWarehouse(pack);
+        storage.warehouse.add(pack);
 
         assertEquals(10, storage.done());
     }
@@ -136,14 +136,14 @@ public class StorageTest {
         ResourcePack stored = new ResourcePack(1,2,3);
         ResourcePack toConsume = new ResourcePack(2,3,4,5);
 
-        storage.addToWarehouse(stored);
+        storage.warehouse.add(stored);
         storage.warehouse.stock(0, Resource.COIN, 1);
         storage.warehouse.stock(1, Resource.STONE, 2);
         storage.warehouse.stock(2, Resource.SERVANT, 3);
         storage.done();
 
         assertEquals(new ResourcePack(1,2,3), storage.getAllResource());
-        assertEquals(new ResourcePack(1,1,1,5), storage.consumeWarehouse(toConsume));
+        assertEquals(new ResourcePack(1,1,1,5), storage.warehouse.consume(toConsume));
         assertTrue(storage.getAllResource().isEmpty());
     }
 
@@ -160,13 +160,13 @@ public class StorageTest {
         assertEquals(new ResourcePack(10,20,30,40), storage.getAllResource());
 
         try {
-            storage.consumeStrongbox(toConsume1);
+            storage.strongbox.consume(toConsume1);
         } catch (NonConsumablePackException e) {
             assertTrue(true);
         }
 
         try {
-            storage.consumeStrongbox(toConsume2);
+            storage.strongbox.consume(toConsume2);
         } catch (NonConsumablePackException e) {
             fail();
         }

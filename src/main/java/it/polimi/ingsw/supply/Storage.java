@@ -18,34 +18,6 @@ public class Storage {
     }
 
     /**
-     * Returns the pack of all the Resources stored across LeaderStock, Warehouse and Strongbox.
-     * @return the ResourcePack of all stored Resources.
-     */
-    public ResourcePack getAllResource() {
-        ResourcePack resources = this.strongbox.getCopy();
-        resources.add(this.warehouse.getResources());
-        return resources;
-    }
-
-    /**
-     * Adds the given ResourcePack as pending Resources in the Warehouse.
-     * @param loot the ResourcePack to store in the Warehouse.
-     */
-    public void addToWarehouse(ResourcePack loot) {
-        this.warehouse.add(loot);
-    }
-
-    /**
-     * Consumes the given pack of Resources from the Warehouse;
-     * returns the exceeding, non-consumable Resources.
-     * @param pack the ResourcePack to consume from the Warehouse.
-     * @return the ResourcePack of non-consumable Resources.
-     */
-    public ResourcePack consumeWarehouse(ResourcePack pack) {
-        return this.warehouse.consume(pack);
-    }
-
-    /**
      * Stores the given pack of Resources in the Strongbox.
      * @param pack the ResourcePack to store in the Strongbox.
      */
@@ -57,26 +29,29 @@ public class Storage {
     }
 
     /**
-     * Consumes the given pack of resources from the Storage's Strongbox;
-     * If the pack exceed the available Resources, an exception is raised.
-     * @param pack the ResourcePack to consume from the Strongbox.
+     * Returns the pack of all the Resources stored across LeaderStock, Warehouse and Strongbox.
+     * @return the ResourcePack of all stored Resources.
      */
-    public void consumeStrongbox(ResourcePack pack) throws NonConsumablePackException {
-        this.strongbox.consume(pack);
+    public ResourcePack getAllResource() {
+        ResourcePack resources = this.strongbox.getCopy();
+        resources.add(this.warehouse.getResources());
+        return resources;
     }
 
     /**
      * Tests if the given pack of Resources is consumable from the Storage,
      * across all the different kinds of depots.
      * The special resource VOID, if contained in the input, is treated as a generic Resource.
+     * The special resource FAITHPOINT is ignored.
      * @param pack the ResourcePack representing the requirement to test.
      * @return true if the given pack is consumable from the Storage, false otherwise.
      */
     public boolean isConsumable(ResourcePack pack) {
-        // TODO: potrebbe essere utile un refactor (uso di VOID)
         ResourcePack available = this.getAllResource();
         ResourcePack toTest = pack.getCopy();
+
         int voidResources = toTest.flush(Resource.VOID);
+        toTest.flush(Resource.FAITHPOINT);
 
         if(voidResources != 0)
             return available.isConsumable(toTest) && ((available.size() - toTest.size()) >= voidResources);
@@ -90,16 +65,23 @@ public class Storage {
      * @param pack the ResourcePack to consume from the Storage.
      */
     public void autoConsume(ResourcePack pack) throws NonConsumablePackException {
-        if(this.getAllResource().isConsumable(pack)) {
+        ResourcePack available = this.getAllResource();
+
+        if(available.isConsumable(pack)) {
             ResourcePack leftToConsume = pack.getCopy();
 
             //consume resources from the warehouse
-            leftToConsume = this.consumeWarehouse(leftToConsume);
+            leftToConsume = this.warehouse.consume(leftToConsume);
 
             //consume resources from the strongbox
-            this.consumeStrongbox(leftToConsume);
+            this.strongbox.consume(leftToConsume);
         }
-        else throw new NonConsumablePackException();
+        else throw new NonConsumablePackException(pack,available);
+    }
+
+    public void consume(ResourcePack fromWarehouse,ResourcePack fromStrongbox)
+    {
+
     }
 
     /**
@@ -107,7 +89,6 @@ public class Storage {
      * @return the amount of Resources discarded.
      */
     public int done() {
-        // TODO: ragionare sulle pending resources dal punto di vista della PlayerBoard
         return this.warehouse.done();
     }
 }

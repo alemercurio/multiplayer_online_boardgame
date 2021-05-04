@@ -118,7 +118,7 @@ public class ResourcePack {
                 else this.resources.put(e.getKey(),remaining);
             }
         }
-        else throw new NonConsumablePackException();
+        else throw new NonConsumablePackException(pack,this);
     }
 
     /**
