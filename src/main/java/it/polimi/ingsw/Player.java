@@ -36,8 +36,6 @@ public class Player implements Runnable
         this.playerBoard = new PlayerBoard(market,faithTrack);
     }
 
-    // getPoints, endGame, setWinner
-
     @Override
     public void run()
     {
@@ -45,7 +43,7 @@ public class Player implements Runnable
         this.send("welcome");
 
         do {
-            msg = messageIn.nextLine();
+            msg = receive();
             switch(msg)
             {
                 case "JoinGame":
@@ -69,9 +67,13 @@ public class Player implements Runnable
 
     public void send(String message)
     {
-        System.out.println(">> sent: " + message);
         this.messageOut.println(message);
         this.messageOut.flush();
+    }
+
+    public String receive()
+    {
+        return this.messageIn.nextLine();
     }
 
     private void newGame()
@@ -83,24 +85,24 @@ public class Player implements Runnable
         this.send("OK");
 
         // Set Player Name
-        msg = this.messageIn.nextLine();
+        msg = this.receive();
         mp.parse(msg);
         while(!mp.getOrder().equals("setNickname") || mp.getNumberOfParameters() != 1)
         {
             this.send("InvalidOption");
-            msg = this.messageIn.nextLine();
+            msg = this.receive();
             mp.parse(msg);
         }
         nickname = mp.getStringParameter(0);
         this.send("OK");
 
         // Set Number of Player
-        msg = this.messageIn.nextLine();
+        msg = this.receive();
         mp.parse(msg);
         while(!mp.getOrder().equals("setNumPlayer") || mp.getNumberOfParameters() != 1)
         {
             this.send("InvalidNumPlayer");
-            msg = this.messageIn.nextLine();
+            msg = this.receive();
             mp.parse(msg);
         }
 
@@ -120,12 +122,12 @@ public class Player implements Runnable
             this.game = Game.join(this);
             this.send("OK");
 
-            msg = this.messageIn.nextLine();
+            msg = this.receive();
             mp.parse(msg);
             while(!mp.getOrder().equals("setNickname") || mp.getNumberOfParameters() != 1 || !this.game.nameAvailable(mp.getStringParameter(0)))
             {
                 this.send("InvalidNickname");
-                msg = this.messageIn.nextLine();
+                msg = this.receive();
                 mp.parse(msg);
             }
             this.game.setNickname(this, mp.getStringParameter(0));
@@ -193,7 +195,7 @@ public class Player implements Runnable
     {
         String cmd;
         this.send("PLAY");
-        cmd = this.messageIn.nextLine();
+        cmd = this.receive();
 
         switch(cmd)
         {

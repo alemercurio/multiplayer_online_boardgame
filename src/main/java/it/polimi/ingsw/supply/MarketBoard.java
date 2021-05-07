@@ -163,6 +163,8 @@ public class MarketBoard {
          * @throws NoSuchDevelopmentCardException if the specified deck is empty.
          */
         public DevelopmentCard getDevelopmentCard(int level, Color color) throws NoSuchDevelopmentCardException {
+            if(!this.decksMap.containsKey(color) || level < 1 || level > 3)
+                throw new NoSuchDevelopmentCardException();
             LinkedList<DevelopmentCard> stack = this.decksMap.get(color).get(level - 1);
             if(stack.isEmpty()) throw new NoSuchDevelopmentCardException();
             else return stack.getFirst();
@@ -178,6 +180,8 @@ public class MarketBoard {
          * @throws NoSuchDevelopmentCardException if the specified deck is empty.
          */
         public DevelopmentCard buyDevelopmentCard(int level, Color color) throws NoSuchDevelopmentCardException {
+            if(!this.decksMap.containsKey(color) || level < 1 || level > 3)
+                throw new NoSuchDevelopmentCardException();
             LinkedList<DevelopmentCard> stack = this.decksMap.get(color).get(level - 1);
             if(stack.isEmpty()) throw new NoSuchDevelopmentCardException();
             else return stack.pollFirst();

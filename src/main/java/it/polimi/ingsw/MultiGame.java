@@ -94,7 +94,6 @@ public class MultiGame extends Game
     public void start()
     {
         // Ensures that every player has set its nickname
-
         synchronized(this.nameTable)
         {
             while(this.nameTable.size() != this.numPlayer)
