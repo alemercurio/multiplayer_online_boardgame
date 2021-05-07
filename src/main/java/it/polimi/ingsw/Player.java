@@ -69,6 +69,7 @@ public class Player implements Runnable
 
     public void send(String message)
     {
+        System.out.println(">> sent: " + message);
         this.messageOut.println(message);
         this.messageOut.flush();
     }
@@ -106,8 +107,7 @@ public class Player implements Runnable
         this.game = Game.newGame(this,nickname,mp.getIntParameter(0));
         this.send("WAIT");
 
-        if(!this.game.isSinglePlayer()) this.game.mayStart();
-        else this.send("GameStart");
+        this.game.start();
     }
 
     private boolean joinGame()
@@ -128,7 +128,7 @@ public class Player implements Runnable
                 msg = this.messageIn.nextLine();
                 mp.parse(msg);
             }
-            this.game.setNickname(this.ID, mp.getStringParameter(0));
+            this.game.setNickname(this, mp.getStringParameter(0));
             this.send("WAIT");
 
             return true;
@@ -184,7 +184,7 @@ public class Player implements Runnable
         while(!this.hasEnded)
         {
             this.playRound();
-            if(!this.hasEnded) this.game.playSolo();
+            if(!this.hasEnded) this.game.nextPlayer(this);
         }
         this.send("GameEnd");
     }
@@ -198,15 +198,15 @@ public class Player implements Runnable
         switch(cmd)
         {
             case "buyDevCard":
-                System.out.println(">> " + this.game.getNickname(this.ID) + " wants to buy a DevCard");
+                System.out.println(">> " + this.game.getNickname(this) + " wants to buy a DevCard");
                 if(!this.game.isSinglePlayer())
-                    this.game.broadCast(this.game.getNickname(this.ID) + " bought a DevCard...");
+                    this.game.broadCast(this.game.getNickname(this) + " bought a DevCard...");
                 this.send("OK");
                 break;
             case "getResources":
-                System.out.println(">> " + this.game.getNickname(this.ID) + " wants resources");
+                System.out.println(">> " + this.game.getNickname(this) + " wants resources");
                 if(!this.game.isSinglePlayer())
-                    this.game.broadCast(this.game.getNickname(this.ID) + " has gathered resources...");
+                    this.game.broadCast(this.game.getNickname(this) + " has gathered resources...");
                 this.game.endGame();
                 this.send("OK");
                 break;

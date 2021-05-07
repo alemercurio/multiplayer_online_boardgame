@@ -3,6 +3,8 @@ package it.polimi.ingsw;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Client
@@ -23,6 +25,24 @@ public class Client
         this.messageOut.println(message);
         this.messageOut.flush();
     }
+
+    /*private final List<String> answer = new LinkedList<String>();
+    public synchronized void report(String message)
+    {
+        this.answer.add(message);
+    }
+    public synchronized String getAnswer()
+    {
+        try {
+            while(this.answer.isEmpty()) wait();
+            return this.answer.remove(0);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+    }*/
 
     public void close() throws IOException
     {

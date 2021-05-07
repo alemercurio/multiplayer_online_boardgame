@@ -1,6 +1,7 @@
 package it.polimi.ingsw.faith;
 
 import it.polimi.ingsw.Game;
+import it.polimi.ingsw.Player;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -12,7 +13,39 @@ public class VaticanTest {
         boolean endSet = false;
 
         public GameStub() {
-            super(2);
+            super();
+        }
+
+        @Override
+        public boolean isSinglePlayer() {
+            return false;
+        }
+
+        @Override
+        public void broadCast(String message) {
+        }
+
+        @Override
+        public boolean nameAvailable(String name) {
+            return false;
+        }
+
+        @Override
+        public boolean setNickname(Player player, String name) {
+            return false;
+        }
+
+        @Override
+        public String getNickname(Player player) {
+            return null;
+        }
+
+        @Override
+        public void start() {
+        }
+
+        @Override
+        public void nextPlayer(Player player) {
         }
 
         @Override

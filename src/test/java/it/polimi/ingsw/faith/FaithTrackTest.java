@@ -1,6 +1,6 @@
 package it.polimi.ingsw.faith;
 
-import it.polimi.ingsw.Game;
+import it.polimi.ingsw.MultiGame;
 import org.junit.*;
 
 import static org.junit.Assert.*;
@@ -12,7 +12,7 @@ public class FaithTrackTest {
 
     @Before
     public void setUpFaithTracks() {
-        vatican = new Vatican(new Game(3),filePath);
+        vatican = new Vatican(new MultiGame(2),filePath);
         our = vatican.getFaithTrack();
         other = vatican.getFaithTrack();
         another = vatican.getFaithTrack();
