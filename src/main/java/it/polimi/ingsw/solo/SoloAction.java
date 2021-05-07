@@ -91,4 +91,19 @@ public abstract class SoloAction {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(SoloAction.class, new SoloAction.SoloReader());
+        Gson parser = builder.create();
+        return parser.toJson(this,SoloAction.class);
+    }
+
+    public SoloAction fromString(String soloAction) {
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(SoloAction.class, new SoloAction.SoloReader());
+        Gson parser = builder.create();
+        return parser.fromJson(soloAction,SoloAction.class);
+    }
 }

@@ -32,99 +32,140 @@ public class PlayerBoard
         this.whiteExchange = new ArrayList<>();
     }
 
-    public void giveResources(ResourcePack rp)
-    {
-        // TODO: da fare!
-    }
-
     /**
      * Adds the given LeaderCards to the current PlayerBoard.
      * @param leaders the list of LeaderCards to add.
      */
-    public void giveLeaders(List<LeaderCard> leaders)
-    {
-        this.leaders.addLeaders(leaders);
-    }
+    public void giveLeaders(List<LeaderCard> leaders) { this.leaders.addLeaders(leaders); }
 
-    public void activateProduction() throws NonConsumablePackException
+    /**
+     * Activates productions in the current PlayerBoard's Factory;
+     *
+     * @return
+     * @throws NonConsumablePackException
+     */
+    public int activateProduction() throws NonConsumablePackException
     {
         ResourcePack required = this.factory.productionRequirements();
         ResourcePack available = this.storage.getAllResource();
-        if(available.isConsumable(required))
-        {
-            // TODO: only autoConsume is supported at the moment
+        if(available.isConsumable(required)) {
+            // Consumes resources required to activate productions.
             this.storage.autoConsume(required);
-            this.storage.stockStrongbox(this.factory.productionChain());
+            // Collects the products.
+            ResourcePack products = this.factory.productionChain();
+            int white = products.flush(Resource.VOID);
+            this.faithTrack.advance(products.flush(Resource.FAITHPOINT));
+            this.storage.stockStrongbox(products);
+            return white;
         }
         else throw new NonConsumablePackException();
     }
 
-    public void buyDevelopmentCard(int level, Color color, int position)
-            throws NoSuchDevelopmentCardException, NonPositionableCardException, NonConsumablePackException
+    public void activateProduction(List<ResourcePack> sources) throws NonConsumablePackException
     {
-        DevelopmentCard top = this.devCards.getDevCard(position);
-        int currentLevel = (top == null) ? 0 : top.getLevel();
+        //TODO: valutare opzioni per consumo "controllato"
+    }
 
-        if(level != currentLevel + 1) throw new NonPositionableCardException();
-        else if(this.storage.getAllResource().isConsumable(this.market.getCost(level, color)))
-        {
-            DevelopmentCard devCard = this.market.getDevelopmentCard(level, color);
-            // TODO: only autoConsume is supported at the moment
-            this.storage.autoConsume(devCard.getCost());
+    /**
+     * Tests if it is possible to buy the DevelopmentCard with the given level and colour from the Market;
+     * @param level the level of the desired DevelopmentCard.
+     * @param color the colour of the desired DevelopmentCard.
+     * @return true if it is possible to buy the DevelopmentCard, false otherwise.
+     */
+    public boolean canBuyDevCard(int level,Color color)
+    {
+        try {
+            DevelopmentCard toBuy = this.market.getDevelopmentCard(level,color);
+            return this.devCards.canBeStored(toBuy) && this.storage.getAllResource().isConsumable(toBuy.getCost());
 
-            if(top != null) // Remove the old Production
-                this.factory.discardProductionPower(top.getProduction());
-
-            // Add the bought DevelopmentCard to the PlayerBoard
-            this.devCards.storeDevCard(devCard,position);
-            this.factory.addProductionPower(devCard.getProduction());
+        } catch (NoSuchDevelopmentCardException e) {
+            return false;
         }
-        else throw new NonPositionableCardException();
     }
 
-    // TODO: SEI ARRIVATO FINO A QUI!
-    public void gatherResources(int position)
+    /**
+     * Stores the given DevelopmentCard in the current PlayerBoard's DevelopmentCardStack.
+     * the production granted by the card is added to the current Factory.
+     * @param devCard the DevelopmentCard to store.
+     * @param position the index of the stack where the card is going to be positioned.
+     * @throws NonPositionableCardException if the given card cannot be positioned.
+     */
+    public void storeDevelopmentCard(DevelopmentCard devCard, int position) throws NonPositionableCardException
     {
+        DevelopmentCard covered = this.devCards.getDevCard(position);
 
+        // Throws an exception if the card is not positionable
+        this.devCards.storeDevCard(devCard,position);
+
+        // Remove the production offered by the covered DevelopmentCard.
+        if(covered != null) this.factory.discardProductionPower(covered.getProduction());
+
+        // Add the Production offered by the new DevelopmentCard.
+        this.factory.addProductionPower(devCard.getProduction());
     }
 
-    public void playLeaderCard(int leader)
+    public int storeResources(ResourcePack loot)
     {
+        ResourcePack toStore = loot.getCopy();
+        this.faithTrack.advance(toStore.flush(Resource.FAITHPOINT));
+        int white = toStore.flush(Resource.VOID);
+        this.storage.warehouse.add(toStore);
+        return white;
+    }
+
+    public boolean convertResources(int amount,ResourcePack desired)
+    {
+        int ableToConvert = 0;
+        for(Resource resource : this.whiteExchange)
+            ableToConvert += desired.get(resource);
+        if(ableToConvert == amount)
+        {
+            this.storage.warehouse.add(desired);
+            return true;
+        }
+        else return false;
+    }
+
+    public boolean playLeaderCard(int leader) {
+        LeaderCard toPlay = this.leaders.getInactiveLeader(leader);
+        if(toPlay == null) return false;
+
+        // Test if the requirements are satisfied.
+        if(!this.storage.getAllResource().isConsumable(toPlay.getReqResources()))
+            return false;
+        if(!this.devCards.getColorPack().testRequirements(toPlay.getReqDevCards()))
+            return false;
+
+        // Plays the LeaderCard
         this.leaders.activate(leader,this);
+        return true;
     }
 
-    public void discardLeader(int leader)
-    {
-        this.leaders.discard(leader);
-        this.faithTrack.advance();
+    public boolean discardLeader(int leader) {
+        if(this.leaders.getInactiveLeader(leader) == null) return false;
+        else {
+            this.leaders.discard(leader);
+            this.faithTrack.advance(1);
+            return true;
+        }
     }
 
-    public int countPoints()
-    {
-        return 0;
+    public int countPoints() {
+        return this.devCards.getPoints()
+        + this.faithTrack.getTotalPoints()
+        + this.leaders.getPoints()
+        + this.storage.getAllResource().size()/5;
     }
 
     // Methods for power activation
 
-    public void addDiscount(ResourcePack rp)
-    {
-        this.marketDiscounts.add(rp);
-    }
+    public void addDiscount(ResourcePack rp) { this.marketDiscounts.add(rp); }
 
-    public void addProduction(Production p)
-    {
-        // Production objects are immutable so it is not necessary to make a copy
-        this.factory.addProductionPower(p);
-    }
+    public void addProduction(Production p) { this.factory.addProductionPower(p); }
 
-    public void addWhite(Resource res)
-    {
-        this.whiteExchange.add(res);
-    }
+    public void addWhite(Resource res) { this.whiteExchange.add(res); }
 
-    public void addLeaderStock(StockPower stock)
-    {
-        // StockPower objects are immutable so it is not necessary to make a copy
+    public void addLeaderStock(StockPower stock) {
         this.storage.warehouse.addStockPower(stock);
     }
 }

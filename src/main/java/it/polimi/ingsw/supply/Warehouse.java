@@ -341,7 +341,7 @@ public class Warehouse {
     /**
      * Tests if the set of all Resources stored in the Warehouse is enough to fully
      * cover the required ones; pending Resources are completely ignored.
-     * No side-effect are produced.
+     * Special resources are ignored. No side-effects are produced.
      * @param pack the ResourcePack required.
      * @return true if Warehouse has enough Resources in its shelves.
      */
@@ -352,6 +352,15 @@ public class Warehouse {
         for(Resource res : Resource.values()) if(res.isSpecial()) required.flush(res);
 
         return this.getResources().isConsumable(required);
+    }
+
+    /**
+     * Returns the amount of resources that are still pending and are going
+     * to be wasted if .done() is called.
+     * @return the amount of pending resources.
+     */
+    public int wastedIfDone() {
+        return this.pendingResources.size();
     }
 
     /**

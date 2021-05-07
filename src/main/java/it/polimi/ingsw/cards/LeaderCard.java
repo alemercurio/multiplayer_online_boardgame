@@ -116,4 +116,23 @@ public class LeaderCard extends Card {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(Power.class, new LeaderCard.PowerReader());
+        builder.enableComplexMapKeySerialization();
+        Gson parser = builder.create();
+
+        return parser.toJson(this);
+    }
+
+    public static LeaderCard fromString(String leaderCard) {
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(Power.class, new LeaderCard.PowerReader());
+        builder.enableComplexMapKeySerialization();
+        Gson parser = builder.create();
+
+        return parser.fromJson(leaderCard,LeaderCard.class);
+    }
 }

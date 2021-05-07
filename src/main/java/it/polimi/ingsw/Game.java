@@ -1,22 +1,21 @@
 package it.polimi.ingsw;
 
+import it.polimi.ingsw.faith.Vatican;
+import it.polimi.ingsw.supply.MarketBoard;
+
 import java.util.*;
 
-public class Game
+public abstract class Game
 {
-    private static final List<Game> newGames = new LinkedList<Game>();
+    protected static final List<MultiGame> newGames = new LinkedList<MultiGame>();
 
-    private boolean endGame;
-    private final int numPlayer;
-    private Map<Integer,String> nameTable;
-    private final Queue<Player> round;
+    protected final Vatican vatican;
+    protected final MarketBoard market;
 
-    public Game(int numPlayer)
+    public Game()
     {
-        this.endGame = false;
-        this.numPlayer = numPlayer;
-        this.nameTable = new HashMap<Integer,String>();
-        this.round = new LinkedList<Player>();
+        this.vatican = new Vatican(this,"src/main/resources/JSON/Vatican.json");
+        this.market = new MarketBoard();
     }
 
     // Static Methods
@@ -28,76 +27,51 @@ public class Game
 
     public synchronized static Game newGame(int numPlayer)
     {
-        Game game = new Game(numPlayer);
+        MultiGame game = new MultiGame(numPlayer);
         Game.newGames.add(game);
         return game;
     }
 
-    public synchronized static Game join(Player player)
+    public synchronized static Game newGame(Player creator, String nickname, int numPlayer)
+    {
+        if(numPlayer > 1)
+        {
+            MultiGame game = new MultiGame(creator, nickname, numPlayer);
+            Game.newGames.add(game);
+            return game;
+        }
+        else
+        {
+            return new SoloGame(creator,nickname);
+        }
+    }
+
+    public synchronized static MultiGame join(Player player)
     {
         if(Game.hasNewGame())
         {
-            Game game = Game.newGames.get(0);
+            MultiGame game = Game.newGames.get(0);
             game.addPlayer(player);
             return game;
         }
         else return null;
     }
 
-    // Non-Static Methods
+    // Non static methods
 
-    public synchronized boolean nameAvailable(String name)
-    {
-        for(String nameTaken : this.nameTable.values())
-            if(name.equals(nameTaken)) return false;
-        return true;
-    }
+    public abstract boolean isSinglePlayer();
 
-    public synchronized boolean setNickname(int playerID, String name)
-    {
-        if(this.nameAvailable(name))
-        {
-            this.nameTable.put(playerID,name);
-            return true;
-        }
-        else return false;
-    }
+    public abstract void broadCast(String message);
 
-    public synchronized String getNickname(int playerID)
-    {
-        return this.nameTable.getOrDefault(playerID,"unknown");
-    }
+    public abstract boolean nameAvailable(String name);
 
-    public synchronized void addPlayer(Player player)
-    {
-        // Because Player objects are immutable no copy is needed.
-        this.round.add(player);
-        System.out.println("(GAME) >> add Player (" + this.round.size() + "/" + this.numPlayer + ")");
+    public abstract boolean setNickname(Player player,String name);
 
-        if(this.round.size() == this.numPlayer)
-        {
-            Game.newGames.remove(this);
-            Player first = this.round.poll();
-            System.out.println("(GAME) >> Turno di " + first.getNickname());
-            first.setActive();
-        }
-    }
+    public abstract String getNickname(Player player);
 
-    // Round Management
+    public abstract void start();
 
-    public void nextPlayer(Player player)
-    {
-        this.round.add(player);
-        //this.round.poll().setActive();
+    public abstract void nextPlayer(Player player);
 
-        Player next = this.round.poll();
-        System.out.println("(GAME) >> Turno di " + next.getNickname());
-        next.setActive();
-    }
-
-    public synchronized void endGame()
-    {
-        this.endGame = true;
-    }
+    public abstract void endGame();
 }
-

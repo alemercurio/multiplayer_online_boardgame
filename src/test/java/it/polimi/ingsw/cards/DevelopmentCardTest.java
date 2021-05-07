@@ -91,7 +91,6 @@ public class DevelopmentCardTest {
 
     @Test
     public void testGetLevel() {
-
         ResourcePack rp1_input = new ResourcePack(0,0,3,0,0);
         ResourcePack rp2_input = new ResourcePack(1,0,2,0,0);
         ResourcePack rp3_input = new ResourcePack(1,4,3,5,3);
@@ -115,5 +114,26 @@ public class DevelopmentCardTest {
         assertEquals( devCard1.getLevel(), 2);
         assertEquals( devCard2.getLevel(), 1);
         assertEquals( devCard3.getLevel(), 3);
+    }
+
+    @Test
+    public void testSerialization() {
+        ResourcePack cost = new ResourcePack(1,2);
+
+        ResourcePack input = new ResourcePack(1,2);
+        ResourcePack output = new ResourcePack(1,2);
+        Production p = new Production(input,output);
+
+        DevelopmentCard devCard = new DevelopmentCard(1,cost,Color.GREEN,1,p);
+
+        String developmentCard = devCard.toString();
+
+        DevelopmentCard gotBack = DevelopmentCard.fromString(developmentCard);
+
+        assertEquals(devCard.getLevel(),gotBack.getLevel());
+        assertEquals(devCard.getCost(),gotBack.getCost());
+        assertEquals(devCard.getColor(),gotBack.getColor());
+        assertEquals(devCard.getLevel(),gotBack.getLevel());
+        assertEquals(devCard.getProduction(),gotBack.getProduction());
     }
 }

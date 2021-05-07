@@ -78,13 +78,13 @@ public class WarehouseTest {
         wh.switchShelves(0,1);
 
         assertEquals("{\n\t1 {STONE:1}\n\t2 {COIN:1}\n\t3 {SERVANT:3}\n}", wh.toString());
-        assertEquals("{STONE:1}", wh.getPendingView());
+        assertEquals("{\"resources\":{\"STONE\":1}}", wh.getPendingView());
 
         wh.switchShelves(0, 2);
 
         assertEquals("{\n\t1 {SERVANT:1}\n\t2 {COIN:1}\n\t3 {STONE:1}\n}", wh.toString());
-        assertTrue(wh.getPendingView().contains("SERVANT:2"));
-        assertTrue(wh.getPendingView().contains("STONE:1"));
+        assertTrue(wh.getPendingView().contains("\"SERVANT\":2"));
+        assertTrue(wh.getPendingView().contains("\"STONE\":1"));
     }
 
     @Test
@@ -99,13 +99,13 @@ public class WarehouseTest {
         wh.stock(2, Resource.SERVANT, 3);
 
         assertEquals("{\n\t1 {COIN:1}\n\t2 {STONE:2}\n\t3 {SERVANT:3}\n}", wh.toString());
-        assertEquals("{STONE:1}", wh.getPendingView());
+        assertEquals("{\"resources\":{\"STONE\":1}}", wh.getPendingView());
 
 
         wh.stock(2, Resource.STONE, 4);
 
         assertEquals("{\n\t1 {COIN:1}\n\t2 {VOID:0}\n\t3 {STONE:3}\n}", wh.toString());
-        assertEquals("{SERVANT:3}", wh.getPendingView());
+        assertEquals("{\"resources\":{\"SERVANT\":3}}", wh.getPendingView());
     }
 
     @Test
@@ -167,10 +167,10 @@ public class WarehouseTest {
         Warehouse wh = new Warehouse();
 
         wh.add(rp); //all resources set as pending
-        assertTrue(wh.getPendingView().contains("SERVANT:3"));
-        assertTrue(wh.getPendingView().contains("STONE:2"));
-        assertTrue(wh.getPendingView().contains("COIN:1"));
+        assertTrue(wh.getPendingView().contains("\"SERVANT\":3"));
+        assertTrue(wh.getPendingView().contains("\"STONE\":2"));
+        assertTrue(wh.getPendingView().contains("\"COIN\":1"));
         wh.done(); //all resources deleted
-        assertEquals("{}", wh.getPendingView());
+        assertEquals("{\"resources\":{}}", wh.getPendingView());
     }
 }

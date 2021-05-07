@@ -1,4 +1,7 @@
 package it.polimi.ingsw;
+import it.polimi.ingsw.faith.FaithTrack;
+import it.polimi.ingsw.supply.MarketBoard;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -7,12 +10,15 @@ import java.util.Scanner;
 public class Player implements Runnable
 {
     private final int ID;
+    private String nickname;
     private final Socket socket;
     private final Scanner messageIn;
     private final PrintWriter messageOut;
 
     private Game game;
+    private PlayerBoard playerBoard;
     private boolean isActive;
+    private boolean hasEnded;
 
     public Player(int ID,Socket client) throws IOException
     {
@@ -20,15 +26,44 @@ public class Player implements Runnable
         this.socket = client;
         this.messageIn = new Scanner(this.socket.getInputStream());
         this.messageOut = new PrintWriter(this.socket.getOutputStream());
-        this.isActive = false;
     }
 
-    public String getNickname()
+    public int getID() { return this.ID; }
+
+    public String getNickname() { return this.nickname; }
+
+    public void setForGame(FaithTrack faithTrack,MarketBoard market) {
+        this.playerBoard = new PlayerBoard(market,faithTrack);
+    }
+
+    @Override
+    public void run()
     {
-        return this.game.getNickname(this.ID);
-    }
+        String msg;
+        this.send("welcome");
 
-    // getPoints, endGame, setWinner
+        do {
+            msg = receive();
+            switch(msg)
+            {
+                case "JoinGame":
+                    if(this.joinGame()) this.playGame();
+                    break;
+                case "NewGame":
+                    this.newGame();
+                    if(this.game.isSinglePlayer()) this.playSoloGame();
+                    else this.playGame();
+                    break;
+                default:
+                    this.send("UnknownCommand");
+                    break;
+            }
+
+            this.isActive = false;
+            this.hasEnded = false;
+
+        } while(!msg.equals("esc"));
+    }
 
     public void send(String message)
     {
@@ -36,37 +71,45 @@ public class Player implements Runnable
         this.messageOut.flush();
     }
 
-    @Override
-    public void run()
+    public String receive()
+    {
+        return this.messageIn.nextLine();
+    }
+
+    private void newGame()
     {
         String msg;
+        String nickname;
+        MessageParser mp = new MessageParser();
 
-        this.send("welcome");
+        this.send("OK");
 
-        msg = "";
-
-        while(!msg.equals("esc"))
+        // Set Player Name
+        msg = this.receive();
+        mp.parse(msg);
+        while(!mp.getOrder().equals("setNickname") || mp.getNumberOfParameters() != 1)
         {
-            msg = messageIn.nextLine();
-            switch(msg)
-            {
-                case "JoinGame":
-                    //if(this.joinGame()) this.playGame();
-                    this.send("KO");
-                    break;
-                case "NewGame":
-                    /*this.newGame();
-                    this.playGame();*/
-                    this.send("OK");
-                    break;
-                case "esc":
-                    this.send("Goodbye!");
-                    break;
-                default:
-                    this.send("UnknownCommand");
-                    break;
-            }
+            this.send("InvalidOption");
+            msg = this.receive();
+            mp.parse(msg);
         }
+        nickname = mp.getStringParameter(0);
+        this.send("OK");
+
+        // Set Number of Player
+        msg = this.receive();
+        mp.parse(msg);
+        while(!mp.getOrder().equals("setNumPlayer") || mp.getNumberOfParameters() != 1)
+        {
+            this.send("InvalidNumPlayer");
+            msg = this.receive();
+            mp.parse(msg);
+        }
+
+        this.game = Game.newGame(this,nickname,mp.getIntParameter(0));
+        this.send("WAIT");
+
+        this.game.start();
     }
 
     private boolean joinGame()
@@ -74,17 +117,22 @@ public class Player implements Runnable
         if(Game.hasNewGame())
         {
             String msg;
+            MessageParser mp = new MessageParser();
 
             this.game = Game.join(this);
             this.send("OK");
 
-            msg = this.messageIn.nextLine();
-            while(!this.game.setNickname(this.ID,msg))
+            msg = this.receive();
+            mp.parse(msg);
+            while(!mp.getOrder().equals("setNickname") || mp.getNumberOfParameters() != 1 || !this.game.nameAvailable(mp.getStringParameter(0)))
             {
-                this.send("NickNameNotAvailable");
-                msg = this.messageIn.nextLine();
+                this.send("InvalidNickname");
+                msg = this.receive();
+                mp.parse(msg);
             }
+            this.game.setNickname(this, mp.getStringParameter(0));
             this.send("WAIT");
+
             return true;
         }
         else
@@ -92,33 +140,6 @@ public class Player implements Runnable
             this.send("NoGameAvailable");
             return false;
         }
-    }
-
-    private void newGame()
-    {
-        String msg,name;
-        MessageParser mp = new MessageParser();
-
-        this.send("OK");
-
-        // Set Player Name
-        name = this.messageIn.nextLine();
-        this.send("OK");
-
-        // Set Number of Player
-        msg = this.messageIn.nextLine();
-        mp.parse(msg);
-        while(!mp.getOrder().equals("setNumPlayer") || mp.getNumberOfParameters() != 1)
-        {
-            this.send("InvalidNumPlayer");
-            msg = this.messageIn.nextLine();
-            mp.parse(msg);
-        }
-
-        this.game = Game.newGame(mp.getIntParameter(0));
-        this.game.addPlayer(this);
-        this.game.setNickname(this.ID,name);
-        this.send("WAIT");
     }
 
     // Round Management
@@ -141,17 +162,56 @@ public class Player implements Runnable
         }
     }
 
-    public void playRound()
+    public synchronized void setHasEnded()
     {
-        this.waitForActive();
-        this.send("PLAY");
-        this.messageIn.nextLine();
-        this.isActive = false;
-        this.game.nextPlayer(this);
+        this.hasEnded = true;
     }
 
     public void playGame()
     {
-        // TODO: codice per lo svolgimento della partita
+        while(!this.hasEnded)
+        {
+            this.waitForActive();
+            if(!this.hasEnded)
+            {
+                this.playRound();
+                this.isActive = false;
+                this.game.nextPlayer(this);
+            }
+        }
+    }
+
+    public void playSoloGame()
+    {
+        while(!this.hasEnded)
+        {
+            this.playRound();
+            if(!this.hasEnded) this.game.nextPlayer(this);
+        }
+        this.send("GameEnd");
+    }
+
+    public void playRound()
+    {
+        String cmd;
+        this.send("PLAY");
+        cmd = this.receive();
+
+        switch(cmd)
+        {
+            case "buyDevCard":
+                System.out.println(">> " + this.game.getNickname(this) + " wants to buy a DevCard");
+                if(!this.game.isSinglePlayer())
+                    this.game.broadCast(this.game.getNickname(this) + " bought a DevCard...");
+                this.send("OK");
+                break;
+            case "getResources":
+                System.out.println(">> " + this.game.getNickname(this) + " wants resources");
+                if(!this.game.isSinglePlayer())
+                    this.game.broadCast(this.game.getNickname(this) + " has gathered resources...");
+                this.game.endGame();
+                this.send("OK");
+                break;
+        }
     }
 }

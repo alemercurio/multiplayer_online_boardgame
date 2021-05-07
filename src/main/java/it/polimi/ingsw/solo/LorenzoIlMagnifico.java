@@ -27,13 +27,15 @@ public class LorenzoIlMagnifico {
 
     /**
      * Extracts a random SoloAction and applies its effect.
+     * @return the SoloAction that has been played.
      */
-    public void playSoloAction() {
+    public SoloAction playSoloAction() {
         SoloAction playedAction = deck.getSoloAction();
         playedAction.apply(this);
         if (playedAction.toShuffle()) {
             deck.shuffle();
         }
+        return playedAction;
     }
 
     /**

@@ -22,6 +22,20 @@ public class DevelopmentCardStack {
     }
 
     /**
+     * Tests if the given DevelopmentCard can be stored in the current DevelopmentCardStack.
+     * @param devCard the DevelopmentCard to position.
+     * @return true if the given Card can be positioned, false otherwise.
+     */
+    public boolean canBeStored(DevelopmentCard devCard)
+    {
+        for(LinkedList<DevelopmentCard> stack : this.devCards) {
+            int current = (stack.isEmpty()) ? 0 : stack.getFirst().getLevel();
+            if(devCard.getLevel() == current + 1) return true;
+        }
+        return false;
+    }
+
+    /**
      * Puts a DevelopmentCard on top of one of the three stacks.
      * Position are indexed from one and if the given index is invalid nothing happens.
      * @param card     the DevelopmentCard to add.
@@ -30,11 +44,8 @@ public class DevelopmentCardStack {
     public void storeDevCard(DevelopmentCard card, int position) throws NonPositionableCardException {
         if (position >= 1 && position <= 3)
         {
-            int current;
-
             LinkedList<DevelopmentCard> stack = this.devCards.get(position - 1);
-            if(stack.isEmpty()) current = 0;
-            else current = stack.getFirst().getLevel();
+            int current = (stack.isEmpty()) ? 0 : stack.getFirst().getLevel();
 
             // Because DevelopmentCard objects are immutable it is not necessary to make a copy.
             if(card.getLevel() == current + 1) stack.addFirst(card);
@@ -83,5 +94,16 @@ public class DevelopmentCardStack {
             for (DevelopmentCard card : this.devCards.get(i))
                 pack.addColor(card.getColor(), card.getLevel());
         return pack;
+    }
+
+    /**
+     * Returns the amount of victory points given by the DevelopmentCards
+     * stored in the current DevelopmentCardStack.
+     * @return the amount of victory points.
+     */
+    public int getPoints() {
+        return this.devCards.stream()
+                .mapToInt(stack -> stack.stream()
+                .mapToInt(Card::getPoints).sum()).sum();
     }
 }

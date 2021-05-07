@@ -95,4 +95,15 @@ public class DevelopmentCard extends Card {
     public int getLevel() {
         return this.level;
     }
+
+    @Override
+    public String toString() {
+        Gson parser = new Gson();
+        return parser.toJson(this);
+    }
+
+    public static DevelopmentCard fromString(String devCard) {
+        Gson parser = new Gson(); // (;︵;)
+        return parser.fromJson(devCard,DevelopmentCard.class);
+    }
 }

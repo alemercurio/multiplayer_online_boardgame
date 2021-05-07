@@ -105,4 +105,23 @@ public class LeaderCardTest {
         assertEquals(leader3.getReqDevCards(), colorPack3);
         assertEquals(leader4.getReqDevCards(), colorPack4);
     }
+
+    @Test
+    public void testSerialization() {
+        ResourcePack reqResources = new ResourcePack(1,2,3);
+        ColorPack colorPack = new ColorPack();
+        colorPack.addColor(Color.GREEN,1);
+
+        ResourcePack discount = new ResourcePack(0,1,0,2);
+        Power power = new DiscountPower(discount);
+        LeaderCard leaderDiscount = new LeaderCard(1,reqResources,colorPack,power);
+
+        String leaderCard = leaderDiscount.toString();
+
+        LeaderCard gotBack = LeaderCard.fromString(leaderCard);
+
+        assertEquals(leaderDiscount.getPoints(),gotBack.getPoints());
+        assertEquals(leaderDiscount.getReqResources(),gotBack.getReqResources());
+        assertEquals(leaderDiscount.getReqDevCards(),gotBack.getReqDevCards());
+    }
 }

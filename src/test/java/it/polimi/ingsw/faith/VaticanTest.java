@@ -1,8 +1,7 @@
 package it.polimi.ingsw.faith;
 
 import it.polimi.ingsw.Game;
-import org.junit.After;
-import org.junit.Before;
+import it.polimi.ingsw.Player;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -14,7 +13,39 @@ public class VaticanTest {
         boolean endSet = false;
 
         public GameStub() {
-            super(2);
+            super();
+        }
+
+        @Override
+        public boolean isSinglePlayer() {
+            return false;
+        }
+
+        @Override
+        public void broadCast(String message) {
+        }
+
+        @Override
+        public boolean nameAvailable(String name) {
+            return false;
+        }
+
+        @Override
+        public boolean setNickname(Player player, String name) {
+            return false;
+        }
+
+        @Override
+        public String getNickname(Player player) {
+            return null;
+        }
+
+        @Override
+        public void start() {
+        }
+
+        @Override
+        public void nextPlayer(Player player) {
         }
 
         @Override
@@ -24,33 +55,12 @@ public class VaticanTest {
     }
 
     private final String vaticanData = "src/main/resources/JSON/Vatican.json";
-    private Vatican vatican;
     private final GameStub game = new GameStub();
-
-    @Before
-    public void setUp() {
-        vatican = new Vatican(game,vaticanData);
-        vatican.start();
-        game.endSet = false;
-    }
+    private Vatican vatican = new Vatican(game,vaticanData);
 
     @Test
-    public void testEndGameReport() throws InterruptedException {
-        vatican.report("endGame");
-        Thread.sleep(10);
+    public void testEndGameReport() {
+        vatican.endGame();
         assertTrue(game.endSet);
-    }
-
-    @Test
-    public void testStopReport() throws InterruptedException {
-        vatican.report("stop");
-        Thread.sleep(10);
-        assertFalse(vatican.isAlive());
-    }
-
-    @After
-    public void stop()
-    {
-        vatican.report("stop");
     }
 }
