@@ -79,11 +79,6 @@ public class Storage {
         else throw new NonConsumablePackException(pack,available);
     }
 
-    public void consume(ResourcePack fromWarehouse,ResourcePack fromStrongbox)
-    {
-
-    }
-
     /**
      * Discards pending Resources in the Warehouse.
      * @return the amount of Resources discarded.

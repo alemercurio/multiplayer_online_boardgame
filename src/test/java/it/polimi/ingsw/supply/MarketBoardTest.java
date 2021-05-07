@@ -71,7 +71,7 @@ public class MarketBoardTest {
                 for (Color color : Color.values()) {
                     try {
                         ResourcePack cost = market.getCost(level, color);
-                        DevelopmentCard card = market.getDevelopmentCard(level, color);
+                        DevelopmentCard card = market.buyDevelopmentCard(level, color);
 
                         assertEquals(cost, card.getCost());
                     } catch (NoSuchDevelopmentCardException e) {
@@ -93,11 +93,11 @@ public class MarketBoardTest {
         MarketBoard market = new MarketBoard();
 
         try {
-            DevelopmentCard greenCard1 = market.getDevelopmentCard(1, Color.GREEN);
-            DevelopmentCard greenCard2 = market.getDevelopmentCard(1, Color.GREEN);
-            DevelopmentCard blueCard = market.getDevelopmentCard(2, Color.BLUE);
-            DevelopmentCard yellowCard = market.getDevelopmentCard(2, Color.YELLOW);
-            DevelopmentCard purpleCard = market.getDevelopmentCard(3, Color.PURPLE);
+            DevelopmentCard greenCard1 = market.buyDevelopmentCard(1, Color.GREEN);
+            DevelopmentCard greenCard2 = market.buyDevelopmentCard(1, Color.GREEN);
+            DevelopmentCard blueCard = market.buyDevelopmentCard(2, Color.BLUE);
+            DevelopmentCard yellowCard = market.buyDevelopmentCard(2, Color.YELLOW);
+            DevelopmentCard purpleCard = market.buyDevelopmentCard(3, Color.PURPLE);
 
             assertEquals(Color.GREEN, greenCard1.getColor());
             assertEquals(Color.GREEN, greenCard2.getColor());

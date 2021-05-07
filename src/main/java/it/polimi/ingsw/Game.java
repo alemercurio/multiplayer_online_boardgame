@@ -12,7 +12,6 @@ public abstract class Game
     protected final Vatican vatican;
     protected final MarketBoard market;
 
-
     public Game()
     {
         this.vatican = new Vatican(this,"src/main/resources/JSON/Vatican.json");
