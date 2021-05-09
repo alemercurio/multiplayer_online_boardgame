@@ -3,7 +3,9 @@ package it.polimi.ingsw.cards;
 import it.polimi.ingsw.supply.Production;
 import it.polimi.ingsw.supply.Resource;
 import it.polimi.ingsw.supply.ResourcePack;
+
 import org.junit.Test;
+import java.util.List;
 import static org.junit.Assert.*;
 
 public class LeaderCardTest {
@@ -123,5 +125,27 @@ public class LeaderCardTest {
         assertEquals(leaderDiscount.getPoints(),gotBack.getPoints());
         assertEquals(leaderDiscount.getReqResources(),gotBack.getReqResources());
         assertEquals(leaderDiscount.getReqDevCards(),gotBack.getReqDevCards());
+    }
+
+    @Test
+    public void testGetLeaderCardDeck() {
+        List<LeaderCard> deck = LeaderCard.getLeaderCardDeck("src/test/resources/JSON/LeaderCardTest.json");
+
+        ResourcePack requiredRes1 = new ResourcePack();
+        ColorPack requiredCards1 = new ColorPack();
+        requiredCards1.addColor(Color.GREEN, 1);
+        requiredCards1.addColor(Color.YELLOW, 1);
+        ResourcePack discount1 = new ResourcePack(0,0,1);
+        Power power1 = new DiscountPower(discount1);
+
+        ResourcePack requiredRes2 = new ResourcePack(5);
+        ColorPack requiredCards2 = new ColorPack();
+        Power power2 = new StockPower(2, Resource.STONE);
+
+        LeaderCard card1 = new LeaderCard(2, requiredRes1, requiredCards1, power1);
+        LeaderCard card2 = new LeaderCard(3, requiredRes2, requiredCards2, power2);
+
+        assertEquals(card1.toString(), deck.get(0).toString());
+        assertEquals(card2.toString(), deck.get(1).toString());
     }
 }
