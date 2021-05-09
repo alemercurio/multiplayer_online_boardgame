@@ -14,7 +14,7 @@ public class SoloCrossTest {
 
         public LorenzoTheStub()
         {
-            super(null,null,null);
+            super(null, null,null,null);
             faithMarker = 0;
             shuffled = false;
         }

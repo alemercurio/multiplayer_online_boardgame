@@ -1,5 +1,6 @@
 package it.polimi.ingsw.solo;
 
+import it.polimi.ingsw.SoloGame;
 import it.polimi.ingsw.cards.Color;
 import it.polimi.ingsw.faith.FaithTrack;
 import it.polimi.ingsw.supply.MarketBoard;
@@ -40,10 +41,11 @@ public class LorenzoIlMagnificoTest {
         }
     }
 
+    SoloGame game = new SoloGame(null, "Player");
     FaithStub ft = new FaithStub();
     MarketStub m = new MarketStub();
     SoloActionDeck soloDeck = new SoloActionDeck(SoloAction.getSoloActionDeck(SANoShuffleTest));
-    LorenzoIlMagnifico lorenzo = new LorenzoIlMagnifico(ft,m,soloDeck);
+    LorenzoIlMagnifico lorenzo = new LorenzoIlMagnifico(game,ft,m,soloDeck);
 
     @Test
     public void testRunTime()
