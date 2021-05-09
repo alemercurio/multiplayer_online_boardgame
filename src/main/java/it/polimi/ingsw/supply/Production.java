@@ -19,7 +19,7 @@ public class Production {
      */
     public Production(ResourcePack input, ResourcePack output) {
         ResourcePack tmp_requirement = input.getCopy();
-        //flush the special resource FAITHPOINT from the requirements
+        // Flush the special Resource FAITHPOINT from the requirements.
         tmp_requirement.flush(Resource.FAITHPOINT);
         this.input = tmp_requirement;
         this.output = output.getCopy();

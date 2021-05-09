@@ -70,10 +70,10 @@ public class Storage {
         if(available.isConsumable(pack)) {
             ResourcePack leftToConsume = pack.getCopy();
 
-            //consume resources from the warehouse
+            // Consume Resources from the Warehouse.
             leftToConsume = this.warehouse.consume(leftToConsume);
 
-            //consume resources from the strongbox
+            // Consume Resources from the Strongbox.
             this.strongbox.consume(leftToConsume);
         }
         else throw new NonConsumablePackException(pack,available);

@@ -40,11 +40,11 @@ public class MarketBoard {
          */
         public ResourceMarket() {
             // Standard Resources for the marketTray:
-            //      2 coins,
-            //      2 stones,
-            //      2 servants,
-            //      2 shields,
-            //      1 faithpoints,
+            //      2 coins
+            //      2 stones
+            //      2 servants
+            //      2 shields
+            //      1 faith points
             //      4 voids
 
             this(new ResourcePack(2,2,2,2,1,4));
@@ -58,11 +58,11 @@ public class MarketBoard {
         public ResourcePack getColumn(int column) {
             ResourcePack resources = new ResourcePack();
 
-            //adjust the index of column
+            // Adjust the index of column.
             if(column >= 4) column = 3;
             else if(column < 0) column = 0;
 
-            //gathers resources and shifts them
+            // Gathers resources and shifts them.
             Resource tmp_resource;
             for(int row = 2;row >= 0; row--) {
                 tmp_resource = this.marketTray[row][column];
@@ -82,11 +82,11 @@ public class MarketBoard {
         public ResourcePack getRow(int row) {
             ResourcePack resources = new ResourcePack();
 
-            // Adjust the index of column
+            // Adjust the index of row.
             if(row >= 3) row = 2;
             else if(row < 0) row = 0;
 
-            // Gathers resources and shifts them
+            // Gathers resources and shifts them.
             Resource tmp_resource;
             for(int column = 3;column >= 0; column--) {
                 tmp_resource = this.marketTray[row][column];
@@ -121,7 +121,7 @@ public class MarketBoard {
          * Constructs a CardMarket and loads DevelopmentCards into it.
          */
         public CardMarket() {
-            // initialize data structure
+            // Initialize the data structure.
             this.decksMap = new HashMap<>();
             for(Color color : Color.values()) {
                 List<LinkedList<DevelopmentCard>> column = new ArrayList<>();
@@ -130,7 +130,7 @@ public class MarketBoard {
                 }
                 this.decksMap.put(color,column);
             }
-            // load Development Cards
+            // Load Development Cards from file.
             List<DevelopmentCard> devCards = DevelopmentCard.getDevelopmentCardDeck("src/main/resources/JSON/DevelopmentCard.json");
             Collections.shuffle(devCards);
             for(DevelopmentCard card : devCards)
@@ -212,12 +212,12 @@ public class MarketBoard {
             List<LinkedList<DevelopmentCard>> column = this.decksMap.get(color);
             for(int i = 0; i < amount; i++) {
                 if(column.get(level).pollFirst() == null) {
-                    // It is necessary to remove from a higher level
+                    // It is necessary to remove from a higher level.
                     level++;
-                    if(level == 3) return false; // The column is empty
+                    if(level == 3) return false; // The column is empty.
 
                     // Since the card has not been discarded
-                    // It is necessary to redo this iteration
+                    // it is necessary to redo this iteration.
                     i--;
                 }
             }
