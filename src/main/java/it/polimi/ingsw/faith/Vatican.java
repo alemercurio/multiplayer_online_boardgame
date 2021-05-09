@@ -23,8 +23,7 @@ public class Vatican {
      * Represents a single space in the FaithTrack.
      * Each space can assign victory points or activate a vatican report.
      */
-    protected class Space
-    {
+    protected static class Space {
         private final int points;
         private final int popeSpace;
 
@@ -32,8 +31,7 @@ public class Vatican {
          * Constructs a space that assigns the given victory points.
          * @param points the victory points associated with the space.
          */
-        protected Space(int points)
-        {
+        protected Space(int points) {
             this.points = points;
             this.popeSpace = -1;
         }
@@ -44,8 +42,7 @@ public class Vatican {
          * @param points the victory points associated with the space.
          * @param popeSpace the index of the vatican report section that the space is able to activate.
          */
-        protected Space(int points,int popeSpace)
-        {
+        protected Space(int points,int popeSpace) {
             this.points = points;
             this.popeSpace = popeSpace;
         }
@@ -54,13 +51,17 @@ public class Vatican {
          * Returns the amounts of victory points assignable by the current Space.
          * @return the victory points granted by the current Space.
          */
-        protected int getPoints() { return this.points; }
+        protected int getPoints() {
+            return this.points;
+        }
 
         /**
-         * Test if the current space activates a vatican report.
+         * Tests if the current space activates a vatican report.
          * @return true if the current space should activate a vatican report, false otherwise.
          */
-        protected boolean needReport() { return (this.popeSpace >= 0); }
+        protected boolean needReport() {
+            return (this.popeSpace >= 0);
+        }
 
         /**
          * Returns the index of the vatican report section that the current space
@@ -68,7 +69,9 @@ public class Vatican {
          * negative index.
          * @return the index of the vatican report section to activate or a negative value.
          */
-        protected int popeSpace() { return this.popeSpace; }
+        protected int popeSpace() {
+            return this.popeSpace;
+        }
     }
 
     /**
@@ -76,8 +79,7 @@ public class Vatican {
      * Each PopeSpace can assign a specific amount of victory points
      * and corresponds to a sequence of Spaces in the FaithTrack.
      */
-    protected class PopeSpace
-    {
+    protected static class ReportSection {
         private final int firstSpace;
         private final int lastSpace;
         private final int points;
@@ -91,8 +93,7 @@ public class Vatican {
          * @param lastSpace the last Space in the sequence.
          * @param points the amount of victory points that the report section can assign.
          */
-        protected PopeSpace(int firstSpace, int lastSpace, int points)
-        {
+        protected ReportSection(int firstSpace, int lastSpace, int points) {
             this.firstSpace = firstSpace;
             this.lastSpace = lastSpace;
             this.points = points;
@@ -104,35 +105,45 @@ public class Vatican {
          * Tests if the current PopeSpace has already been activated through a vatican report.
          * @return false if the current PopeSpace has been activated, true otherwise.
          */
-        protected synchronized boolean toReport() { return this.toReport; }
+        protected synchronized boolean toReport() {
+            return this.toReport;
+        }
 
         /**
          * Sets the current PopeSpace as reported (so it will not be activated again).
          */
-        private synchronized void setReported() { this.toReport = false; }
+        private synchronized void setReported() {
+            this.toReport = false;
+        }
 
         /**
          * Returns the amount of victory points that the current PopeSpace can assign.
          * @return the victory points assignable by the PopeSpace.
          */
-        protected int getPoints() { return this.points; }
+        protected int getPoints() {
+            return this.points;
+        }
 
         /**
          * Returns the index of the first Space associated with the current PopeSpace.
          * @return the index of the first Space of the sequence.
          */
-        protected int getFirstSpace() { return this.firstSpace; }
+        protected int getFirstSpace() {
+            return this.firstSpace;
+        }
 
         /**
          * Returns the index of the last Space associated with the current PopeSpace.
          * @return the index of the last Space of the sequence.
          */
-        protected int getLastSpace() { return this.lastSpace; }
+        protected int getLastSpace() {
+            return this.lastSpace;
+        }
     }
 
     private transient final Game game;
     private final Space[] track;
-    private final PopeSpace[] popeSpaces;
+    private final ReportSection[] reportSections;
     private transient final List<FaithTrack> faithTracks;
 
     /**
@@ -140,13 +151,12 @@ public class Vatican {
      * @param game the Game that the Vatican is associated with.
      * @param filePath the path of the Json file representing the structure of the FaithTrack
      */
-    public Vatican(Game game,String filePath)
-    {
+    public Vatican(Game game,String filePath) {
         this.game = game;
-        this.faithTracks = new ArrayList<FaithTrack>();
+        this.faithTracks = new ArrayList<>();
 
         File file = new File(filePath);
-        PopeSpace[] gotPopeSpaces;
+        ReportSection[] gotReportSections;
         Space[] gotTrack;
 
         try {
@@ -155,15 +165,15 @@ public class Vatican {
 
             Gson parser = new Gson();
             gotTrack = parser.fromJson(vaticanData.get("track"), Space[].class);
-            gotPopeSpaces = parser.fromJson(vaticanData.get("popeSpaces"), PopeSpace[].class);
+            gotReportSections = parser.fromJson(vaticanData.get("popeSpaces"), ReportSection[].class);
 
             fr.close();
         } catch (IOException e) {
             gotTrack = null;
-            gotPopeSpaces = null;
+            gotReportSections = null;
         }
 
-        popeSpaces = gotPopeSpaces;
+        reportSections = gotReportSections;
         this.track = gotTrack;
     }
 
@@ -171,10 +181,9 @@ public class Vatican {
      * Constructs a FaithTrack associated with the current Vatican.
      * @return a FaithTrack.
      */
-    public FaithTrack getFaithTrack()
-    {
+    public FaithTrack getFaithTrack() {
         int ID = this.faithTracks.size();
-        FaithTrack ft = new FaithTrack(ID,this,List.of(this.track),List.of(this.popeSpaces));
+        FaithTrack ft = new FaithTrack(ID,this,List.of(this.track),List.of(this.reportSections));
         this.faithTracks.add(ft);
         return ft;
     }
@@ -187,7 +196,7 @@ public class Vatican {
      * @param num the number of Resources discarded by the Player.
      */
     public void wastedResources(int track, int num) {
-        // makes other Players advance and update the furthestSpaceReached by any Player's Faith Marker
+        // Makes other Players advance and update the furthestSpaceReached by any Player's Faith Marker.
         for(FaithTrack faithTrack : faithTracks) {
             if (faithTrack.getID() != track) {
                 faithTrack.advance(num);
@@ -202,15 +211,15 @@ public class Vatican {
      */
     public void vaticanReport(int popeSpace) {
         for(FaithTrack faithTrack : faithTracks) {
-            faithTrack.PopeFavour(this.popeSpaces[popeSpace]);
+            faithTrack.PopeFavour(this.reportSections[popeSpace]);
         }
     }
 
     /**
-     * Signals to the corresponding Game that a FaithTrack has reached its end.
+     * Signals to the corresponding Game that a FaithMarker has reached the end of the
+     * FaithTrack, meaning the Game has ended.
      */
-    public void endGame()
-    {
+    public void endGame() {
         this.game.endGame();
     }
 }
