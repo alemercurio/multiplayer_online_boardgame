@@ -25,7 +25,7 @@ public class SoloDiscard extends SoloAction {
 
     /**
      * Reveals the SoloAction and applies its effect, the discarding of DevelopmentCards.
-     * @param lorenzo the unique instance of LorenzoilMagnifico in the solo mode game.
+     * @param lorenzo the unique instance of LorenzoIlMagnifico in the solo mode game.
      */
     @Override
     public void apply(LorenzoIlMagnifico lorenzo) {
@@ -42,13 +42,11 @@ public class SoloDiscard extends SoloAction {
     }
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if(o == null) return false;
         else if(o == this) return true;
         else if(!(o instanceof SoloDiscard)) return false;
-        else
-        {
+        else {
             SoloDiscard sd = (SoloDiscard) o;
             return (this.toDiscard.equals(sd.toDiscard)) && (this.toShuffle() == sd.toShuffle());
         }

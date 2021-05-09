@@ -39,13 +39,11 @@ public class SoloCross extends SoloAction {
     }
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if(o == null) return false;
         else if(o == this) return true;
         else if(!(o instanceof SoloCross)) return false;
-        else
-        {
+        else {
             SoloCross sc = (SoloCross) o;
             return (this.faithPoints == sc.faithPoints) && (this.toShuffle() == sc.toShuffle());
         }

@@ -31,8 +31,7 @@ public abstract class SoloAction {
      * @param filePath a String indicating the path of the file that stores SoloAction's data.
      * @return a list of SoloActions.
      */
-    public static List<SoloAction> getSoloActionDeck(String filePath)
-    {
+    public static List<SoloAction> getSoloActionDeck(String filePath) {
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(SoloAction.class, new SoloAction.SoloReader());
         Gson parser = builder.create();
@@ -41,19 +40,17 @@ public abstract class SoloAction {
         File soloActionData = new File(filePath);
         List<SoloAction> solo;
 
-        if(soloActionData.exists())
-        {
+        if(soloActionData.exists()) {
             try {
                 FileReader fr = new FileReader(soloActionData);
                 solo = parser.fromJson(fr,listOfSoloAction);
                 fr.close();
                 return solo;
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        return new ArrayList<SoloAction>();
+        return new ArrayList<>();
     }
 
     /**
@@ -100,7 +97,7 @@ public abstract class SoloAction {
         return parser.toJson(this,SoloAction.class);
     }
 
-    public SoloAction fromString(String soloAction) {
+    public static SoloAction fromString(String soloAction) {
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(SoloAction.class, new SoloAction.SoloReader());
         Gson parser = builder.create();
