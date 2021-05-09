@@ -9,7 +9,7 @@ import java.util.List;
  * @author Alessandro Mercurio
  */
 public class DevelopmentCardStack {
-    private final List<LinkedList<DevelopmentCard>> devCards; //List of 3 Lists, one for each stack
+    private final List<LinkedList<DevelopmentCard>> devCards; // List of 3 Lists, one for each stack.
 
     /**
      * Constructs and empty DevelopmentCardStack.
@@ -17,7 +17,7 @@ public class DevelopmentCardStack {
     public DevelopmentCardStack() {
         this.devCards = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            devCards.add(new LinkedList<DevelopmentCard>());
+            devCards.add(new LinkedList<>());
         }
     }
 
@@ -26,8 +26,7 @@ public class DevelopmentCardStack {
      * @param devCard the DevelopmentCard to position.
      * @return true if the given Card can be positioned, false otherwise.
      */
-    public boolean canBeStored(DevelopmentCard devCard)
-    {
+    public boolean canBeStored(DevelopmentCard devCard) {
         for(LinkedList<DevelopmentCard> stack : this.devCards) {
             int current = (stack.isEmpty()) ? 0 : stack.getFirst().getLevel();
             if(devCard.getLevel() == current + 1) return true;
@@ -42,12 +41,11 @@ public class DevelopmentCardStack {
      * @param position the index of the chosen stack.
      */
     public void storeDevCard(DevelopmentCard card, int position) throws NonPositionableCardException {
-        if (position >= 1 && position <= 3)
-        {
+        if (position >= 1 && position <= 3) {
             LinkedList<DevelopmentCard> stack = this.devCards.get(position - 1);
             int current = (stack.isEmpty()) ? 0 : stack.getFirst().getLevel();
 
-            // Because DevelopmentCard objects are immutable it is not necessary to make a copy.
+            // Because DevelopmentCard objects are immutable, it is not necessary to make a copy.
             if(card.getLevel() == current + 1) stack.addFirst(card);
             else throw new NonPositionableCardException();
         }
@@ -60,10 +58,8 @@ public class DevelopmentCardStack {
      * @param position the chosen stack (1,2 or 3).
      * @return the DevelopmentCard on top of the stack or null.
      */
-    public DevelopmentCard getDevCard(int position)
-    {
-        if (position >= 1 && position <= 3)
-        {
+    public DevelopmentCard getDevCard(int position) {
+        if (position >= 1 && position <= 3) {
             if (this.devCards.get(position - 1).isEmpty()) return null;
             else return this.devCards.get(position - 1).getFirst();
         } else return null;
@@ -75,7 +71,7 @@ public class DevelopmentCardStack {
      * @return a list containing the higher card of each stack.
      */
     public List<DevelopmentCard> getDevCard() {
-        List<DevelopmentCard> activeCards = new ArrayList<DevelopmentCard>();
+        List<DevelopmentCard> activeCards = new ArrayList<>();
         for (LinkedList<DevelopmentCard> stack : this.devCards) {
             // Because DevelopmentCard objects are immutable they can be shared.
             if (stack.isEmpty()) activeCards.add(null);

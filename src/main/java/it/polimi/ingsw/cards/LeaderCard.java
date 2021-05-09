@@ -24,13 +24,11 @@ public class LeaderCard extends Card {
 
     /**
      * Constructs a LeaderCard with the given parameters.
-     *
      * @param reqResources the requirement in terms of Resources.
      * @param reqDevCards  the requirement in terms of DevelopmentCards.
      * @param power        the Power granted by the LeaderCard.
      */
-    public LeaderCard(int points, ResourcePack reqResources, ColorPack reqDevCards, Power power)
-    {
+    public LeaderCard(int points, ResourcePack reqResources, ColorPack reqDevCards, Power power) {
         super(points);
         this.reqResources = reqResources.getCopy();
         this.reqDevCards = reqDevCards.getCopy();
@@ -41,8 +39,7 @@ public class LeaderCard extends Card {
      * Returns a List of all the available LeaderCards.
      * @return a list of all the LeaderCards.
      */
-    public static List<LeaderCard> getLeaderCardDeck(String filePath)
-    {
+    public static List<LeaderCard> getLeaderCardDeck(String filePath) {
         File file = new File(filePath);
 
         GsonBuilder builder = new GsonBuilder();
@@ -52,15 +49,13 @@ public class LeaderCard extends Card {
 
         Type leaderCardType = new TypeToken<List<LeaderCard>>() {}.getType();
 
-        try
-        {
+        try {
             FileReader leaderCard = new FileReader(file);
             JsonReader reader = new JsonReader(leaderCard);
             return parser.fromJson(reader,leaderCardType);
         }
-        catch (FileNotFoundException e)
-        {
-            return new ArrayList<LeaderCard>();
+        catch (FileNotFoundException e) {
+            return new ArrayList<>();
         }
     }
 
@@ -89,11 +84,10 @@ public class LeaderCard extends Card {
         return this.reqDevCards.getCopy();
     }
 
-    public static class PowerReader implements JsonSerializer<Power>, JsonDeserializer<Power>
-    {
+    public static class PowerReader implements JsonSerializer<Power>, JsonDeserializer<Power> {
+
         @Override
-        public JsonElement serialize(Power power, Type typeOfPower, JsonSerializationContext context)
-        {
+        public JsonElement serialize(Power power, Type typeOfPower, JsonSerializationContext context) {
             JsonObject result = new JsonObject();
             result.add("type", new JsonPrimitive(power.getClass().getSimpleName()));
             result.add("description", context.serialize(power, power.getClass()));
@@ -102,16 +96,14 @@ public class LeaderCard extends Card {
         }
 
         @Override
-        public Power deserialize(JsonElement json, Type typeOfPower, JsonDeserializationContext context) throws JsonParseException
-        {
+        public Power deserialize(JsonElement json, Type typeOfPower, JsonDeserializationContext context) throws JsonParseException {
             JsonObject power = json.getAsJsonObject();
             String type = power.get("type").getAsString();
             JsonElement powerDescriptor = power.get("description");
 
             try {
                 return context.deserialize(powerDescriptor, Class.forName("it.polimi.ingsw.cards." + type));
-            } catch (ClassNotFoundException e)
-            {
+            } catch (ClassNotFoundException e) {
                 throw new JsonParseException("Unknown Leader's power type: " + type, e);
             }
         }

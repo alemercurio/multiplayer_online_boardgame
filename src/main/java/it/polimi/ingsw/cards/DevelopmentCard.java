@@ -31,8 +31,7 @@ public class DevelopmentCard extends Card {
      * @param level      the level of the card.
      * @param production the Production associated with the card.
      */
-    public DevelopmentCard(int points, ResourcePack cost, Color color, int level, Production production)
-    {
+    public DevelopmentCard(int points, ResourcePack cost, Color color, int level, Production production) {
         super(points);
         this.cost = cost.getCopy();
         this.color = color;
@@ -45,21 +44,18 @@ public class DevelopmentCard extends Card {
      * @param filePath the path of the JSON where the DevelopmentCards are stored.
      * @return a list of all the DevelopmentCards.
      */
-    public static List<DevelopmentCard> getDevelopmentCardDeck(String filePath)
-    {
+    public static List<DevelopmentCard> getDevelopmentCardDeck(String filePath) {
         File file = new File(filePath);
         Gson parser = new Gson();
         Type devCardType = new TypeToken<List<DevelopmentCard>>() {}.getType();
 
-        try
-        {
+        try {
             FileReader devCard = new FileReader(file);
             JsonReader reader = new JsonReader(devCard);
             return parser.fromJson(reader,devCardType);
         }
-        catch (FileNotFoundException e)
-        {
-            return new ArrayList<DevelopmentCard>();
+        catch (FileNotFoundException e) {
+            return new ArrayList<>();
         }
     }
 
@@ -76,7 +72,7 @@ public class DevelopmentCard extends Card {
      * @return the Production that the Card makes available for the player.
      */
     public Production getProduction() {
-        // Because Production objects are immutable they can be shared.
+        // Because Production objects are immutable, they can be shared.
         return this.production;
     }
 
@@ -103,7 +99,7 @@ public class DevelopmentCard extends Card {
     }
 
     public static DevelopmentCard fromString(String devCard) {
-        Gson parser = new Gson(); // (;︵;)
+        Gson parser = new Gson();
         return parser.fromJson(devCard,DevelopmentCard.class);
     }
 }
