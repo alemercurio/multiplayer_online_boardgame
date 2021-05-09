@@ -83,6 +83,13 @@ public class ResourcePackTest {
         } catch (NonConsumablePackException e) {
             fail();
         }
+
+        // Tests that the exception is correctly thrown in case of non-consumable.
+        try {
+            result1.consume(result2);
+        } catch (NonConsumablePackException e) {
+            assertTrue(true);
+        }
     }
 
     @Test

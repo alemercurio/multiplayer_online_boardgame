@@ -34,5 +34,6 @@ public class ResourceTest {
         assertEquals(Resource.SHIELD, Resource.toResource("B"));
         assertEquals(Resource.FAITHPOINT, Resource.toResource("R"));
         assertEquals(Resource.VOID, Resource.toResource("W"));
+        assertEquals(Resource.VOID, Resource.toResource("NotAnAlias"));
     }
 }
