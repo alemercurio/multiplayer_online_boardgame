@@ -9,37 +9,35 @@ import java.net.Socket;
 
 import java.util.*;
 
-public class Client
-{
+public class Client {
     private Socket socket;
     private Scanner messageIn;
     private PrintWriter messageOut;
 
     private final LinkedList<String> answer = new LinkedList<String>();
 
-    public void connect(String ipAddress) throws IOException
-    {
+    //TODO: decide actual type of local objects client-side (View classes)
+    private MarketBoard.ResourceMarket marketTray;
+    private List<Resource> whiteExchange;
+
+    public void connect(String ipAddress) throws IOException {
         this.socket = new Socket(ipAddress,2703);
         this.messageIn = new Scanner(this.socket.getInputStream());
         this.messageOut = new PrintWriter(this.socket.getOutputStream());
     }
 
-    public static class MessageManager extends Thread
-    {
+    public static class MessageManager extends Thread {
         private final Client client;
         private final Scanner messageIn;
 
-        public MessageManager(Client client,Scanner messageIn)
-        {
+        public MessageManager(Client client,Scanner messageIn) {
             this.client = client;
             this.messageIn = messageIn;
         }
 
-        public void run()
-        {
+        public void run() {
             try {
-                while (true)
-                {
+                while (true) {
                     this.client.report(this.messageIn.nextLine());
                 }
             }
@@ -47,40 +45,34 @@ public class Client
         }
     }
 
-    public synchronized void report(String message)
-    {
+    public synchronized void report(String message) {
         this.answer.add(message);
         notifyAll();
     }
 
-    public synchronized String receive()
-    {
+    public synchronized String receive() {
         //return this.messageIn.nextLine();
         try {
             while(this.answer.isEmpty()) wait();
             return this.answer.poll();
         }
-        catch(Exception e)
-        {
+        catch(Exception e) {
             return null;
         }
     }
 
-    public void send(String message)
-    {
+    public void send(String message) {
         this.messageOut.println(message);
         this.messageOut.flush();
     }
 
-    public void close() throws IOException
-    {
+    public void close() throws IOException {
         this.messageOut.close();
         this.messageIn.close();
         this.socket.close();
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         Client client = new Client();
         try {
             client.connect("127.0.0.1");
@@ -98,13 +90,11 @@ public class Client
         Scanner input = new Scanner(System.in);
         String msg = "";
 
-        while(!msg.equals("esc"))
-        {
+        while(!msg.equals("esc")) {
             System.out.print(">> ");
             msg = input.nextLine();
 
-            switch(msg)
-            {
+            switch(msg) {
                 case "new":
                     client.newGame();
                     break;
@@ -121,22 +111,19 @@ public class Client
         }
     }
 
-    public void newGame()
-    {
+    public void newGame() {
         String answer;
         Scanner input = new Scanner(System.in);
 
         this.send("NewGame");
-        if(!this.receive().equals("OK"))
-        {
+        if(!this.receive().equals("OK")) {
             System.out.println(">> Something went wrong...");
             return;
         }
 
         System.out.print("\tChoose a nickname! << ");
         this.send("setNickname(" + input.nextLine() + ")");
-        if(!this.receive().equals("OK"))
-        {
+        if(!this.receive().equals("OK")) {
             System.out.println(">> Something went wrong...");
             return;
         }
@@ -145,8 +132,7 @@ public class Client
         this.send("setNumPlayer(" + input.nextInt() + ")");
 
         answer = this.receive();
-        while(answer.equals("invalidNumPlayer"))
-        {
+        while(answer.equals("invalidNumPlayer")) {
             System.out.print("\tChoose another number of player << ");
             this.send("setNumPlayer(" + input.nextInt() + ")");
         }
@@ -156,22 +142,19 @@ public class Client
         this.playGame();
     }
 
-    public void joinGame()
-    {
+    public void joinGame() {
         Scanner input = new Scanner(System.in);
 
         this.send("JoinGame");
 
-        if(!this.receive().equals("OK"))
-        {
+        if(!this.receive().equals("OK")) {
             System.out.println(">> No game available!");
             return;
         }
 
         System.out.print("\tChoose a nickname! << ");
         this.send("setNickname(" + input.nextLine() + ")");
-        while(!this.receive().equals("WAIT"))
-        {
+        while(!this.receive().equals("WAIT")) {
             System.out.print("\tChoose another nickname! << ");
             this.send("setNickname(" + input.nextLine() + ")");
         }
@@ -179,37 +162,33 @@ public class Client
         this.playGame();
     }
 
-    public void playGame()
-    {
+    public void playGame() {
         String answer;
         Scanner input = new Scanner(System.in);
 
         do { answer = this.receive(); } while(!answer.equals("GameStart"));
 
         boolean active = true;
-        while(active)
-        {
+        while(active) {
             do {
                 answer = this.receive();
                 if(answer.equals("GameEnd")) active = false;
                 else if(!answer.equals("PLAY")) System.out.println(">> " + answer);
-
             } while(!answer.equals("PLAY") && active);
 
-            if(answer.equals("PLAY"))
-            {
+            if(answer.equals("PLAY")) {
                 String cmd;
                 System.out.print("playing >> ");
                 cmd = input.nextLine();
 
-                switch(cmd)
-                {
+                switch(cmd) {
                     case "buyDevCard":
                         this.send("buyDevCard");
                         this.buyDevelopmentCard();
                         break;
-                    case "getResources":
-                        this.send("getResources");
+                    case "takeResources":
+                        this.send("takeResources");
+                        this.takeResources();
                         break;
                 }
 
@@ -219,7 +198,8 @@ public class Client
 
         System.out.println(">> Game has ended...");
     }
-    public void buyDevelopmentCard () {
+
+    public void buyDevelopmentCard() {
         String answer = " ";
         boolean existsCard = false;
         Scanner input = new Scanner(System.in);
@@ -306,8 +286,8 @@ public class Client
         DevelopmentCardStack stack = new DevelopmentCardStack();
         System.out.println("this is the development card stack on your board:" + stack);
     }
-    public String checkCommand(String... acceptedCommands ) {
 
+    public String checkCommand(String... acceptedCommands) {
         Scanner input = new Scanner(System.in);
         System.out.print(">>");
         String command = input.nextLine();
@@ -322,15 +302,14 @@ public class Client
         return command;
     }
 
-    public boolean checkCardExists (MarketBoard marketBoard, String command){
+    public boolean checkCardExists(MarketBoard marketBoard, String command) {
         // if the level is not correct
         if (!(0 < Character.getNumericValue(command.charAt(1)) && Character.getNumericValue(command.charAt(1)) < 4))
             return false;
         if (getColor(command.charAt(0)) == null)
             return false;
         else {
-
-                //TODO: nella marketView per il cliente questo metodo deve considerare le carte di cui il giocatore non soddisfa i requisiti
+                //TODO: nella marketView per il client questo metodo deve considerare le carte di cui il giocatore non soddisfa i requisiti
             try {
                 marketBoard.getDevelopmentCard(Character.getNumericValue(command.charAt(1)),getColor(command.charAt(0)));
             } catch (NoSuchDevelopmentCardException e) {
@@ -341,7 +320,7 @@ public class Client
         return true;
     }
 
-    public Color getColor (char c){
+    public Color getColor(char c) {
         switch (c) {
             case 'G':
                 return Color.GREEN;
@@ -356,7 +335,7 @@ public class Client
         }
     }
 
-    public int getColorIndex (char c){
+    public int getColorIndex(char c) {
         switch (c) {
             case 'G':
                 return 0;
@@ -368,6 +347,142 @@ public class Client
                 return 3;
             default:
                 return -1;
+        }
+    }
+
+    public void takeResources() {
+        //TODO: remove this initializations
+        marketTray = new MarketBoard.ResourceMarket();
+        whiteExchange = new ArrayList<>();
+        whiteExchange.add(Resource.COIN); // Added VoidPowers to test
+        whiteExchange.add(Resource.SHIELD); // Added VoidPowers to test
+
+        MessageParser parser = new MessageParser();
+        Scanner input = new Scanner(System.in);
+
+        String answer = this.receive();
+        if(!answer.equals("Ack"))
+            System.out.println("ServerError");
+
+        else {
+            System.out.println(marketTray);
+            boolean correctInput = false;
+            while(!correctInput) {
+                System.out.print("Do you want a row or a column? << ");
+                String rowOrCol = input.nextLine();
+                rowOrCol = rowOrCol.toLowerCase();
+                if (rowOrCol.equals("row")) {
+                    correctInput = true;
+                    boolean correctIndex = false;
+                    String index = "";
+                    while (!correctIndex && !index.equals("back")) {
+                        System.out.print("\nWhich row do you want to take? << ");
+                        index = input.nextLine();
+                        try {
+                            int rowIndex = Integer.parseInt(index);
+                            if (rowIndex > 0 && rowIndex < 4) {
+                                correctIndex = true;
+                                this.send("TakeRow(" + rowIndex + ")");
+                                receiveResources();
+                            } else {
+                                System.out.println("\nPlease choose a row between 1 and 3.");
+                            }
+                        } catch (NumberFormatException e) {
+                            if (index.equals("back")) {
+                                this.send("Quit");
+                            }
+                            else {
+                                System.out.println("\nPlease choose a row between 1 and 3.");
+                            }
+                        }
+                    }
+                }
+                else if (rowOrCol.equals("column")) {
+                    correctInput = true;
+                    boolean correctIndex = false;
+                    while (!correctIndex) {
+                        System.out.print("\nWhich column do you want to take? << ");
+                        String index = input.nextLine();
+                        try {
+                            int colIndex = Integer.parseInt(index);
+                            if (colIndex > 0 && colIndex < 5) {
+                                correctIndex = true;
+                                this.send("TakeColumn(" + colIndex + ")");
+                                receiveResources();
+                            } else {
+                                System.out.println("\nPlease choose a column between 1 and 4.");
+                            }
+                        } catch (NumberFormatException e) {
+                            if (index.equals("back")) {
+                                this.send("Quit");
+                            }
+                            else {
+                                System.out.println("\nPlease choose a column between 1 and 4.");
+                            }
+                        }
+                    }
+                }
+                else {
+                    System.out.println("\nPlease type 'row' or 'column', or 'back' to change action.\n");
+                }
+            }
+        }
+    }
+
+    public void receiveResources() {
+        MessageParser parser = new MessageParser();
+        Scanner input = new Scanner(System.in);
+
+        String update = this.receive();
+        parser.parse(update);
+        if(parser.getOrder().equals("UpdateResourcesView")) {
+            String resourcesString = parser.getStringParameter(0);
+            System.out.println(">> You gathered "+resourcesString);
+            ResourcePack pendingResources = ResourcePack.fromString(resourcesString);
+            int numVoid = pendingResources.get(Resource.VOID);
+            if(!whiteExchange.isEmpty() && numVoid>0) {
+                ResourcePack changes = new ResourcePack();
+                System.out.println("It seems you have taken some white marbles.\nYou can exchange them with "+whiteExchange);
+                while(numVoid > 0) {
+                    System.out.println(">> What do you want to change a white marble with? (remaining: "+numVoid+") << ");
+                    String change = input.nextLine();
+                    boolean match = false;
+                    for(Resource resource : whiteExchange) {
+                        if(resource.getAlias().equalsIgnoreCase(change)) {
+                            changes.add(resource, 1);
+                            match = true;
+                            numVoid--;
+                        }
+                    }
+                    if(!match) {
+                        System.out.println(">> There is no Resource with that alias you can get...");
+                    }
+                }
+                this.send("ExchangeWhitesWith("+changes+")");
+                String answer = this.receive();
+                if(answer.equals("OK")) {
+                    pendingResources.flush(Resource.VOID);
+                    pendingResources.add(changes);
+                }
+            }
+            //TODO: transform the string in the resource market update
+            System.out.println(parser.getStringParameter(1));
+        }
+        //TODO: print the current view of the Warehouse
+        System.out.println("WAREHOUSE");
+        for(int shelf=1; shelf<4; shelf++) {
+            //TODO: change the way the player do the movement
+            System.out.println(">> Do you want to store something on shelf "+shelf+"? y/n << ");
+            String answer = input.nextLine();
+            if(answer.equalsIgnoreCase("y")) {
+                Resource resource = Resource.VOID;
+                while (resource.equals(Resource.VOID)) {
+                    System.out.println(">> Which Resource do you want to store? << ");
+                    String resourceAlias = input.nextLine();
+                    resource = Resource.toResource(resourceAlias);
+                }
+                //TODO: send request to the Server for the movement or do it locally?
+            }
         }
     }
 }
