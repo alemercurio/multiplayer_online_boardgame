@@ -35,6 +35,19 @@ public class DevelopmentCardStack {
     }
 
     /**
+     * Tests if the given DevelopmentCard can be stored in the current DevelopmentCardStack, at a specific position.
+     * @param devCard the DevelopmentCard to position.
+     * @param position the position to stored the DevelopmentCard.
+     * @return true if the given Card can be positioned, false otherwise.
+     */
+    public boolean canBeStored(DevelopmentCard devCard, int position){
+        LinkedList<DevelopmentCard> stack;
+        stack = this.devCards.get(position - 1);
+        int current = (stack.isEmpty()) ? 0 : stack.getFirst().getLevel();
+        return devCard.getLevel() == current + 1;
+    }
+
+    /**
      * Puts a DevelopmentCard on top of one of the three stacks.
      * Position are indexed from one and if the given index is invalid nothing happens.
      * @param card     the DevelopmentCard to add.

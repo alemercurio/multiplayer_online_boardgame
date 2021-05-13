@@ -1,12 +1,13 @@
 package it.polimi.ingsw;
 
+import it.polimi.ingsw.cards.*;
+import it.polimi.ingsw.supply.*;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import java.util.LinkedList;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
+import java.util.*;
 
 public class Client
 {
@@ -205,6 +206,7 @@ public class Client
                 {
                     case "buyDevCard":
                         this.send("buyDevCard");
+                        this.buyDevelopmentCard();
                         break;
                     case "getResources":
                         this.send("getResources");
@@ -216,5 +218,156 @@ public class Client
         }
 
         System.out.println(">> Game has ended...");
+    }
+    public void buyDevelopmentCard () {
+        String answer = " ";
+        boolean existsCard = false;
+        Scanner input = new Scanner(System.in);
+        String msg = "";
+        MessageParser mp = new MessageParser();
+        int cardLevel;
+        int cardColorIndex;
+
+        //TODO: create a market view that allows the player to see the card the he satisfies the requirements
+        MarketBoard marketBoard = new MarketBoard();
+
+        answer = this.receive();
+        if (answer.equals("OK")) {
+            do {
+                // if the server doesn't allows the card to be bought
+                if (answer.equals("KO")){
+                    System.out.println("It's not possible to buy this card, please choose another one.");
+                    existsCard = false;
+                }
+                System.out.println(">> This is the market board, please choose a card..\n" + marketBoard.toString());
+                        //at this step, the command must be "buy" or "esc"
+                while (!existsCard) {
+                    msg = checkCommand("G1", "G2", "G3", "B1", "B2", "B3", "Y1", "Y2", "Y3", "P1", "P2", "P3", "esc");
+                    if (msg.equals("esc")) {
+                        System.out.println(">> Command canceled..");
+                        // message 2
+                        this.send(msg);
+                        return;
+                    }
+                    existsCard = checkCardExists(marketBoard, msg);
+                    if (!existsCard)
+                        System.out.println(">> Please, choose a correct card.");
+                    System.out.print(">> ");
+                }
+                cardLevel = Character.getNumericValue(msg.charAt(1));
+                cardColorIndex = getColorIndex(msg.charAt(0));
+                System.out.println("cardLevel :" + cardLevel +" color: " + getColor(msg.charAt(0)) );
+                this.send("Buy(" + cardLevel + "," + cardColorIndex + ")");
+                answer = this.receive();
+            } while(answer.equals("KO"));
+
+            //the card to buy exists
+            System.out.println("Please, choose a position for the new card");
+            msg = input.nextLine();
+            if (msg.equals("esc")){
+                System.out.println(">> Command canceled..");
+                // message 2
+                this.send(msg);
+                return;
+            }
+            while (!(0 < Character.getNumericValue(msg.charAt(0)) && Character.getNumericValue(msg.charAt(0)) < 4)){
+                System.out.println(">> Please choose a position between 1 and 3.");
+                System.out.print(">> ");
+                msg = input.nextLine();
+            }
+            this.send("position(" +  Character.getNumericValue(msg.charAt(0)) + ")");
+            answer = this.receive();
+            while (answer.equals("KO")) {
+
+                System.out.println(">> It's not possible to append the new card at this position, please enter a new position..");
+                System.out.print(">> ");
+                msg = input.nextLine();
+                if (msg.equals("esc")){
+                    System.out.println(">> Command canceled..");
+                    // message 2
+                    this.send(msg);
+                    return;
+                }
+                while (!(0 < Character.getNumericValue(msg.charAt(0)) && Character.getNumericValue(msg.charAt(0)) < 4)){
+                    System.out.println(">> Please choose a position between 1 and 3.");
+                    System.out.print(">> ");
+                    msg = input.nextLine();
+                }
+                this.send("position(" +  Character.getNumericValue(msg.charAt(0)) + ")");
+                answer = receive();
+            }
+        }
+        else {
+            System.out.println("Something went wrong..");
+            return;
+        }
+        System.out.println("the card have been successfully bought!!");
+        // TODO: update the development card stack
+        DevelopmentCardStack stack = new DevelopmentCardStack();
+        System.out.println("this is the development card stack on your board:" + stack);
+    }
+    public String checkCommand(String... acceptedCommands ) {
+
+        Scanner input = new Scanner(System.in);
+        System.out.print(">>");
+        String command = input.nextLine();
+        MessageParser mp = new MessageParser();
+        mp.parse(command);
+        while (!Arrays.asList(acceptedCommands).contains(mp.getOrder())) {
+            System.out.println(">> unacceptable command, please try again..");
+            System.out.print(">> ");
+            command = input.nextLine();
+            mp.parse(command);
+        }
+        return command;
+    }
+
+    public boolean checkCardExists (MarketBoard marketBoard, String command){
+        // if the level is not correct
+        if (!(0 < Character.getNumericValue(command.charAt(1)) && Character.getNumericValue(command.charAt(1)) < 4))
+            return false;
+        if (getColor(command.charAt(0)) == null)
+            return false;
+        else {
+
+                //TODO: nella marketView per il cliente questo metodo deve considerare le carte di cui il giocatore non soddisfa i requisiti
+            try {
+                marketBoard.getDevelopmentCard(Character.getNumericValue(command.charAt(1)),getColor(command.charAt(0)));
+            } catch (NoSuchDevelopmentCardException e) {
+                return false;
+            }
+
+        }
+        return true;
+    }
+
+    public Color getColor (char c){
+        switch (c) {
+            case 'G':
+                return Color.GREEN;
+            case 'B':
+                return Color.BLUE;
+            case 'Y':
+                return Color.YELLOW;
+            case 'P':
+                return Color.PURPLE;
+            default:
+                return null;
+        }
+    }
+
+    public int getColorIndex (char c){
+        switch (c) {
+            case 'G':
+                return 0;
+            case 'B':
+                return 1;
+            case 'Y':
+                return 2;
+            case 'P':
+                return 3;
+            default:
+                return -1;
+        }
     }
 }
