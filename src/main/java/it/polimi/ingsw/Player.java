@@ -1,6 +1,11 @@
 package it.polimi.ingsw;
+import it.polimi.ingsw.cards.Color;
+import it.polimi.ingsw.cards.DevelopmentCard;
+import it.polimi.ingsw.cards.DevelopmentCardStack;
+import it.polimi.ingsw.cards.NonPositionableCardException;
 import it.polimi.ingsw.faith.FaithTrack;
 import it.polimi.ingsw.supply.MarketBoard;
+import it.polimi.ingsw.supply.NoSuchDevelopmentCardException;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -204,6 +209,11 @@ public class Player implements Runnable
                 if(!this.game.isSinglePlayer())
                     this.game.broadCast(this.game.getNickname(this) + " bought a DevCard...");
                 this.send("OK");
+                try {
+                    this.buyDevelopmentCard();
+                } catch (NoSuchDevelopmentCardException e) {
+                    e.printStackTrace();
+                }
                 break;
             case "getResources":
                 System.out.println(">> " + this.game.getNickname(this) + " wants resources");
@@ -212,6 +222,79 @@ public class Player implements Runnable
                 this.game.endGame();
                 this.send("OK");
                 break;
+        }
+    }
+
+    public void buyDevelopmentCard() throws NoSuchDevelopmentCardException{
+        MessageParser currentCommand = new MessageParser();
+        currentCommand.parse(this.receive());
+        if (currentCommand.getOrder().equals("esc"))
+            return;
+
+        int cardLevel = 0;
+        Color cardColor = null;
+        while(currentCommand.getOrder().equals("Buy")) {
+            System.out.println("livello: " + currentCommand.getIntParameter(0) + " colore: " + getColor(currentCommand.getIntParameter(1)));
+            // TODO: add the condition: (!playerBoard.canBuyDevCard(currentCommand.getIntParameter(0), getColor(currentCommand.getIntParameter(1))))
+            if(false) {
+                this.send("KO");
+            } else {
+                cardLevel = currentCommand.getIntParameter(0);
+                cardColor = getColor(currentCommand.getIntParameter(1));
+                this.send("OK");
+            }
+            currentCommand.parse(this.receive());
+            if (currentCommand.getOrder().equals("esc"))
+                return;
+        }
+
+        //now, currentCommand.getOrder().equals("position")
+        boolean bought = false;
+       while ((currentCommand.getOrder().equals("position")) && (!bought)){
+           if (!buy(cardLevel,cardColor,currentCommand.getIntParameter(0)))
+                this.send("KO");
+            else {
+                this.send("OK");
+                bought = true;
+            }
+            if (!bought)
+                currentCommand.parse(this.receive());
+            if (currentCommand.getOrder().equals("esc"))
+                return;
+       }
+    }
+
+    public boolean buy (int level, Color color, int position) {
+        DevelopmentCard card;
+        try {
+            card = game.market.getDevelopmentCard(level,color);
+            System.out.println("the card to buy is : " + card);
+            //if it's possible to position the card then buy it
+            if (this.playerBoard.canBeStored(card, position)){
+                card = this.playerBoard.buyDevelopmentCard(level,color);
+                System.out.println("the card bought is : " + card);
+                playerBoard.storeDevelopmentCard(card, position);
+                return true;
+            }
+            else return false;
+        } catch (NoSuchDevelopmentCardException | NonPositionableCardException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public Color getColor (int i){
+        switch (i) {
+            case 0:
+                return Color.GREEN;
+            case 1:
+                return Color.BLUE;
+            case 2:
+                return Color.YELLOW;
+            case 3:
+                return Color.PURPLE;
+            default:
+                return null;
         }
     }
 }
