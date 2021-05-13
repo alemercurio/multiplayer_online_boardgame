@@ -27,9 +27,8 @@ public class LeaderStack {
      * new LeaderCards are set to inactive.
      * @param leaders the list of LeaderCard to add.
      */
-    public void addLeaders(List<LeaderCard> leaders)
-    {
-        // Because LeaderCard objects are immutable no copy is needed.
+    public void addLeaders(List<LeaderCard> leaders) {
+        // Because LeaderCard objects are immutable, it is not necessary to make a copy.
         this.inactiveLeaders.addAll(leaders);
     }
 
@@ -52,10 +51,8 @@ public class LeaderStack {
      * If the given index has not a corresponding LeaderCard nothing happens.
      * @param index the index of the LeaderCard to discard in the list of non-played Leaders.
      */
-    public void discard(int index)
-    {
-        if (index >= 0 && index < inactiveLeaders.size())
-        {
+    public void discard(int index) {
+        if (index >= 0 && index < inactiveLeaders.size()) {
             inactiveLeaders.remove(index);
         }
     }
@@ -78,8 +75,8 @@ public class LeaderStack {
      * @return a list of all active Leaders.
      */
     public List<LeaderCard> getActiveLeader() {
-        // Because LeaderCard objects are immutable they can be shared.
-        return new LinkedList<LeaderCard>(this.activeLeaders);
+        // Because LeaderCard objects are immutable, they can be shared.
+        return new LinkedList<>(this.activeLeaders);
     }
 
     /**
@@ -90,7 +87,7 @@ public class LeaderStack {
      */
     public LeaderCard getInactiveLeader(int index) {
         if (index >= 0 && index < inactiveLeaders.size()) {
-            // Because LeaderCard objects are immutable they can be shared.
+            // Because LeaderCard objects are immutable, they can be shared.
             return inactiveLeaders.get(index);
         } else return null;
     }
@@ -100,8 +97,8 @@ public class LeaderStack {
      * @return a list of non-played Leaders.
      */
     public List<LeaderCard> getInactiveLeader() {
-        // Because LeaderCard objects are immutable they can be shared.
-        return new LinkedList<LeaderCard>(this.inactiveLeaders);
+        // Because LeaderCard objects are immutable, they can be shared.
+        return new LinkedList<>(this.inactiveLeaders);
     }
 
     /**
@@ -109,8 +106,7 @@ public class LeaderStack {
      * gained by playing leader cards during the game.
      * @return the number of Victory Points.
      */
-    public int getPoints()
-    {
+    public int getPoints() {
         int totalPoints = 0;
         for (LeaderCard leader : activeLeaders)
             totalPoints = totalPoints + leader.getPoints();

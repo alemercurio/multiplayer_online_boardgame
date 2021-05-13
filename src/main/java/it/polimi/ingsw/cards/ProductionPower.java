@@ -15,7 +15,7 @@ public class ProductionPower implements Power {
      * @param production the production that the power is able to give.
      */
     public ProductionPower(Production production) {
-        // Because Production objects are immutable it is not necessary to make a copy.
+        // Because Production objects are immutable, it is not necessary to make a copy.
         this.production = production;
     }
 

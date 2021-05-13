@@ -44,5 +44,7 @@ public class StockPower implements Power {
      * additional depot granted by the activation of the current power.
      * @return the size of the stock given by the current power.
      */
-    public int getLimit() { return this.size; }
+    public int getLimit() {
+        return this.size;
+    }
 }

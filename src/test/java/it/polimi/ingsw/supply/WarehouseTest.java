@@ -65,6 +65,15 @@ public class WarehouseTest {
     }
 
     @Test
+    public void testGetPendingResources() {
+        ResourcePack rp = new ResourcePack(1,2,3);
+        Warehouse wh = new Warehouse();
+
+        wh.add(rp);
+        assertEquals(rp, wh.getPendingResources());
+    }
+
+    @Test
     public void testSwitchShelves() {
         ResourcePack rp = new ResourcePack(1,2,3);
         Warehouse wh = new Warehouse();
@@ -159,6 +168,15 @@ public class WarehouseTest {
         assertFalse(wh.isConsumable(cost2));
         assertFalse(wh.isConsumable(cost3));
         assertTrue(wh.isConsumable(cost4));
+    }
+
+    @Test
+    public void testWastedIfDone() {
+        ResourcePack rp = new ResourcePack(1,2,3);
+        Warehouse wh = new Warehouse();
+
+        wh.add(rp);
+        assertEquals(6, wh.wastedIfDone());
     }
 
     @Test

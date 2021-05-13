@@ -79,13 +79,18 @@ public class StorageTest {
         ResourcePack rp1 = new ResourcePack(0,2,0,1);
         ResourcePack rp2 = new ResourcePack(1,2,3,4);
 
+        ResourcePack rpVoid1 = new ResourcePack(1,2,3,5,0,2);
+        ResourcePack rpVoid2 = new ResourcePack(1,4,3,5,0,2);
+
         storage.warehouse.stockLeaderStock(rp1);
         storage.stockStrongbox(rp2);
 
         assertTrue(storage.isConsumable(new ResourcePack(1,2,3)));
         assertTrue(storage.isConsumable(new ResourcePack(1,4,3,5)));
+        assertTrue(storage.isConsumable(rpVoid1));
         assertFalse(storage.isConsumable(new ResourcePack(1,4,4)));
         assertFalse(storage.isConsumable(new ResourcePack(1,4,3,6)));
+        assertFalse(storage.isConsumable(rpVoid2));
     }
 
     @Test

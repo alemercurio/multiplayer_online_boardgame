@@ -4,8 +4,7 @@ import it.polimi.ingsw.PlayerBoard;
 import it.polimi.ingsw.supply.ResourcePack;
 
 /**
- * Leader Card special ability;
- * gives the player a discount of resources
+ * Leader Card special ability; gives the player a discount of resources
  * when buying Development Cards from the Market.
  * @author Alessandro Mercurio
  */

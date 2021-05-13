@@ -17,7 +17,7 @@ public class SoloDiscardTest {
 
         public LorenzoTheStub()
         {
-            super(null,null,null);
+            super(null,null,null,null);
             this.discarded = new HashMap<>();
         }
 

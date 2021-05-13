@@ -32,7 +32,7 @@ public class ResourcePack {
         this();
         Resource[] res = Resource.values();
         for(int i = 0; i < resourceAmounts.length && i < 6; i++) {
-            //if the amount of a Resource is zero, its record is omitted or removed from the map
+            // If the amount of a Resource is zero, its record is omitted or removed from the map.
             if(resourceAmounts[i] != 0) {
                 this.resources.put(res[i], resourceAmounts[i]);
             }
@@ -45,7 +45,7 @@ public class ResourcePack {
      * @see Resource
      */
     public int size() {
-        //selects non-special resources and then evaluate their quantity by using a reduce function
+        // Selects non-special Resources and then evaluate their quantity by using a reduce function.
         return this.resources.entrySet().stream().filter(e -> !(e.getKey().isSpecial()))
                 .map(Map.Entry::getValue).reduce(0,Integer::sum);
     }
@@ -98,7 +98,7 @@ public class ResourcePack {
             for (Map.Entry<Resource, Integer> req : required.resources.entrySet())
                 if (this.get(req.getKey()) < req.getValue()) return false;
         }
-        //null is considered as an empty pack so the result is true in that particular case
+        // Null is considered as an empty pack so the result is true in that particular case.
         return true;
     }
 
@@ -131,7 +131,6 @@ public class ResourcePack {
      */
     public void consume(Resource resource, int amount) throws NonConsumablePackException {
         if(amount > 0) {
-            //the possibility of non-consumable is implicitly handled (do nothing)
             int remaining = this.get(resource) - amount;
             if (remaining == 0) this.resources.remove(resource);
             else if (remaining > 0) this.resources.put(resource, remaining);
@@ -147,7 +146,7 @@ public class ResourcePack {
      */
     public void discount(ResourcePack pack) {
         int remaining;
-        // null is considered as an empty pack
+        // Null is considered as an empty pack.
         if(pack != null) {
             for (Map.Entry<Resource, Integer> e : pack.resources.entrySet()) {
                 remaining = this.get(e.getKey()) - e.getValue();
@@ -175,7 +174,7 @@ public class ResourcePack {
      */
     public int flush(Resource resource) {
         int amount = this.get(resource);
-        // note: if the amount of resources is zero its record does not exists
+        // Note: if the amount of a Resource is zero, its record does not exists.
         if(amount != 0) this.resources.remove(resource);
         return amount;
     }
@@ -195,7 +194,7 @@ public class ResourcePack {
                 this.consume(resourceTypes[randomIndex], 1);
             }
             catch (NonConsumablePackException e) {
-                // this is something that cannot happen
+                // This is something that cannot happen.
                 return Resource.VOID;
             }
             return resourceTypes[randomIndex];
@@ -207,7 +206,7 @@ public class ResourcePack {
      * @return true if the ResourcePack is empty.
      */
     public boolean isEmpty() {
-        // note: void is considered as a generic resource whose type is unknown.
+        // Note: void is considered as a generic Resource whose type is unknown.
         return resources.isEmpty();
     }
 

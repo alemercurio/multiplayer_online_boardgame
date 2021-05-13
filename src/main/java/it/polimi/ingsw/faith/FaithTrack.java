@@ -12,7 +12,7 @@ public class FaithTrack {
     private int faithMarker;
     private final Vatican vatican;
     private final ArrayList<Vatican.Space> track;
-    private final Map<Vatican.PopeSpace,Integer> popeSpaces;
+    private final Map<Vatican.ReportSection,Integer> reportSections;
 
     private boolean end;
 
@@ -21,19 +21,17 @@ public class FaithTrack {
      * @param faithTrackID the unique identifier of the FaithTrack.
      * @param vatican the Vatican associated with the FaithTrack.
      * @param track the List of Spaces which the FaithTrack is composed.
-     * @param popeSpaces the List of PopeSpaces in the FaithTrack.
+     * @param reportSections the List of PopeSpaces in the FaithTrack.
      */
-    protected FaithTrack(int faithTrackID,Vatican vatican,List<Vatican.Space> track,List<Vatican.PopeSpace> popeSpaces)
-    {
+    protected FaithTrack(int faithTrackID,Vatican vatican,List<Vatican.Space> track,List<Vatican.ReportSection> reportSections) {
         this.faithTrackID = faithTrackID;
         this.faithMarker = 0;
         this.vatican = vatican;
 
-        this.track = new ArrayList<Vatican.Space>(track);
-        this.popeSpaces = new HashMap<Vatican.PopeSpace,Integer>();
-        for(Vatican.PopeSpace ps : popeSpaces)
-        {
-            this.popeSpaces.put(ps,0);
+        this.track = new ArrayList<>(track);
+        this.reportSections = new HashMap<>();
+        for(Vatican.ReportSection ps : reportSections) {
+            this.reportSections.put(ps,0);
         }
 
         this.end = (this.track.size() == 1);
@@ -44,30 +42,34 @@ public class FaithTrack {
      * meaning the index of the Space it is currently in.
      * @return the current position of the Faith Marker in the current FaithTrack.
      */
-    public int getFaithMarker() { return this.faithMarker; }
+    public int getFaithMarker() {
+        return this.faithMarker;
+    }
 
     /**
      * Returns the identifier of the current FaithTrack within the list of all FaithTracks.
      * @return the identifier of the current FaithTrack.
      */
-    public int getID() { return faithTrackID; }
+    public int getID() {
+        return faithTrackID;
+    }
 
     /**
      * Makes the Faith Marker advance of one single space.
      * If the new current space is a PopeSpace, reports to Vatican.
      */
     public void advance() {
-        if(!end) { this.faithMarker++; }
+        if(!end) {
+            this.faithMarker++;
+        }
 
         Vatican.Space space = this.track.get(this.faithMarker);
-        if(space.needReport())
-        {
+        if(space.needReport()) {
             // Activates the Vatican report.
             this.vatican.vaticanReport(space.popeSpace());
         }
 
-        if(!end && this.faithMarker == this.track.size() - 1)
-        {
+        if(!end && this.faithMarker == this.track.size() - 1) {
             // Signals to Vatican that the current FaithTrack has reached the end.
             this.vatican.endGame();
             this.end = true;
@@ -98,10 +100,10 @@ public class FaithTrack {
      * the associated section in the FaithTrack. If not, the section is marked as lost.
      * @param ps the Pope Favour assignable to the Player.
      */
-    public void PopeFavour(Vatican.PopeSpace ps) {
+    public void PopeFavour(Vatican.ReportSection ps) {
         if(this.faithMarker >= ps.getFirstSpace())
-            this.popeSpaces.put(ps,1);
-        else this.popeSpaces.put(ps,-1);
+            this.reportSections.put(ps,1);
+        else this.reportSections.put(ps,-1);
     }
 
     /**
@@ -109,7 +111,7 @@ public class FaithTrack {
      * @return the total points gained from Pope Favours.
      */
     public int countFavors() {
-        return this.popeSpaces.entrySet().stream()
+        return this.reportSections.entrySet().stream()
                 .filter(e -> e.getValue() > 0).map(pf -> pf.getKey().getPoints())
                 .reduce(Integer::sum).orElse(0);
     }
@@ -120,8 +122,7 @@ public class FaithTrack {
      */
     public int getTotalPoints() {
         int points = this.countFavors();
-        for(int index = 0; index <= this.faithMarker; index++)
-        {
+        for(int index = 0; index <= this.faithMarker; index++) {
             points = points + this.track.get(index).getPoints();
         }
         return points;

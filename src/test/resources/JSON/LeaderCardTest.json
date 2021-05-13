@@ -1,0 +1,1 @@
+[{"reqResources":{"resources":{}},"reqDevCards":{"cardSet":[[{"color":"GREEN","level":1},1],[{"color":"YELLOW","level":1},1]]},"power":{"type":"DiscountPower","description":{"discount":{"resources":{"SERVANT":1}}}},"points":2},{"reqResources":{"resources":{"COIN":5}},"reqDevCards":{"cardSet":{}},"power":{"type":"StockPower","description":{"size":2,"type":"STONE"}},"points":3}]

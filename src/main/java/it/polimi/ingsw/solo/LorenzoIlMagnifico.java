@@ -1,5 +1,7 @@
 package it.polimi.ingsw.solo;
 
+import it.polimi.ingsw.Game;
+import it.polimi.ingsw.SoloGame;
 import it.polimi.ingsw.cards.Color;
 import it.polimi.ingsw.faith.FaithTrack;
 import it.polimi.ingsw.supply.MarketBoard;
@@ -12,6 +14,7 @@ public class LorenzoIlMagnifico {
     private final FaithTrack faithTrack;
     private final MarketBoard market;
     private final SoloActionDeck deck;
+    private final Game game;
 
     /**
      * Constructs the single player opponent LorenzoIlMagnifico.
@@ -19,10 +22,11 @@ public class LorenzoIlMagnifico {
      * @param market the reference to the MarketBoard.
      * @param deck the full stack of SoloAction tokens available for LorenzoIlMagnifico.
      */
-    public LorenzoIlMagnifico(FaithTrack faithTrack, MarketBoard market, SoloActionDeck deck) {
+    public LorenzoIlMagnifico(SoloGame game, FaithTrack faithTrack, MarketBoard market, SoloActionDeck deck) {
         this.faithTrack = faithTrack;
         this.market = market;
         this.deck = deck;
+        this.game = game;
     }
 
     /**
@@ -45,8 +49,10 @@ public class LorenzoIlMagnifico {
      * @param amount the number of Cards of the specified color to discard.
      */
     public void discard (Color color, int amount){
-        // TODO: REFACTOR
-        market.discard(color, amount);
+        boolean ableToDiscard = market.discard(color, amount);
+        if(!ableToDiscard) {
+            game.endGame();
+        }
     }
 
     /**
@@ -54,15 +60,14 @@ public class LorenzoIlMagnifico {
      * advance of the specified number of steps.
      * @param step the number of spaces the Black Cross must advance in the FaithTrack.
      */
-    public void advance(int step){
+    public void advance(int step) {
         faithTrack.advance(step);
     }
 
     /**
      * Calls the shuffling of the full stack of SoloAction in the SoloActionDeck.
      */
-    public void shuffleDeck()
-    {
+    public void shuffleDeck() {
         deck.shuffle();
     }
 }
