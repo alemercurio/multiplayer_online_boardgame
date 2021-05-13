@@ -83,6 +83,9 @@ public class PlayerBoard
         }
     }
 
+    public boolean canBeStored(DevelopmentCard devCard, int position){
+        return this.devCards.canBeStored(devCard, position);
+    }
     /**
      * Stores the given DevelopmentCard in the current PlayerBoard's DevelopmentCardStack.
      * the production granted by the card is added to the current Factory.
@@ -155,6 +158,14 @@ public class PlayerBoard
         + this.faithTrack.getTotalPoints()
         + this.leaders.getPoints()
         + this.storage.getAllResource().size()/5;
+    }
+
+    public DevelopmentCard getDevelopmentCard(int level, Color color) throws NoSuchDevelopmentCardException {
+            return this.market.getDevelopmentCard(level, color);
+    }
+
+    public DevelopmentCard buyDevelopmentCard(int level, Color color) throws NoSuchDevelopmentCardException {
+        return this.market.buyDevelopmentCard(level, color);
     }
 
     // Methods for power activation
