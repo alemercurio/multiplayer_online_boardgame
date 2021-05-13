@@ -308,4 +308,74 @@ public class DevelopmentCardStackTest {
         }
         return thrown;
     }
+
+    @Test
+    public void canBeStored() {
+
+        ResourcePack rp1_input = new ResourcePack(0,0,3,0,0);
+        ResourcePack rp2_input = new ResourcePack(1,0,2,0,0);
+        ResourcePack rp3_input = new ResourcePack(1,4,3,0,0);
+        ResourcePack rp4_input = new ResourcePack(1,0,3,0,0);
+        ResourcePack rp5_input = new ResourcePack(1,4,3,0,0);
+        ResourcePack rp6_input = new ResourcePack(1,0,3,0,0);
+        ResourcePack rp7_input = new ResourcePack(0,0,3,0,0);
+
+        ResourcePack rp1_output = new ResourcePack(1,1,0,4,0);
+        ResourcePack rp2_output = new ResourcePack(0,2,0,3,0);
+        ResourcePack rp3_output = new ResourcePack(0,0,0,1,1);
+        ResourcePack rp4_output = new ResourcePack(0,7,0,1,0);
+        ResourcePack rp5_output = new ResourcePack(0,0,0,3,0);
+        ResourcePack rp6_output = new ResourcePack(0,0,0,0,1);
+        ResourcePack rp7_output = new ResourcePack(2,1,0,0,0);
+
+        Production p1 = new Production(rp1_input, rp1_output);
+        Production p2 = new Production(rp2_input, rp2_output);
+        Production p3 = new Production(rp3_input, rp3_output);
+        Production p4 = new Production(rp4_input, rp4_output);
+        Production p5 = new Production(rp5_input, rp5_output);
+        Production p6 = new Production(rp6_input, rp6_output);
+        Production p7 = new Production(rp7_input, rp7_output);
+
+        ResourcePack rp1_cost = new ResourcePack(0,0,3,0,0);
+        ResourcePack rp2_cost = new ResourcePack(1,1,1,0,0);
+        ResourcePack rp3_cost = new ResourcePack(2,2,0,0,0);
+        ResourcePack rp4_cost = new ResourcePack(2,2,0,0,0);
+        ResourcePack rp5_cost = new ResourcePack(2,0,1,1,0);
+        ResourcePack rp6_cost = new ResourcePack(0,0,0,4,0);
+        ResourcePack rp7_cost = new ResourcePack(0,2,1,1,1);
+
+        DevelopmentCard devCard1 = new DevelopmentCard(3, rp1_cost, Color.BLUE,1, p1);
+        DevelopmentCard devCard2 = new DevelopmentCard(2, rp2_cost, Color.GREEN,1, p2);
+        DevelopmentCard devCard3 = new DevelopmentCard(1, rp3_cost, Color.YELLOW,1, p3);
+        DevelopmentCard devCard4 = new DevelopmentCard(3, rp4_cost, Color.PURPLE,2, p4);
+        DevelopmentCard devCard5 = new DevelopmentCard(4, rp5_cost, Color.BLUE,2, p5);
+        DevelopmentCard devCard6 = new DevelopmentCard(1, rp6_cost, Color.GREEN,3, p6);
+        DevelopmentCard devCard7 = new DevelopmentCard(2, rp7_cost, Color.PURPLE,3, p7);
+
+        DevelopmentCardStack stack = new DevelopmentCardStack();
+        assertTrue(stack.canBeStored(devCard1,1));
+        assertTrue(stack.canBeStored(devCard1,2));
+        assertTrue(stack.canBeStored(devCard1,3));
+        assertTrue(stack.canBeStored(devCard2,1));
+        assertTrue(stack.canBeStored(devCard2,2));
+        assertTrue(stack.canBeStored(devCard2,3));
+        assertTrue(stack.canBeStored(devCard3,1));
+        assertTrue(stack.canBeStored(devCard3,2));
+        assertTrue(stack.canBeStored(devCard3,3));
+        assertFalse(stack.canBeStored(devCard4,1));
+        assertFalse(stack.canBeStored(devCard5,2));
+
+        testStoreDevCardThrowsException(stack, devCard1, 1);
+        testStoreDevCardThrowsException(stack, devCard2, 2);
+        assertTrue(stack.canBeStored(devCard4,1));
+        assertTrue(stack.canBeStored(devCard5,2));
+        assertFalse(stack.canBeStored(devCard6,1));
+        assertFalse(stack.canBeStored(devCard7,2));
+
+
+        testStoreDevCardThrowsException(stack, devCard4, 1);
+        testStoreDevCardThrowsException(stack, devCard5, 2);
+        assertTrue(stack.canBeStored(devCard6,1));
+        assertTrue(stack.canBeStored(devCard7,2));
+    }
 }
