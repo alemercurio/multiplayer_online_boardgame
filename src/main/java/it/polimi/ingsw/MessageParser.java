@@ -38,7 +38,7 @@ public class MessageParser
                 boolean collect = false;
                 for(String param : fragments) {
                     if(collect) {
-                        shard.append(param);
+                        shard.append(",").append(param);
                         if(param.charAt(param.length() - 1) == '}') {
                             shards.add(shard.toString());
                             collect = false;
