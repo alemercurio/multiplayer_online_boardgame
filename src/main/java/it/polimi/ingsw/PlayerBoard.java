@@ -9,7 +9,7 @@ import java.util.List;
 
 public class PlayerBoard
 {
-    private final MarketBoard market;
+    public final MarketBoard market;
     private final Storage storage;
     private final LeaderStack leaders;
     private final DevelopmentCardStack devCards;
