@@ -9,7 +9,7 @@ import java.util.List;
 
 public class PlayerBoard
 {
-    public final MarketBoard market;
+    private final MarketBoard market;
     private final Storage storage;
     private final LeaderStack leaders;
     private final DevelopmentCardStack devCards;
@@ -19,6 +19,10 @@ public class PlayerBoard
     private final ResourcePack marketDiscounts;
     private final List<Resource> whiteExchange;
 
+    private static final Production baseProduction = new Production(
+            new ResourcePack().add(Resource.VOID,2),
+            new ResourcePack().add(Resource.VOID,1));
+
     public PlayerBoard(MarketBoard market,FaithTrack faithTrack)
     {
         this.market = market;
@@ -26,6 +30,7 @@ public class PlayerBoard
         this.leaders = new LeaderStack();
         this.devCards = new DevelopmentCardStack();
         this.factory = new Factory();
+        this.factory.addProductionPower(baseProduction);
         this.faithTrack = faithTrack;
 
         this.marketDiscounts = new ResourcePack();

@@ -29,7 +29,6 @@ public class MultiGame extends Game {
         this(numPlayer);
 
         this.addPlayer(creator);
-        creator.setForGame(this.vatican.getFaithTrack(),this.market);
         this.nameTable.put(creator,nickname);
         this.playerWithInkwell = creator;
     }

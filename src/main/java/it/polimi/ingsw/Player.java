@@ -70,13 +70,10 @@ public class Player implements Runnable {
         this.messageOut.flush();
     }
 
-    public String receive() {
-        return this.messageIn.nextLine();
-    }
+    public String receive() { return this.messageIn.nextLine(); }
 
     private void newGame() {
         String msg;
-        String nickname;
         MessageParser mp = new MessageParser();
 
         this.send("OK");
@@ -89,7 +86,7 @@ public class Player implements Runnable {
             msg = this.receive();
             mp.parse(msg);
         }
-        nickname = mp.getStringParameter(0);
+        this.nickname = mp.getStringParameter(0);
         this.send("OK");
 
         // Set Number of Players
@@ -101,7 +98,7 @@ public class Player implements Runnable {
             mp.parse(msg);
         }
 
-        this.game = Game.newGame(this,nickname,mp.getIntParameter(0));
+        this.game = Game.newGame(this,this.nickname,mp.getIntParameter(0));
         this.send("WAIT");
 
         this.game.start();
@@ -122,7 +119,8 @@ public class Player implements Runnable {
                 msg = this.receive();
                 mp.parse(msg);
             }
-            this.game.setNickname(this, mp.getStringParameter(0));
+            this.nickname = mp.getStringParameter(0);
+            this.game.setNickname(this,this.nickname);
             this.send("WAIT");
 
             return true;
