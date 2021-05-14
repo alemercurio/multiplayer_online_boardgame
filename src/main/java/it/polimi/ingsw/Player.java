@@ -194,6 +194,19 @@ public class Player implements Runnable {
                 if(!this.game.isSinglePlayer())
                     this.game.broadCast(this.game.getNickname(this) + " has gathered resources...");
                 break;
+            case "activateProduction":
+                if(!this.game.isSinglePlayer())
+                    this.game.broadCast(this.nickname + " has activated production...");
+                this.activateProduction();
+                break;
+
+            // TODO: remove
+            case "test":
+                this.playerBoard.storage.strongbox.add(new ResourcePack(10,10,10,10));
+                this.playerBoard.factory.addProductionPower(new Production(
+                        new ResourcePack(2),
+                        new ResourcePack(0,2,0,0,0,6)));
+                break;
         }
     }
 
@@ -311,6 +324,75 @@ public class Player implements Runnable {
                 if(true) {
                     this.send("OK");
                 }
+            }
+        }
+    }
+
+    public void activateProduction()
+    {
+        String msg;
+        MessageParser mp = new MessageParser();
+
+        this.send(MessageParser.message("update","fact",this.playerBoard.factory));
+        this.send("OK");
+
+        boolean toRepeat;
+        int whiteToConvert = 0;
+        do {
+            toRepeat = false;
+            msg = this.receive();
+            mp.parse(msg);
+
+            if(mp.getOrder().equals("esc")) return;
+            else if(mp.getOrder().equals("active"))
+            {
+                this.playerBoard.factory.setActiveProduction(mp.getObjectParameter(0,int[].class));
+
+                try {
+                    whiteToConvert = this.playerBoard.activateProduction();
+                    this.send("OK");
+
+                } catch (NonConsumablePackException e) {
+                    this.send("NotEnoughResources");
+                    toRepeat = true;
+                }
+
+            } else {
+                this.send("InvalidOperation");
+                toRepeat = true;
+            }
+
+        } while(toRepeat);
+
+        if(whiteToConvert != 0)
+        {
+            this.playerBoard.storage.strongbox.add(this.selectResources(whiteToConvert));
+        }
+
+        this.send("COMPLETE");
+    }
+
+    public ResourcePack selectResources(int amount)
+    {
+        String msg;
+        MessageParser mp = new MessageParser();
+
+        this.send(MessageParser.message("convert",amount));
+
+        while(true)
+        {
+            msg = this.receive();
+            mp.parse(msg);
+
+            ResourcePack selected = mp.getObjectParameter(0,ResourcePack.class);
+            if(selected.get(Resource.VOID) != 0 || selected.get(Resource.FAITHPOINT) != 0 || selected.size() != amount)
+            {
+                this.send("SelectionNotValid");
+            }
+            else
+            {
+                this.send("OK");
+                return selected;
             }
         }
     }

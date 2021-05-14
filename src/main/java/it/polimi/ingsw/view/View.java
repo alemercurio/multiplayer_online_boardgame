@@ -2,7 +2,7 @@ package it.polimi.ingsw.view;
 
 public class View {
 
-    public static FactoryView factory;
+    public static FactoryView factory = new FactoryView();
 
     public static void update(String target,String state)
     {

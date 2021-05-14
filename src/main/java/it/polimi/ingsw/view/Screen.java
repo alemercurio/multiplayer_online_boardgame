@@ -27,6 +27,13 @@ public class Screen {
         else System.out.print(n);
     }
 
+    public static void printError(String error)
+    {
+        Screen.setColor(196);
+        System.out.println("\t>> " + error);
+        Screen.reset();
+    }
+
     public static void print(Resource res)
     {
         switch(res)

@@ -39,6 +39,12 @@ public class FactoryView {
         this.active.remove(index);
     }
 
+    public String getActive()
+    {
+        Gson parser = new Gson();
+        return parser.toJson(this.active);
+    }
+
     /**
      * Returns the collective requirements for all the active productions;
      * inactive productions are ignored.
@@ -46,8 +52,8 @@ public class FactoryView {
      */
     public ResourcePack productionRequirements() {
         ResourcePack requirements = new ResourcePack();
-        for(Production prod : this.productions) {
-            requirements.add(prod.getRequired());
+        for(int i = 0; i < this.productions.size(); i++) {
+            if(this.active.contains(i)) requirements.add(this.productions.get(i).getRequired());
         }
         return requirements;
     }
@@ -59,8 +65,8 @@ public class FactoryView {
      */
     public ResourcePack productionResult() {
         ResourcePack product = new ResourcePack();
-        for(Production prod : this.productions) {
-            product.add(prod.produce());
+        for(int i = 0; i < this.productions.size(); i++) {
+            if(this.active.contains(i)) product.add(this.productions.get(i).produce());
         }
         return product;
     }
@@ -73,7 +79,6 @@ public class FactoryView {
                 Screen.setColor(46);
             System.out.print("\t");
             Screen.printCircledNumber(i);
-            i++;
             Screen.reset();
             Screen.print(this.productions.get(i));
             System.out.print("\n");

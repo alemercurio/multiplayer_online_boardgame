@@ -35,18 +35,28 @@ public class MessageParser
                 fragments = matcher.group("parameter").split(",");
 
                 StringBuilder shard = new StringBuilder();
-                boolean collect = false;
+                boolean collectCurly = false;
+                boolean collectSquare = false;
+
                 for(String param : fragments) {
-                    if(collect) {
+                    if(collectCurly || collectSquare) {
                         shard.append(",").append(param);
-                        if(param.charAt(param.length() - 1) == '}') {
+                        if((collectCurly && param.charAt(param.length() - 1) == '}')) {
                             shards.add(shard.toString());
-                            collect = false;
+                            collectCurly = false;
+                        }
+                        else if(collectSquare && param.charAt(param.length() - 1) == ']') {
+                            shards.add(shard.toString());
+                            collectSquare = false;
                         }
                     } else {
                         if(param.charAt(0) == '{' && param.charAt(param.length() - 1) != '}') {
                             shard = new StringBuilder(param);
-                            collect = true;
+                            collectCurly = true;
+                        }
+                        else if(param.charAt(0) == '[' && param.charAt(param.length() - 1) != ']') {
+                            shard = new StringBuilder(param);
+                            collectSquare = true;
                         }
                         else shards.add(param);
                     }

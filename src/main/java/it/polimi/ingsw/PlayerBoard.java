@@ -10,10 +10,10 @@ import java.util.List;
 public class PlayerBoard
 {
     private final MarketBoard market;
-    private final Storage storage;
+    public final Storage storage;
     private final LeaderStack leaders;
     private final DevelopmentCardStack devCards;
-    private final Factory factory;
+    public final Factory factory;
     private final FaithTrack faithTrack;
 
     private final ResourcePack marketDiscounts;
