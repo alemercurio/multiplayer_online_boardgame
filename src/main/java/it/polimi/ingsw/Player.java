@@ -2,6 +2,7 @@ package it.polimi.ingsw;
 import it.polimi.ingsw.cards.*;
 import it.polimi.ingsw.supply.*;
 import it.polimi.ingsw.faith.*;
+import it.polimi.ingsw.util.MessageParser;
 
 import java.io.IOException;
 import java.io.PrintWriter;

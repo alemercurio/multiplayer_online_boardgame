@@ -2,98 +2,37 @@ package it.polimi.ingsw;
 
 import it.polimi.ingsw.cards.*;
 import it.polimi.ingsw.supply.*;
+import it.polimi.ingsw.util.MessageManager;
+import it.polimi.ingsw.util.MessageParser;
 import it.polimi.ingsw.view.Screen;
 import it.polimi.ingsw.view.View;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.Socket;
 
 import java.util.*;
 
 public class Client {
-    private Socket socket;
-    private Scanner messageIn;
-    private PrintWriter messageOut;
 
-    private final LinkedList<String> answer = new LinkedList<String>();
+    private MessageManager message;
 
     //TODO: decide actual type of local objects client-side (View classes)
     private MarketBoard.ResourceMarket marketTray;
     private List<Resource> whiteExchange;
 
-    public void connect(String ipAddress) throws IOException {
-        this.socket = new Socket(ipAddress,2703);
-        this.messageIn = new Scanner(this.socket.getInputStream());
-        this.messageOut = new PrintWriter(this.socket.getOutputStream());
-    }
-
-    public static class MessageManager extends Thread {
-        private final Client client;
-        private final Scanner messageIn;
-
-        public MessageManager(Client client,Scanner messageIn) {
-            this.client = client;
-            this.messageIn = messageIn;
-        }
-
-        public void run() {
-
-            String message;
-            MessageParser mp = new MessageParser();
-
-            try {
-                while (true) {
-                    message = this.messageIn.nextLine();
-                    mp.parse(message);
-
-                    if(mp.getOrder().equals("update"))
-                        View.update(mp.getStringParameter(0),mp.getStringParameter(1));
-                    else this.client.report(message);
-                }
-            }
-            catch(NoSuchElementException ignored) { }
-        }
-    }
-
-    public synchronized void report(String message) {
-        this.answer.add(message);
-        notifyAll();
-    }
-
-    public synchronized String receive() {
-        try {
-            while(this.answer.isEmpty()) wait();
-            return this.answer.poll();
-        }
-        catch(Exception e) {
-            return null;
-        }
-    }
-
-    public void send(String message) {
-        this.messageOut.println(message);
-        this.messageOut.flush();
-    }
-
-    public void close() throws IOException {
-        this.messageOut.close();
-        this.messageIn.close();
-        this.socket.close();
-    }
-
     public static void main(String[] args) {
+
         Client client = new Client();
+
         try {
-            client.connect("127.0.0.1");
+            client.message = new MessageManager("127.0.0.1",2703);
         } catch (IOException e) {
-            System.out.println(">> Server unavailable...");
+            Screen.printError("Server unavailable...");
+            return;
         }
 
-        Thread t = new Client.MessageManager(client,client.messageIn);
-        t.start();
+        client.message.start();
 
-        if(!client.receive().equals("welcome"))
+        if(!client.message.receive().equals("welcome"))
             System.out.println(">> Unable to be welcomed..");
         else System.out.println(">> Successfully connected..");
 
@@ -115,7 +54,7 @@ public class Client {
         }
 
         try {
-            client.close();
+            client.message.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -125,26 +64,26 @@ public class Client {
         String answer;
         Scanner input = new Scanner(System.in);
 
-        this.send("NewGame");
-        if(!this.receive().equals("OK")) {
+        this.message.send("NewGame");
+        if(!this.message.receive().equals("OK")) {
             System.out.println(">> Something went wrong...");
             return;
         }
 
         System.out.print("\tChoose a nickname! << ");
-        this.send("setNickname(" + input.nextLine() + ")");
-        if(!this.receive().equals("OK")) {
+        this.message.send("setNickname(" + input.nextLine() + ")");
+        if(!this.message.receive().equals("OK")) {
             System.out.println(">> Something went wrong...");
             return;
         }
 
         System.out.print("\tHow many players? << ");
-        this.send("setNumPlayer(" + input.nextInt() + ")");
+        this.message.send("setNumPlayer(" + input.nextInt() + ")");
 
-        answer = this.receive();
+        answer = this.message.receive();
         while(answer.equals("invalidNumPlayer")) {
             System.out.print("\tChoose another number of player << ");
-            this.send("setNumPlayer(" + input.nextInt() + ")");
+            this.message.send("setNumPlayer(" + input.nextInt() + ")");
         }
 
         if(!answer.equals("WAIT")) System.out.println("Something went wrong... >> " + answer);
@@ -155,18 +94,18 @@ public class Client {
     public void joinGame() {
         Scanner input = new Scanner(System.in);
 
-        this.send("JoinGame");
+        this.message.send("JoinGame");
 
-        if(!this.receive().equals("OK")) {
+        if(!this.message.receive().equals("OK")) {
             System.out.println(">> No game available!");
             return;
         }
 
         System.out.print("\tChoose a nickname! << ");
-        this.send("setNickname(" + input.nextLine() + ")");
-        while(!this.receive().equals("WAIT")) {
+        this.message.send("setNickname(" + input.nextLine() + ")");
+        while(!this.message.receive().equals("WAIT")) {
             System.out.print("\tChoose another nickname! << ");
-            this.send("setNickname(" + input.nextLine() + ")");
+            this.message.send("setNickname(" + input.nextLine() + ")");
         }
 
         this.playGame();
@@ -176,12 +115,12 @@ public class Client {
         String answer;
         Scanner input = new Scanner(System.in);
 
-        do { answer = this.receive(); } while(!answer.equals("GameStart"));
+        do { answer = this.message.receive(); } while(!answer.equals("GameStart"));
 
         boolean active = true;
         while(active) {
             do {
-                answer = this.receive();
+                answer = this.message.receive();
                 if(answer.equals("GameEnd")) active = false;
                 else if(!answer.equals("PLAY")) System.out.println(">> " + answer);
             } while(!answer.equals("PLAY") && active);
@@ -193,25 +132,25 @@ public class Client {
 
                 switch(cmd) {
                     case "buyDevCard":
-                        this.send("buyDevCard");
+                        this.message.send("buyDevCard");
                         this.buyDevelopmentCard();
                         break;
                     case "takeResources":
-                        this.send("takeResources");
+                        this.message.send("takeResources");
                         this.takeResources();
                         break;
                     case "activateProduction":
-                        this.send("activateProduction");
+                        this.message.send("activateProduction");
                         this.activateProduction();
                         break;
 
                     // TODO: remove
                     case "test":
-                        this.send("test");
+                        this.message.send("test");
                         break;
                 }
 
-                System.out.println(">> " + this.receive());
+                System.out.println(">> " + this.message.receive());
             }
         }
 
@@ -230,7 +169,7 @@ public class Client {
         //TODO: create a market view that allows the player to see the card the he satisfies the requirements
         MarketBoard marketBoard = new MarketBoard();
 
-        answer = this.receive();
+        answer = this.message.receive();
         if (answer.equals("OK")) {
             do {
                 // if the server doesn't allows the card to be bought
@@ -245,7 +184,7 @@ public class Client {
                     if (msg.equals("esc")) {
                         System.out.println(">> Command canceled..");
                         // message 2
-                        this.send(msg);
+                        this.message.send(msg);
                         return;
                     }
                     existsCard = checkCardExists(marketBoard, msg);
@@ -256,8 +195,8 @@ public class Client {
                 cardLevel = Character.getNumericValue(msg.charAt(1));
                 cardColor = Color.toColor(Character.toString(msg.charAt(0)));
                 System.out.println("cardLevel :" + cardLevel +" color: " + cardColor);
-                this.send(MessageParser.message("Buy",cardLevel,cardColor));
-                answer = this.receive();
+                this.message.send(MessageParser.message("Buy",cardLevel,cardColor));
+                answer = this.message.receive();
             } while(answer.equals("KO"));
 
             //the card to buy exists
@@ -266,7 +205,7 @@ public class Client {
             if (msg.equals("esc")){
                 System.out.println(">> Command canceled..");
                 // message 2
-                this.send(msg);
+                this.message.send(msg);
                 return;
             }
             while (!(0 < Character.getNumericValue(msg.charAt(0)) && Character.getNumericValue(msg.charAt(0)) < 4)){
@@ -274,8 +213,8 @@ public class Client {
                 System.out.print(">> ");
                 msg = input.nextLine();
             }
-            this.send("position(" +  Character.getNumericValue(msg.charAt(0)) + ")");
-            answer = this.receive();
+            this.message.send("position(" +  Character.getNumericValue(msg.charAt(0)) + ")");
+            answer = this.message.receive();
             while (answer.equals("KO")) {
 
                 System.out.println(">> It's not possible to append the new card at this position, please enter a new position..");
@@ -284,7 +223,7 @@ public class Client {
                 if (msg.equals("esc")){
                     System.out.println(">> Command canceled..");
                     // message 2
-                    this.send(msg);
+                    this.message.send(msg);
                     return;
                 }
                 while (!(0 < Character.getNumericValue(msg.charAt(0)) && Character.getNumericValue(msg.charAt(0)) < 4)){
@@ -292,8 +231,8 @@ public class Client {
                     System.out.print(">> ");
                     msg = input.nextLine();
                 }
-                this.send("position(" +  Character.getNumericValue(msg.charAt(0)) + ")");
-                answer = receive();
+                this.message.send("position(" +  Character.getNumericValue(msg.charAt(0)) + ")");
+                answer = this.message.receive();
             }
         }
         else {
@@ -349,7 +288,7 @@ public class Client {
         MessageParser parser = new MessageParser();
         Scanner input = new Scanner(System.in);
 
-        String answer = this.receive();
+        String answer = this.message.receive();
         if(!answer.equals("Ack"))
             System.out.println("ServerError");
 
@@ -371,14 +310,14 @@ public class Client {
                             int rowIndex = Integer.parseInt(index);
                             if (rowIndex > 0 && rowIndex < 4) {
                                 correctIndex = true;
-                                this.send("TakeRow(" + rowIndex + ")");
+                                this.message.send("TakeRow(" + rowIndex + ")");
                                 receiveResources();
                             } else {
                                 System.out.println("\nPlease choose a row between 1 and 3.");
                             }
                         } catch (NumberFormatException e) {
                             if (index.equals("back")) {
-                                this.send("Quit");
+                                this.message.send("Quit");
                             }
                             else {
                                 System.out.println("\nPlease choose a row between 1 and 3.");
@@ -396,14 +335,14 @@ public class Client {
                             int colIndex = Integer.parseInt(index);
                             if (colIndex > 0 && colIndex < 5) {
                                 correctIndex = true;
-                                this.send("TakeColumn(" + colIndex + ")");
+                                this.message.send("TakeColumn(" + colIndex + ")");
                                 receiveResources();
                             } else {
                                 System.out.println("\nPlease choose a column between 1 and 4.");
                             }
                         } catch (NumberFormatException e) {
                             if (index.equals("back")) {
-                                this.send("Quit");
+                                this.message.send("Quit");
                             }
                             else {
                                 System.out.println("\nPlease choose a column between 1 and 4.");
@@ -422,7 +361,7 @@ public class Client {
         MessageParser parser = new MessageParser();
         Scanner input = new Scanner(System.in);
 
-        String update = this.receive();
+        String update = this.message.receive();
         parser.parse(update);
         if(parser.getOrder().equals("UpdateResourcesView")) {
             String resourcesString = parser.getStringParameter(0);
@@ -447,8 +386,8 @@ public class Client {
                         System.out.println(">> There is no Resource with that alias you can get...");
                     }
                 }
-                this.send("ExchangeWhitesWith("+changes+")");
-                String answer = this.receive();
+                this.message.send("ExchangeWhitesWith("+changes+")");
+                String answer = this.message.receive();
                 if(answer.equals("OK")) {
                     pendingResources.flush(Resource.VOID);
                     pendingResources.add(changes);
@@ -476,7 +415,7 @@ public class Client {
     }
 
     public void activateProduction() {
-        if(!this.receive().equals("OK")) {
+        if(!this.message.receive().equals("OK")) {
             Screen.printError("Unable to activate production");
             return;
         }
@@ -513,9 +452,9 @@ public class Client {
 
             } while(!cmd.equals("DONE"));
 
-            this.send(MessageParser.message("active",View.factory.getActive()));
+            this.message.send(MessageParser.message("active",View.factory.getActive()));
 
-            answer = this.receive();
+            answer = this.message.receive();
             if(answer.equals("NotEnoughResources")) {
                 Screen.printError("Seems that you do not have enough resources...");
                 toRepeat = true;
@@ -527,12 +466,12 @@ public class Client {
 
         } while(toRepeat);
 
-        answer = this.receive();
+        answer = this.message.receive();
         mp.parse(answer);
         if(mp.getOrder().equals("convert")) {
             System.out.println(">> You have " + mp.getIntParameter(0) + " resources to choose!");
             this.selectResourcesWithServer(mp.getIntParameter(0));
-            answer = this.receive();
+            answer = this.message.receive();
             mp.parse(answer);
         }
 
@@ -543,9 +482,9 @@ public class Client {
     public void selectResourcesWithServer(int amount) {
         while(true) {
             ResourcePack selected = selectResources(amount);
-            this.send(MessageParser.message("selected",selected));
+            this.message.send(MessageParser.message("selected",selected));
 
-            if(this.receive().equals("SelectionNotValid")) {
+            if(this.message.receive().equals("SelectionNotValid")) {
                 Screen.printError("Selection not valid... try again!");
             }
             else return;
@@ -553,6 +492,7 @@ public class Client {
     }
 
     public static ResourcePack selectResources(int amount) {
+
         LinkedList<Resource> selected = new LinkedList<>();
         LinkedList<Integer> quantity = new LinkedList<>();
 
