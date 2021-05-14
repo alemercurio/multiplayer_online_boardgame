@@ -1,9 +1,12 @@
 package it.polimi.ingsw.supply;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The Factory class collects different productions and manages to get collective
@@ -21,7 +24,7 @@ public class Factory {
      */
     private static class ProductionEntry {
         private final Production production;
-        private boolean active;
+        private transient boolean active;
 
         /**
          * Constructs a ProductionEntry with the given Production;
@@ -147,5 +150,12 @@ public class Factory {
             }
         }
         return product;
+    }
+
+    @Override
+    public String toString() {
+        Gson parser = new Gson();
+        return parser.toJson(this.productions.stream()
+                .map(prod -> prod.production).collect(Collectors.toList()));
     }
 }

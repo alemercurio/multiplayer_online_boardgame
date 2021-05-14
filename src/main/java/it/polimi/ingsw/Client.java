@@ -2,6 +2,7 @@ package it.polimi.ingsw;
 
 import it.polimi.ingsw.cards.*;
 import it.polimi.ingsw.supply.*;
+import it.polimi.ingsw.view.View;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -36,9 +37,18 @@ public class Client {
         }
 
         public void run() {
+
+            String message;
+            MessageParser mp = new MessageParser();
+
             try {
                 while (true) {
-                    this.client.report(this.messageIn.nextLine());
+                    message = this.messageIn.nextLine();
+                    mp.parse(message);
+
+                    if(mp.getOrder().equals("update"))
+                        View.update(mp.getStringParameter(0),mp.getStringParameter(1));
+                    else this.client.report(message);
                 }
             }
             catch(NoSuchElementException ignored) { }
@@ -51,7 +61,6 @@ public class Client {
     }
 
     public synchronized String receive() {
-        //return this.messageIn.nextLine();
         try {
             while(this.answer.isEmpty()) wait();
             return this.answer.poll();
