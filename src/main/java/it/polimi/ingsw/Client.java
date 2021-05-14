@@ -225,7 +225,7 @@ public class Client {
         String msg = "";
         MessageParser mp = new MessageParser();
         int cardLevel;
-        int cardColorIndex;
+        Color cardColor;
 
         //TODO: create a market view that allows the player to see the card the he satisfies the requirements
         MarketBoard marketBoard = new MarketBoard();
@@ -254,9 +254,9 @@ public class Client {
                     System.out.print(">> ");
                 }
                 cardLevel = Character.getNumericValue(msg.charAt(1));
-                cardColorIndex = getColorIndex(msg.charAt(0));
-                System.out.println("cardLevel :" + cardLevel +" color: " + getColor(msg.charAt(0)) );
-                this.send("Buy(" + cardLevel + "," + cardColorIndex + ")");
+                cardColor = Color.toColor(Character.toString(msg.charAt(0)));
+                System.out.println("cardLevel :" + cardLevel +" color: " + cardColor);
+                this.send(MessageParser.message("Buy",cardLevel,cardColor));
                 answer = this.receive();
             } while(answer.equals("KO"));
 
@@ -325,48 +325,18 @@ public class Client {
         // if the level is not correct
         if (!(0 < Character.getNumericValue(command.charAt(1)) && Character.getNumericValue(command.charAt(1)) < 4))
             return false;
-        if (getColor(command.charAt(0)) == null)
+        if (Color.toColor(Character.toString(command.charAt(0))) == null)
             return false;
         else {
                 //TODO: nella marketView per il client questo metodo deve considerare le carte di cui il giocatore non soddisfa i requisiti
             try {
-                marketBoard.getDevelopmentCard(Character.getNumericValue(command.charAt(1)),getColor(command.charAt(0)));
+                marketBoard.getDevelopmentCard(Character.getNumericValue(command.charAt(1)),Color.toColor(Character.toString(command.charAt(0))));
             } catch (NoSuchDevelopmentCardException e) {
                 return false;
             }
 
         }
         return true;
-    }
-
-    public Color getColor(char c) {
-        switch (c) {
-            case 'G':
-                return Color.GREEN;
-            case 'B':
-                return Color.BLUE;
-            case 'Y':
-                return Color.YELLOW;
-            case 'P':
-                return Color.PURPLE;
-            default:
-                return null;
-        }
-    }
-
-    public int getColorIndex(char c) {
-        switch (c) {
-            case 'G':
-                return 0;
-            case 'B':
-                return 1;
-            case 'Y':
-                return 2;
-            case 'P':
-                return 3;
-            default:
-                return -1;
-        }
     }
 
     public void takeResources() {
@@ -505,8 +475,7 @@ public class Client {
         }
     }
 
-    public void activateProduction()
-    {
+    public void activateProduction() {
         if(!this.receive().equals("OK")) {
             Screen.printError("Unable to activate production");
             return;
@@ -528,36 +497,30 @@ public class Client {
                 cmd = input.nextLine().toUpperCase();
                 Scanner order = new Scanner(cmd);
 
-                if(order.next().equals("ACTIVE"))
-                {
-                    if(order.hasNext())
-                    {
+                if(order.next().equals("ACTIVE")) {
+                    if(order.hasNext()) {
                         try {
                             String[] toActive = order.next().split(",");
-                            for(String index : toActive)
-                            {
+                            for(String index : toActive) {
                                 View.factory.setActive(Integer.parseInt(index));
                             }
                         }
-                        catch(NumberFormatException e)
-                        {
+                        catch(NumberFormatException e) {
                             Screen.printError("Some arguments are wrong...");
                         }
                     }
                 }
 
-            }while(!cmd.equals("DONE"));
+            } while(!cmd.equals("DONE"));
 
             this.send(MessageParser.message("active",View.factory.getActive()));
 
             answer = this.receive();
-            if(answer.equals("NotEnoughResources"))
-            {
+            if(answer.equals("NotEnoughResources")) {
                 Screen.printError("Seems that you do not have enough resources...");
                 toRepeat = true;
             }
-            else if(!answer.equals("OK"))
-            {
+            else if(!answer.equals("OK")) {
                 Screen.printError("Something went wrong...");
                 toRepeat = true;
             }
@@ -566,8 +529,7 @@ public class Client {
 
         answer = this.receive();
         mp.parse(answer);
-        if(mp.getOrder().equals("convert"))
-        {
+        if(mp.getOrder().equals("convert")) {
             System.out.println(">> You have " + mp.getIntParameter(0) + " resources to choose!");
             this.selectResourcesWithServer(mp.getIntParameter(0));
             answer = this.receive();
@@ -578,23 +540,19 @@ public class Client {
             System.out.println(">> Successfully activated production!");
     }
 
-    public void selectResourcesWithServer(int amount)
-    {
-        while(true)
-        {
+    public void selectResourcesWithServer(int amount) {
+        while(true) {
             ResourcePack selected = selectResources(amount);
             this.send(MessageParser.message("selected",selected));
 
-            if(this.receive().equals("SelectionNotValid"))
-            {
+            if(this.receive().equals("SelectionNotValid")) {
                 Screen.printError("Selection not valid... try again!");
             }
             else return;
         }
     }
 
-    public static ResourcePack selectResources(int amount)
-    {
+    public static ResourcePack selectResources(int amount) {
         LinkedList<Resource> selected = new LinkedList<>();
         LinkedList<Integer> quantity = new LinkedList<>();
 
@@ -610,18 +568,15 @@ public class Client {
             else System.out.print(" (DONE?) >> ");
             cmd = input.nextLine().toUpperCase();
 
-            if(cmd.equals("BACK"))
-            {
-                if(!selected.isEmpty())
-                {
+            if(cmd.equals("BACK")) {
+                if(!selected.isEmpty()) {
                     try {
                         result.consume(selected.poll(),quantity.getFirst());
                         if(!quantity.isEmpty()) amount = amount + quantity.poll();
-                    } catch(Exception ignored) { }
+                    } catch(Exception ignored) { /* Cannot happen! */ }
                 }
             }
-            else if(cmd.equals("DONE"))
-            {
+            else if(cmd.equals("DONE")) {
                 if(amount == 0) return result;
                 else System.out.println("\t>> There are still resource left to decide!");
             }
@@ -632,8 +587,7 @@ public class Client {
 
                     if(res.isSpecial())
                         Screen.printError("Cannot convert to a special resource!");
-                    else
-                    {
+                    else {
                         if(scanner.hasNextInt()) toAdd = scanner.nextInt();
                         else toAdd = 1;
 
@@ -651,6 +605,6 @@ public class Client {
                 }
             }
 
-        }while(true);
+        } while(true);
     }
 }

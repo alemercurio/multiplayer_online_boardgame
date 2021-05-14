@@ -219,13 +219,13 @@ public class Player implements Runnable {
         int cardLevel = 0;
         Color cardColor = null;
         while(currentCommand.getOrder().equals("Buy")) {
-            System.out.println("livello: " + currentCommand.getIntParameter(0) + " colore: " + getColor(currentCommand.getIntParameter(1)));
-            // TODO: add the condition: (!playerBoard.canBuyDevCard(currentCommand.getIntParameter(0), getColor(currentCommand.getIntParameter(1))))
+            cardLevel = currentCommand.getIntParameter(0);
+            cardColor = currentCommand.getObjectParameter(1,Color.class);
+            System.out.println("livello: " + cardLevel + " colore: " + cardColor);
+            // TODO: add the condition: (!playerBoard.canBuyDevCard(cardLevel,cardColor))
             if(false) {
                 this.send("KO");
             } else {
-                cardLevel = currentCommand.getIntParameter(0);
-                cardColor = getColor(currentCommand.getIntParameter(1));
                 this.send("OK");
             }
             currentCommand.parse(this.receive());
@@ -265,21 +265,6 @@ public class Player implements Runnable {
         } catch (NoSuchDevelopmentCardException | NonPositionableCardException e) {
             e.printStackTrace();
             return false;
-        }
-    }
-
-    public Color getColor(int i) {
-        switch (i) {
-            case 0:
-                return Color.GREEN;
-            case 1:
-                return Color.BLUE;
-            case 2:
-                return Color.YELLOW;
-            case 3:
-                return Color.PURPLE;
-            default:
-                return null;
         }
     }
 
@@ -328,8 +313,7 @@ public class Player implements Runnable {
         }
     }
 
-    public void activateProduction()
-    {
+    public void activateProduction() {
         String msg;
         MessageParser mp = new MessageParser();
 
@@ -344,8 +328,7 @@ public class Player implements Runnable {
             mp.parse(msg);
 
             if(mp.getOrder().equals("esc")) return;
-            else if(mp.getOrder().equals("active"))
-            {
+            else if(mp.getOrder().equals("active")) {
                 this.playerBoard.factory.setActiveProduction(mp.getObjectParameter(0,int[].class));
 
                 try {
@@ -364,33 +347,28 @@ public class Player implements Runnable {
 
         } while(toRepeat);
 
-        if(whiteToConvert != 0)
-        {
+        if(whiteToConvert != 0) {
             this.playerBoard.storage.strongbox.add(this.selectResources(whiteToConvert));
         }
 
         this.send("COMPLETE");
     }
 
-    public ResourcePack selectResources(int amount)
-    {
+    public ResourcePack selectResources(int amount) {
         String msg;
         MessageParser mp = new MessageParser();
 
         this.send(MessageParser.message("convert",amount));
 
-        while(true)
-        {
+        while(true) {
             msg = this.receive();
             mp.parse(msg);
 
             ResourcePack selected = mp.getObjectParameter(0,ResourcePack.class);
-            if(selected.get(Resource.VOID) != 0 || selected.get(Resource.FAITHPOINT) != 0 || selected.size() != amount)
-            {
+            if(selected.get(Resource.VOID) != 0 || selected.get(Resource.FAITHPOINT) != 0 || selected.size() != amount) {
                 this.send("SelectionNotValid");
             }
-            else
-            {
+            else {
                 this.send("OK");
                 return selected;
             }
