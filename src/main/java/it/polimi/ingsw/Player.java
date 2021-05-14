@@ -174,6 +174,8 @@ public class Player implements Runnable {
 
     public void playRound() {
         String cmd;
+        // TODO: perfect
+        this.game.broadCast("Turno di " + this.nickname);
         this.send("PLAY");
         cmd = this.receive();
 

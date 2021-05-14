@@ -3,6 +3,7 @@ package it.polimi.ingsw;
 import it.polimi.ingsw.solo.LorenzoIlMagnifico;
 import it.polimi.ingsw.solo.SoloAction;
 import it.polimi.ingsw.solo.SoloActionDeck;
+import it.polimi.ingsw.util.MessageParser;
 
 /**
  * Implementation of a solo Game.
@@ -54,6 +55,7 @@ public class SoloGame extends Game {
 
     @Override
     public void start() {
+        this.player.send(MessageParser.message("update","player","[]"));
         this.player.send("GameStart");
     }
 

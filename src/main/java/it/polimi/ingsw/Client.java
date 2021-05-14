@@ -62,75 +62,71 @@ public class Client {
 
     public void newGame() {
         String answer;
-        Scanner input = new Scanner(System.in);
 
         this.message.send("NewGame");
         if(!this.message.receive().equals("OK")) {
-            System.out.println(">> Something went wrong...");
+            View.showError("Something went wrong...");
             return;
         }
 
-        System.out.print("\tChoose a nickname! << ");
-        this.message.send("setNickname(" + input.nextLine() + ")");
+        this.message.send(MessageParser.message("setNickname",View.selectNickname()));
         if(!this.message.receive().equals("OK")) {
-            System.out.println(">> Something went wrong...");
+            View.showError("Something went wrong...");
             return;
         }
 
-        System.out.print("\tHow many players? << ");
-        this.message.send("setNumPlayer(" + input.nextInt() + ")");
+        this.message.send(MessageParser.message("setNumPlayer",View.selectNumberOfPlayer()));
 
         answer = this.message.receive();
         while(answer.equals("invalidNumPlayer")) {
-            System.out.print("\tChoose another number of player << ");
-            this.message.send("setNumPlayer(" + input.nextInt() + ")");
+            View.showError("Invalid number of player...");
+            this.message.send(MessageParser.message("setNumPlayer",View.selectNumberOfPlayer()));
         }
 
-        if(!answer.equals("WAIT")) System.out.println("Something went wrong... >> " + answer);
+        if(!answer.equals("WAIT")) View.showError("Something went wrong: " + answer);
 
         this.playGame();
     }
 
     public void joinGame() {
-        Scanner input = new Scanner(System.in);
 
         this.message.send("JoinGame");
 
         if(!this.message.receive().equals("OK")) {
-            System.out.println(">> No game available!");
+            View.tell("No game available!");
             return;
         }
 
-        System.out.print("\tChoose a nickname! << ");
-        this.message.send("setNickname(" + input.nextLine() + ")");
+        this.message.send(MessageParser.message("setNickname",View.selectNickname()));
+
         while(!this.message.receive().equals("WAIT")) {
-            System.out.print("\tChoose another nickname! << ");
-            this.message.send("setNickname(" + input.nextLine() + ")");
+            View.showError("Name already taken!");
+            this.message.send(MessageParser.message("setNickname",View.selectNickname()));
         }
 
         this.playGame();
     }
 
     public void playGame() {
-        String answer;
-        Scanner input = new Scanner(System.in);
 
+        String answer;
+
+        View.fancyTell("Waiting for other players!");
         do { answer = this.message.receive(); } while(!answer.equals("GameStart"));
+        View.gameStart();
 
         boolean active = true;
         while(active) {
+
             do {
                 answer = this.message.receive();
                 if(answer.equals("GameEnd")) active = false;
-                else if(!answer.equals("PLAY")) System.out.println(">> " + answer);
+                else if(!answer.equals("PLAY")) View.showAction(answer);
             } while(!answer.equals("PLAY") && active);
 
             if(answer.equals("PLAY")) {
-                String cmd;
-                System.out.print("playing >> ");
-                cmd = input.nextLine();
 
-                switch(cmd) {
+                switch(View.selectAction()) {
                     case "buyDevCard":
                         this.message.send("buyDevCard");
                         this.buyDevelopmentCard();
@@ -149,12 +145,10 @@ public class Client {
                         this.message.send("test");
                         break;
                 }
-
-                System.out.println(">> " + this.message.receive());
             }
         }
 
-        System.out.println(">> Game has ended...");
+        View.gameEnd();
     }
 
     public void buyDevelopmentCard() {

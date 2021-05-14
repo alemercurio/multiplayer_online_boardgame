@@ -1,5 +1,8 @@
 package it.polimi.ingsw;
 
+import com.google.gson.Gson;
+import it.polimi.ingsw.util.MessageParser;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -95,9 +98,12 @@ public class MultiGame extends Game {
             }
         }
 
+        Gson parser = new Gson();
+        String otherPlayer = parser.toJson(this.nameTable.values().toArray());
+        this.broadCast(MessageParser.message("update","player",otherPlayer));
+
         this.broadCast("GameStart");
         Player first = this.round.poll();
-        System.out.println("(GAME) >> Turno di " + this.nameTable.get(first));
         first.setActive();
     }
 
