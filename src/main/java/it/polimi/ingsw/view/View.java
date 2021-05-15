@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class View {
 
@@ -57,6 +58,38 @@ public class View {
         Scanner input = new Scanner(System.in);
         System.out.print("playing >> ");
         return input.nextLine();
+    }
+
+    public static String selectDevCard()
+    {
+        Scanner input = new Scanner(System.in);
+        System.out.print(">> ");
+        String selected = input.nextLine();
+
+        while(!Pattern.matches("(?:(?<color>[BGPY])(?<level>[123]))|esc",selected))
+        {
+            View.showError("Your selection does not seem correct... please try again!");
+            System.out.print(">> ");
+            selected = input.nextLine();
+        }
+
+        return selected;
+    }
+
+    public static String selectDevCardPosition()
+    {
+        Scanner input = new Scanner(System.in);
+        System.out.print(">> ");
+        String position = input.nextLine();
+
+        while(!Pattern.matches("[123]|esc",position))
+        {
+            View.showError("Please choose a position between 1 and 3.");
+            System.out.print(">> ");
+            position = input.nextLine();
+        }
+
+        return position;
     }
 
     public static void gameEnd()

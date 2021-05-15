@@ -88,9 +88,10 @@ public class PlayerBoard
         }
     }
 
-    public boolean canBeStored(DevelopmentCard devCard, int position){
-        return this.devCards.canBeStored(devCard, position);
+    public boolean canBeStored(int level,int position) {
+        return this.devCards.canBeStored(level,position);
     }
+
     /**
      * Stores the given DevelopmentCard in the current PlayerBoard's DevelopmentCardStack.
      * the production granted by the card is added to the current Factory.

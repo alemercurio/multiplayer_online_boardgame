@@ -185,18 +185,16 @@ public class Player implements Runnable {
                 if(!this.game.isSinglePlayer())
                     this.game.broadCast(this.game.getNickname(this) + " bought a DevCard...");
                 this.send("OK");
-                try {
-                    this.buyDevelopmentCard();
-                } catch (NoSuchDevelopmentCardException e) {
-                    e.printStackTrace();
-                }
+                this.buyDevelopmentCard();
                 break;
+
             case "takeResources":
                 System.out.println(">> " + this.game.getNickname(this) + " wants resources");
                 this.takeResources();
                 if(!this.game.isSinglePlayer())
                     this.game.broadCast(this.game.getNickname(this) + " has gathered resources...");
                 break;
+
             case "activateProduction":
                 if(!this.game.isSinglePlayer())
                     this.game.broadCast(this.nickname + " has activated production...");
@@ -213,62 +211,58 @@ public class Player implements Runnable {
         }
     }
 
-    public void buyDevelopmentCard() throws NoSuchDevelopmentCardException {
-        MessageParser currentCommand = new MessageParser();
-        currentCommand.parse(this.receive());
-        if (currentCommand.getOrder().equals("esc"))
-            return;
+    public void buyDevelopmentCard() {
 
+        MessageParser cmd = new MessageParser();
         int cardLevel = 0;
         Color cardColor = null;
-        while(currentCommand.getOrder().equals("Buy")) {
-            cardLevel = currentCommand.getIntParameter(0);
-            cardColor = currentCommand.getObjectParameter(1,Color.class);
-            System.out.println("livello: " + cardLevel + " colore: " + cardColor);
-            // TODO: add the condition: (!playerBoard.canBuyDevCard(cardLevel,cardColor))
-            if(false) {
-                this.send("KO");
-            } else {
-                this.send("OK");
-            }
-            currentCommand.parse(this.receive());
-            if (currentCommand.getOrder().equals("esc"))
-                return;
-        }
+        boolean cardSelected = false;
 
-        // Now, currentCommand.getOrder().equals("position") is True
-        boolean bought = false;
-        while ((currentCommand.getOrder().equals("position")) && (!bought)) {
-            if (!buy(cardLevel,cardColor,currentCommand.getIntParameter(0)))
-                this.send("KO");
-            else {
-                this.send("OK");
-                bought = true;
-            }
-            if (!bought)
-                currentCommand.parse(this.receive());
-            if (currentCommand.getOrder().equals("esc"))
-                return;
-       }
-    }
+        // TODO: update del mercato delle carte
 
-    public boolean buy(int level, Color color, int position) {
-        DevelopmentCard card;
-        try {
-            card = game.market.getDevelopmentCard(level,color);
-            System.out.println("the card to buy is : " + card);
-            //if it's possible to position the card then buy it
-            if (this.playerBoard.canBeStored(card, position)){
-                card = this.playerBoard.buyDevelopmentCard(level,color);
-                System.out.println("the card bought is : " + card);
-                playerBoard.storeDevelopmentCard(card, position);
-                return true;
+        do {
+            cmd.parse(this.receive());
+
+            if(cmd.getOrder().equals("esc")) return;
+            else if(cmd.getOrder().equals("Buy"))
+            {
+                cardLevel = cmd.getIntParameter(0);
+                cardColor = cmd.getObjectParameter(1,Color.class);
+
+                if(playerBoard.canBuyDevCard(cardLevel,cardColor)) {
+                    this.send("OK");
+                    cardSelected = true;
+                } else {
+                    this.send("KO");
+                }
             }
-            else return false;
-        } catch (NoSuchDevelopmentCardException | NonPositionableCardException e) {
-            e.printStackTrace();
-            return false;
-        }
+
+        } while(!cardSelected);
+
+        // Receive the selected position
+        do {
+            cmd.parse(this.receive());
+
+            if(cmd.getOrder().equals("esc")) return;
+            else if(cmd.getOrder().equals("position"))
+            {
+                if(this.playerBoard.canBeStored(cardLevel,cmd.getIntParameter(0)))
+                {
+                    try {
+                        DevelopmentCard devCard = this.game.market.buyDevelopmentCard(cardLevel,cardColor);
+                        this.playerBoard.storeDevelopmentCard(devCard,cmd.getIntParameter(0));
+                    } catch (NonPositionableCardException | NoSuchDevelopmentCardException ignored) {
+                        /* this should never happen */
+                    }
+
+                    // TODO: update del DevCardStack
+                    this.send("OK");
+                    return;
+                }
+                else this.send("KO");
+            }
+
+        } while(true);
     }
 
     public void takeResources() {

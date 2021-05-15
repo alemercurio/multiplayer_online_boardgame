@@ -152,124 +152,69 @@ public class Client {
     }
 
     public void buyDevelopmentCard() {
-        String answer = " ";
-        boolean existsCard = false;
-        Scanner input = new Scanner(System.in);
-        String msg = "";
-        MessageParser mp = new MessageParser();
+
+        // TODO: gli errori sono poco significativi... occorre far capire cosa è successo!
+
+        String answer;
+        String selection;
         int cardLevel;
         Color cardColor;
 
-        //TODO: create a market view that allows the player to see the card the he satisfies the requirements
-        MarketBoard marketBoard = new MarketBoard();
-
         answer = this.message.receive();
-        if (answer.equals("OK")) {
-            do {
-                // if the server doesn't allows the card to be bought
-                if (answer.equals("KO")){
-                    System.out.println("It's not possible to buy this card, please choose another one.");
-                    existsCard = false;
-                }
-                System.out.println(">> This is the market board, please choose a card..\n" + marketBoard.toString());
-                        //at this step, the command must be "buy" or "esc"
-                while (!existsCard) {
-                    msg = checkCommand("G1", "G2", "G3", "B1", "B2", "B3", "Y1", "Y2", "Y3", "P1", "P2", "P3", "esc");
-                    if (msg.equals("esc")) {
-                        System.out.println(">> Command canceled..");
-                        // message 2
-                        this.message.send(msg);
-                        return;
-                    }
-                    existsCard = checkCardExists(marketBoard, msg);
-                    if (!existsCard)
-                        System.out.println(">> Please, choose a correct card.");
-                    System.out.print(">> ");
-                }
-                cardLevel = Character.getNumericValue(msg.charAt(1));
-                cardColor = Color.toColor(Character.toString(msg.charAt(0)));
-                System.out.println("cardLevel :" + cardLevel +" color: " + cardColor);
-                this.message.send(MessageParser.message("Buy",cardLevel,cardColor));
-                answer = this.message.receive();
-            } while(answer.equals("KO"));
-
-            //the card to buy exists
-            System.out.println("Please, choose a position for the new card");
-            msg = input.nextLine();
-            if (msg.equals("esc")){
-                System.out.println(">> Command canceled..");
-                // message 2
-                this.message.send(msg);
-                return;
-            }
-            while (!(0 < Character.getNumericValue(msg.charAt(0)) && Character.getNumericValue(msg.charAt(0)) < 4)){
-                System.out.println(">> Please choose a position between 1 and 3.");
-                System.out.print(">> ");
-                msg = input.nextLine();
-            }
-            this.message.send("position(" +  Character.getNumericValue(msg.charAt(0)) + ")");
-            answer = this.message.receive();
-            while (answer.equals("KO")) {
-
-                System.out.println(">> It's not possible to append the new card at this position, please enter a new position..");
-                System.out.print(">> ");
-                msg = input.nextLine();
-                if (msg.equals("esc")){
-                    System.out.println(">> Command canceled..");
-                    // message 2
-                    this.message.send(msg);
-                    return;
-                }
-                while (!(0 < Character.getNumericValue(msg.charAt(0)) && Character.getNumericValue(msg.charAt(0)) < 4)){
-                    System.out.println(">> Please choose a position between 1 and 3.");
-                    System.out.print(">> ");
-                    msg = input.nextLine();
-                }
-                this.message.send("position(" +  Character.getNumericValue(msg.charAt(0)) + ")");
-                answer = this.message.receive();
-            }
-        }
-        else {
-            System.out.println("Something went wrong..");
+        if (!answer.equals("OK")) {
+            View.showError("This action cannot be performed due to some unknown error...");
             return;
         }
-        System.out.println("the card have been successfully bought!!");
-        // TODO: update the development card stack
-        DevelopmentCardStack stack = new DevelopmentCardStack();
-        System.out.println("this is the development card stack on your board:" + stack);
-    }
 
-    public String checkCommand(String... acceptedCommands) {
-        Scanner input = new Scanner(System.in);
-        System.out.print(">>");
-        String command = input.nextLine();
-        MessageParser mp = new MessageParser();
-        mp.parse(command);
-        while (!Arrays.asList(acceptedCommands).contains(mp.getOrder())) {
-            System.out.println(">> unacceptable command, please try again..");
-            System.out.print(">> ");
-            command = input.nextLine();
-            mp.parse(command);
-        }
-        return command;
-    }
+        View.tell("This is the market board, please choose a card!");
 
-    public boolean checkCardExists(MarketBoard marketBoard, String command) {
-        // if the level is not correct
-        if (!(0 < Character.getNumericValue(command.charAt(1)) && Character.getNumericValue(command.charAt(1)) < 4))
-            return false;
-        if (Color.toColor(Character.toString(command.charAt(0))) == null)
-            return false;
-        else {
-                //TODO: nella marketView per il client questo metodo deve considerare le carte di cui il giocatore non soddisfa i requisiti
-            try {
-                marketBoard.getDevelopmentCard(Character.getNumericValue(command.charAt(1)),Color.toColor(Character.toString(command.charAt(0))));
-            } catch (NoSuchDevelopmentCardException e) {
-                return false;
+        do {
+            // TODO: mostrare il mercato
+
+            selection = View.selectDevCard();
+            if(selection.equals("esc"))
+            {
+                View.tell("Command cancelled...");
+                this.message.send("esc");
+                return;
             }
 
-        }
-        return true;
+            cardLevel = Character.getNumericValue(selection.charAt(1));
+            cardColor = Color.toColor(Character.toString(selection.charAt(0)));
+            this.message.send(MessageParser.message("Buy", cardLevel, cardColor));
+            answer = this.message.receive();
+
+            // if the server doesn't allows the card to be bought
+            if (answer.equals("KO")) {
+                View.showError("It's not possible to buy this card, please choose another one.");
+            }
+
+        } while(!answer.equals("OK"));
+
+        // TODO: mostrare il DevCardStack
+
+        //the card to buy exists
+
+        View.tell("Please, choose a position for the new card!");
+        do {
+            selection = View.selectDevCardPosition();
+            if (selection.equals("esc")) {
+                View.tell("Command canceled..");
+                this.message.send("esc");
+                return;
+            }
+
+            this.message.send(MessageParser.message("position",Character.getNumericValue(selection.charAt(0))));
+            answer = this.message.receive();
+
+            if (answer.equals("KO")) {
+                View.showError("Please choose another position!");
+            }
+
+        } while(!answer.equals("OK"));
+
+        View.tell("Card successfully bought!");
+        // TODO: mostrare il DevCardStack
     }
 
     public void takeResources() {

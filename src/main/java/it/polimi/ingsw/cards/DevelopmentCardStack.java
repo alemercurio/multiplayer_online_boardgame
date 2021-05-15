@@ -37,7 +37,7 @@ public class DevelopmentCardStack {
     /**
      * Tests if the given DevelopmentCard can be stored in the current DevelopmentCardStack, at a specific position.
      * @param devCard the DevelopmentCard to position.
-     * @param position the position to stored the DevelopmentCard.
+     * @param position the position where the Card should be stored.
      * @return true if the given Card can be positioned, false otherwise.
      */
     public boolean canBeStored(DevelopmentCard devCard, int position){
@@ -45,6 +45,20 @@ public class DevelopmentCardStack {
         stack = this.devCards.get(position - 1);
         int current = (stack.isEmpty()) ? 0 : stack.getFirst().getLevel();
         return devCard.getLevel() == current + 1;
+    }
+
+    /**
+     * Tests if a card with the given level can be stored in the specified position of the
+     * current DevelopmentCardStack.
+     * @param level the level of DevelopmentCard to position.
+     * @param position the position where the card should be placed.
+     * @return true if the a Card with the given level can be positioned, false otherwise.
+     */
+    public boolean canBeStored(int level,int position) {
+
+        LinkedList<DevelopmentCard> stack = this.devCards.get(position - 1);
+        if(stack.isEmpty()) return (level == 1);
+        else return (level == stack.getFirst().getLevel() + 1);
     }
 
     /**
