@@ -1,22 +1,21 @@
-package it.polimi.ingsw.supply;
+package it.polimi.ingsw.view;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import it.polimi.ingsw.cards.StockPower;
+import it.polimi.ingsw.supply.NonConsumablePackException;
+import it.polimi.ingsw.supply.Resource;
+import it.polimi.ingsw.supply.ResourcePack;
+import it.polimi.ingsw.supply.Warehouse;
 
-import java.util.*;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
-/**
- * Represents the Warehouse with three shelves, each one with limited capacity,
- * and the additional depots obtained by playing Leader Cards during the Game.
- * Each Warehouse shelf can store up to its index + 1 resources of the same type.
- * Only non-special Resources can be contained; to store a resource it is necessary
- * to add it as pending first and then move it internally.
- * @see Resource
- * @author Francesco Tosini
- */
-public class Warehouse {
+public class WarehouseView extends Warehouse{
 
     protected static class LimitedStock {
 
@@ -99,12 +98,23 @@ public class Warehouse {
 
             return available;
         }
+
+        public void print() {
+            for (int i = 0; i < this.available; i++) {
+                System.out.print("[");
+                Screen.print(this.resource);
+                System.out.print("] ");
+            }
+
+            for (int i = this.available; i < this.size; i++)
+                System.out.print("[ ] ");
+        }
     }
 
     protected final List<LimitedStock> stock;
     protected final ResourcePack pendingResources;
 
-    public Warehouse() {
+    public WarehouseView() {
         this.stock = new ArrayList<>();
 
         this.stock.add(new LimitedStock(1));
@@ -154,8 +164,8 @@ public class Warehouse {
         } else if (!dest.isFree()) return 0;
 
         else {
-            for (LimitedStock stock : this.stock)
-                if (stock.isFree() && stock.getResource().equals(resource))
+            for(LimitedStock stock : this.stock)
+                if(stock.isFree() && stock.getResource().equals(resource))
                     this.pendingResources.add(resource, stock.flush());
 
             this.pendingResources.add(dest.getResource(), dest.flush());
@@ -166,7 +176,7 @@ public class Warehouse {
     }
 
     public void move(int destination, Resource resource, int amount) {
-        if (this.pendingResources.get(resource) < amount) amount = this.pendingResources.get(resource);
+        if(this.pendingResources.get(resource) < amount) amount = this.pendingResources.get(resource);
         try {
             this.pendingResources.consume(resource, this.stock(destination, resource, amount));
         } catch (NonConsumablePackException ignored) { /* this should not happen */ }
@@ -184,9 +194,9 @@ public class Warehouse {
             return false;
         }
 
-        if (amount > src.getAvailable()) amount = src.getAvailable();
+        if(amount > src.getAvailable()) amount = src.getAvailable();
 
-        if (src.isFree() && dest.isFree()) {
+        if(src.isFree() && dest.isFree()) {
             Resource toMove = src.getResource();
             this.pendingResources.add(toMove, src.flush());
             this.move(destination, toMove, amount);
@@ -262,44 +272,21 @@ public class Warehouse {
         JsonElement element = gson.fromJson(state, JsonElement.class);
         JsonObject jsonObj = element.getAsJsonObject();
 
-        Resource[] resources = gson.fromJson(jsonObj.get("resources"), Resource[].class);
+        Type listOfResources = new TypeToken<LinkedList<Resource>>() {}.getType();
+        LinkedList<Resource> resources = gson.fromJson(jsonObj.get("resources"),listOfResources);
+
         int[] amounts = gson.fromJson(jsonObj.get("amounts"), int[].class);
+
         ResourcePack pending = gson.fromJson(jsonObj.get("pending"), ResourcePack.class);
 
-        // Test if the new configuration can be applied.
+        // The given configuration is applied
 
-        if (amounts.length != this.stock.size()) return false;
-
-        ResourcePack toStore = pending.getCopy();
-        LinkedList<Resource> freeResources = new LinkedList<>();
-
-        for (int i = 0; i < amounts.length; i++) {
-            LimitedStock shelf = this.stock.get(i);
-
-            if (shelf.size() < amounts[i]) return false;
-
-            if (shelf.isFree()) {
-                Resource newResource = resources[freeResources.size()];
-
-                if (!newResource.equals(Resource.VOID) && freeResources.contains(newResource)) return false;
-
-                freeResources.add(newResource);
-                toStore.add(newResource, amounts[i]);
-            } else toStore.add(shelf.getResource(), amounts[i]);
-        }
-
-        ResourcePack available = this.getResources();
-        available.add(this.pendingResources);
-        if (!available.equals(toStore)) return false;
-
-        // The given configuration can be applied.
-
-        for (int i = 0; i < amounts.length; i++) {
+        for(int i = 0; i < amounts.length; i++) {
             LimitedStock shelf = this.stock.get(i);
             shelf.flush();
 
-            if (shelf.isFree())
-                shelf.setResource(freeResources.pollFirst());
+            if(shelf.isFree())
+                shelf.setResource(resources.pollFirst());
 
             shelf.store(amounts[i]);
         }
@@ -310,8 +297,24 @@ public class Warehouse {
         return true;
     }
 
-    @Override
-    public String toString() {
-        return new Gson().toJson(this);
+    public void print()
+    {
+        System.out.print("\n1:     ");
+        this.stock.get(0).print();
+        System.out.print("\n2:   ");
+        this.stock.get(1).print();
+        System.out.print("\n3: ");
+        this.stock.get(2).print();
+        System.out.print("\n");
+
+        for (int i = 3; i < this.stock.size(); i++) {
+            System.out.print((i + 1) + ": " + this.stock.get(i).resource + " ");
+            this.stock.get(i).print();
+            System.out.print("\n");
+        }
+
+        System.out.print("Pending: ");
+        Screen.print(this.pendingResources);
+        System.out.print("\n");
     }
 }

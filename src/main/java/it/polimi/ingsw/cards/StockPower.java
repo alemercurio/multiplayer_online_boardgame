@@ -1,7 +1,9 @@
 package it.polimi.ingsw.cards;
 
+import com.google.gson.Gson;
 import it.polimi.ingsw.PlayerBoard;
 import it.polimi.ingsw.supply.Resource;
+import it.polimi.ingsw.supply.ResourcePack;
 
 /**
  * Leader Card special ability giving the player an additional depot for Resources.
@@ -46,5 +48,21 @@ public class StockPower implements Power {
      */
     public int getLimit() {
         return this.size;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o == null) return false;
+        else if(o == this) return true;
+        else if(!(o instanceof StockPower)) return false;
+        else {
+            StockPower toCompare = (StockPower) o;
+            return (toCompare.size == this.size) && (toCompare.type.equals(this.type));
+        }
+    }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
     }
 }

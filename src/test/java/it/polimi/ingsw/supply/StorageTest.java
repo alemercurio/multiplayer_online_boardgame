@@ -15,17 +15,16 @@ public class StorageTest {
         storage.warehouse.addStockPower(power1);
         storage.warehouse.addStockPower(power2);
 
-        ResourcePack rp1 = new ResourcePack(2,2,2,2);
-        ResourcePack rp2 = new ResourcePack(5);
+        ResourcePack rp = new ResourcePack(5);
 
-        storage.warehouse.stockLeaderStock(rp1);
-        storage.warehouse.stock(0, Resource.COIN, 2);
-        storage.warehouse.stock(1, Resource.SHIELD, 1);
-        storage.warehouse.stock(2, Resource.SERVANT, 1);
-        storage.stockStrongbox(rp2);
+        storage.warehouse.stock(1, Resource.COIN, 2);
+        storage.warehouse.stock(2, Resource.SHIELD, 1);
+        storage.warehouse.stock(3, Resource.SERVANT, 1);
+        assertEquals(2,storage.warehouse.stock(4,Resource.STONE,2));
+        assertEquals(0,storage.warehouse.stock(5,Resource.STONE,1)); // Should not do anything
+        storage.stockStrongbox(rp);
 
-        assertEquals(new ResourcePack(6,2,1,2), storage.getAllResource());
-        assertEquals(2, storage.done());
+        assertEquals(new ResourcePack(6,2,1,1), storage.getAllResource());
     }
 
     @Test
@@ -35,21 +34,6 @@ public class StorageTest {
         storage.warehouse.add(pack);
 
         assertEquals(10, storage.done());
-    }
-
-    @Test
-    public void testStockLeaderStock() {
-        Storage storage = new Storage();
-        StockPower power1 = new StockPower(2, Resource.STONE);
-        StockPower power2 = new StockPower(1, Resource.SHIELD);
-        storage.warehouse.addStockPower(power1);
-        storage.warehouse.addStockPower(power2);
-
-        ResourcePack rp = new ResourcePack(5,2,5,2,1,1);
-
-        storage.warehouse.stockLeaderStock(rp);
-        assertEquals(new ResourcePack(0,2,0,1), storage.getAllResource());
-        assertEquals(11, storage.done());
     }
 
     @Test
@@ -76,14 +60,15 @@ public class StorageTest {
         storage.warehouse.addStockPower(power1);
         storage.warehouse.addStockPower(power2);
 
-        ResourcePack rp1 = new ResourcePack(0,2,0,1);
-        ResourcePack rp2 = new ResourcePack(1,2,3,4);
+        ResourcePack rp = new ResourcePack(1,2,3,4);
+
+        storage.warehouse.stock(4,Resource.STONE,2);
+        storage.warehouse.stock(5,Resource.SHIELD,1);
 
         ResourcePack rpVoid1 = new ResourcePack(1,2,3,5,0,2);
         ResourcePack rpVoid2 = new ResourcePack(1,4,3,5,0,2);
 
-        storage.warehouse.stockLeaderStock(rp1);
-        storage.stockStrongbox(rp2);
+        storage.stockStrongbox(rp);
 
         assertTrue(storage.isConsumable(new ResourcePack(1,2,3)));
         assertTrue(storage.isConsumable(new ResourcePack(1,4,3,5)));
@@ -96,20 +81,16 @@ public class StorageTest {
     @Test
     public void testAutoConsume() {
         Storage storage = new Storage();
-        StockPower power1 = new StockPower(2, Resource.STONE);
-        StockPower power2 = new StockPower(1, Resource.SHIELD);
-        storage.warehouse.addStockPower(power1);
-        storage.warehouse.addStockPower(power2);
+        StockPower power = new StockPower(2, Resource.STONE);
+        storage.warehouse.addStockPower(power);
 
-        ResourcePack rp1 = new ResourcePack(2,2,2,2);
-        ResourcePack rp2 = new ResourcePack(5);
+        ResourcePack rp = new ResourcePack(5);
 
-        storage.warehouse.stockLeaderStock(rp1);
-        storage.warehouse.stock(0, Resource.COIN, 2);
-        storage.warehouse.stock(1, Resource.SHIELD, 1);
-        storage.warehouse.stock(2, Resource.SERVANT, 1);
-        storage.stockStrongbox(rp2);
-        storage.done();
+        storage.warehouse.stock(1, Resource.COIN, 2);
+        storage.warehouse.stock(2, Resource.SHIELD, 1);
+        storage.warehouse.stock(3, Resource.SERVANT, 1);
+        storage.warehouse.stock(4,Resource.STONE,2);
+        storage.stockStrongbox(rp);
 
         try {
             storage.autoConsume(new ResourcePack(8,9,10,2));
@@ -123,10 +104,10 @@ public class StorageTest {
             fail();
         }
 
-        assertEquals(new ResourcePack(3,1,1,1), storage.getAllResource());
+        assertEquals(new ResourcePack(3,1,1), storage.getAllResource());
 
         try {
-            storage.autoConsume(new ResourcePack(3,1,1,1));
+            storage.autoConsume(new ResourcePack(3,1,1));
         } catch (NonConsumablePackException e) {
             fail();
         }
@@ -138,14 +119,11 @@ public class StorageTest {
     public void testConsumeWarehouse() {
         Storage storage = new Storage();
 
-        ResourcePack stored = new ResourcePack(1,2,3);
         ResourcePack toConsume = new ResourcePack(2,3,4,5);
 
-        storage.warehouse.add(stored);
-        storage.warehouse.stock(0, Resource.COIN, 1);
-        storage.warehouse.stock(1, Resource.STONE, 2);
-        storage.warehouse.stock(2, Resource.SERVANT, 3);
-        storage.done();
+        storage.warehouse.stock(1, Resource.COIN, 1);
+        storage.warehouse.stock(2, Resource.STONE, 2);
+        storage.warehouse.stock(3, Resource.SERVANT, 3);
 
         assertEquals(new ResourcePack(1,2,3), storage.getAllResource());
         assertEquals(new ResourcePack(1,1,1,5), storage.warehouse.consume(toConsume));

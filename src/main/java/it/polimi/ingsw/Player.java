@@ -37,7 +37,7 @@ public class Player implements Runnable {
     }
 
     public void setForGame(FaithTrack faithTrack,MarketBoard market) {
-        this.playerBoard = new PlayerBoard(market,faithTrack);
+        this.playerBoard = new PlayerBoard(this,market,faithTrack);
     }
 
     @Override
@@ -207,6 +207,9 @@ public class Player implements Runnable {
                 this.playerBoard.factory.addProductionPower(new Production(
                         new ResourcePack(2),
                         new ResourcePack(0,2,0,0,0,6)));
+                this.playerBoard.addWhite(Resource.COIN);
+                this.playerBoard.addWhite(Resource.SHIELD);
+                this.playerBoard.addLeaderStock(new StockPower(2,Resource.COIN));
                 break;
         }
     }
@@ -266,47 +269,93 @@ public class Player implements Runnable {
     }
 
     public void takeResources() {
+
         MessageParser parser = new MessageParser();
 
-        this.send("Ack");
-
+        this.send("OK");
         String msg = this.receive();
+
         if(msg.equals("Quit")) {
             System.out.println("Back to action choice...");
         }
         else {
             parser.parse(msg);
+
             if(parser.getOrder().equals("TakeRow")) {
+
                 int row = parser.getIntParameter(0);
-                System.out.println("RIGA SCELTA: numero "+row);
                 ResourcePack gatheredResources = game.market.takeRow(row);
                 sendResources(gatheredResources);
             }
+
             else if(parser.getOrder().equals("TakeColumn")) {
+
                 int column = parser.getIntParameter(0);
-                System.out.println("COLONNA SCELTA: numero "+column);
                 ResourcePack gatheredResources = game.market.takeColumn(column);
                 sendResources(gatheredResources);
-
             }
         }
     }
 
     private void sendResources(ResourcePack gatheredResources) {
+
         MessageParser parser = new MessageParser();
 
-        this.send("UpdateResourcesView("+gatheredResources+","+"RESOURCEMARKET"+")");
-        int numVoid = gatheredResources.get(Resource.VOID);
-        if(numVoid > 0) {
-            String request = this.receive();
-            parser.parse(request);
-            if(parser.getOrder().equals("ExchangeWhitesWith")) {
-                ResourcePack prova = ResourcePack.fromString(parser.getStringParameter(0));
-                //TODO: replace 'true' with 'playerBoard.convertResources(numVoid, ResourcePack.fromString(parser.getStringParameter(0)))'
-                if(true) {
-                    this.send("OK");
+        this.send(MessageParser.message("Taken",gatheredResources));
+        int numVoid = this.playerBoard.storeResources(gatheredResources);
+
+        if(numVoid != 0 && this.playerBoard.hasWhitePower())
+        {
+            this.send(MessageParser.message("update","white",this.playerBoard.getWhiteExchange()));
+            this.send(MessageParser.message("convert",numVoid));
+
+            boolean correct = false;
+            do {
+                parser.parse(this.receive());
+
+                if(parser.getOrder().equals("ExchangeWhitesWith"))
+                {
+                    ResourcePack selected = parser.getObjectParameter(0,ResourcePack.class);
+                    if(this.playerBoard.convertResources(numVoid,selected))
+                    {
+                        this.send(MessageParser.message("update","WHConfig",this.playerBoard.storage.warehouse.getConfig()));
+                        this.send("OK");
+                        correct = true;
+                    }
+                    else
+                    {
+                        this.send(MessageParser.message("update","white",this.playerBoard.getWhiteExchange()));
+                        this.send("KO");
+                    }
                 }
+                else this.send("InvalidOption");
+
+            } while(!correct);
+        }
+        else
+        {
+            this.send(MessageParser.message("update","WHConfig",this.playerBoard.storage.warehouse.getConfig()));
+            this.send("OK");
+        }
+
+        // Receive new Warehouse's configuration
+
+        while(true)
+        {
+            parser.parse(this.receive());
+            if(parser.getOrder().equals("configWarehouse"))
+            {
+                if(this.playerBoard.storage.warehouse.update(parser.getStringParameter(0)))
+                {
+                    int wasted = this.playerBoard.storage.warehouse.done();
+                    if(wasted != 0)
+                        this.send(MessageParser.message("wasted",wasted));
+                    else this.send("Complete");
+                    return;
+                }
+                else this.send("InvalidConfiguration");
             }
+            else this.send("InvalidOperation");
         }
     }
 

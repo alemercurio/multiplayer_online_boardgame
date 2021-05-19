@@ -3,13 +3,17 @@ package it.polimi.ingsw;
 import it.polimi.ingsw.cards.*;
 import it.polimi.ingsw.faith.FaithTrack;
 import it.polimi.ingsw.supply.*;
+import it.polimi.ingsw.util.MessageManager;
+import it.polimi.ingsw.util.MessageParser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class PlayerBoard
 {
     private final MarketBoard market;
+    private final Player player;
     public final Storage storage;
     private final LeaderStack leaders;
     private final DevelopmentCardStack devCards;
@@ -23,9 +27,10 @@ public class PlayerBoard
             new ResourcePack().add(Resource.VOID,2),
             new ResourcePack().add(Resource.VOID,1));
 
-    public PlayerBoard(MarketBoard market,FaithTrack faithTrack)
+    public PlayerBoard(Player player, MarketBoard market,FaithTrack faithTrack)
     {
         this.market = market;
+        this.player = player;
         this.storage = new Storage();
         this.leaders = new LeaderStack();
         this.devCards = new DevelopmentCardStack();
@@ -122,6 +127,16 @@ public class PlayerBoard
         return white;
     }
 
+    public List<Resource> getWhiteExchange()
+    {
+        return Collections.unmodifiableList(this.whiteExchange);
+    }
+
+    public boolean hasWhitePower()
+    {
+        return (this.whiteExchange != null) && (!this.whiteExchange.isEmpty());
+    }
+
     public boolean convertResources(int amount,ResourcePack desired)
     {
         int ableToConvert = 0;
@@ -180,9 +195,12 @@ public class PlayerBoard
 
     public void addProduction(Production p) { this.factory.addProductionPower(p); }
 
-    public void addWhite(Resource res) { this.whiteExchange.add(res); }
+    public void addWhite(Resource res) {
+        if(!this.whiteExchange.contains(res)) this.whiteExchange.add(res);
+    }
 
     public void addLeaderStock(StockPower stock) {
         this.storage.warehouse.addStockPower(stock);
+        this.player.send(MessageParser.message("update","WH",stock));
     }
 }

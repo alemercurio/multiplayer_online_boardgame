@@ -218,137 +218,90 @@ public class Client {
     }
 
     public void takeResources() {
-        //TODO: remove this initializations
-        marketTray = new MarketBoard.ResourceMarket();
-        whiteExchange = new ArrayList<>();
-        whiteExchange.add(Resource.COIN); // Added VoidPowers to test
-        whiteExchange.add(Resource.SHIELD); // Added VoidPowers to test
+
+        String answer;
+
+        answer = this.message.receive();
+        if(!answer.equals("OK")) {
+            View.showError("This action cannot be performed due to some unknown error...");
+            // return;
+        }
+
+        // TODO: mostare il mercato delle risorse
+        Scanner selection = new Scanner(View.selectMarbles());
+
+        switch(selection.next())
+        {
+            case "back":
+                this.message.send("Quit");
+                return;
+
+            case "row":
+                this.message.send(MessageParser.message("TakeRow",selection.nextInt()));
+                break;
+
+            case "column":
+                this.message.send(MessageParser.message("TakeColumn",selection.nextInt()));
+                break;
+        }
+
+        receiveResources();
+    }
+
+    public void receiveResources() {
 
         MessageParser parser = new MessageParser();
         Scanner input = new Scanner(System.in);
 
         String answer = this.message.receive();
-        if(!answer.equals("Ack"))
-            System.out.println("ServerError");
+        parser.parse(answer);
 
-        else {
-            System.out.println(marketTray);
-            boolean correctInput = false;
-            while(!correctInput) {
-                System.out.print("Do you want a row or a column? << ");
-                String rowOrCol = input.nextLine();
-                rowOrCol = rowOrCol.toLowerCase();
-                if (rowOrCol.equals("row")) {
-                    correctInput = true;
-                    boolean correctIndex = false;
-                    String index = "";
-                    while (!correctIndex && !index.equals("back")) {
-                        System.out.print("\nWhich row do you want to take? << ");
-                        index = input.nextLine();
-                        try {
-                            int rowIndex = Integer.parseInt(index);
-                            if (rowIndex > 0 && rowIndex < 4) {
-                                correctIndex = true;
-                                this.message.send("TakeRow(" + rowIndex + ")");
-                                receiveResources();
-                            } else {
-                                System.out.println("\nPlease choose a row between 1 and 3.");
-                            }
-                        } catch (NumberFormatException e) {
-                            if (index.equals("back")) {
-                                this.message.send("Quit");
-                            }
-                            else {
-                                System.out.println("\nPlease choose a row between 1 and 3.");
-                            }
-                        }
-                    }
-                }
-                else if (rowOrCol.equals("column")) {
-                    correctInput = true;
-                    boolean correctIndex = false;
-                    while (!correctIndex) {
-                        System.out.print("\nWhich column do you want to take? << ");
-                        String index = input.nextLine();
-                        try {
-                            int colIndex = Integer.parseInt(index);
-                            if (colIndex > 0 && colIndex < 5) {
-                                correctIndex = true;
-                                this.message.send("TakeColumn(" + colIndex + ")");
-                                receiveResources();
-                            } else {
-                                System.out.println("\nPlease choose a column between 1 and 4.");
-                            }
-                        } catch (NumberFormatException e) {
-                            if (index.equals("back")) {
-                                this.message.send("Quit");
-                            }
-                            else {
-                                System.out.println("\nPlease choose a column between 1 and 4.");
-                            }
-                        }
-                    }
-                }
-                else {
-                    System.out.println("\nPlease type 'row' or 'column', or 'back' to change action.\n");
-                }
-            }
+        if(!parser.getOrder().equals("Taken"))
+        {
+            View.showError("Unable to get resources due to some unknown error...");
+            return;
         }
-    }
 
-    public void receiveResources() {
-        MessageParser parser = new MessageParser();
-        Scanner input = new Scanner(System.in);
+        ResourcePack pendingResources = parser.getObjectParameter(0,ResourcePack.class);
+        View.showGatheredResources(pendingResources);
 
-        String update = this.message.receive();
-        parser.parse(update);
-        if(parser.getOrder().equals("UpdateResourcesView")) {
-            String resourcesString = parser.getStringParameter(0);
-            System.out.println(">> You gathered "+resourcesString);
-            ResourcePack pendingResources = ResourcePack.fromString(resourcesString);
-            int numVoid = pendingResources.get(Resource.VOID);
-            if(!whiteExchange.isEmpty() && numVoid>0) {
-                ResourcePack changes = new ResourcePack();
-                System.out.println("It seems you have taken some white marbles.\nYou can exchange them with "+whiteExchange);
-                while(numVoid > 0) {
-                    System.out.println(">> What do you want to change a white marble with? (remaining: "+numVoid+") << ");
-                    String change = input.nextLine();
-                    boolean match = false;
-                    for(Resource resource : whiteExchange) {
-                        if(resource.getAlias().equalsIgnoreCase(change)) {
-                            changes.add(resource, 1);
-                            match = true;
-                            numVoid--;
-                        }
-                    }
-                    if(!match) {
-                        System.out.println(">> There is no Resource with that alias you can get...");
-                    }
-                }
-                this.message.send("ExchangeWhitesWith("+changes+")");
-                String answer = this.message.receive();
-                if(answer.equals("OK")) {
-                    pendingResources.flush(Resource.VOID);
-                    pendingResources.add(changes);
-                }
-            }
-            //TODO: transform the string in the resource market update
-            System.out.println(parser.getStringParameter(1));
+        parser.parse(this.message.receive());
+
+        if(parser.getOrder().equals("convert"))
+        {
+            do {
+                ResourcePack selected = View.selectWhite(parser.getIntParameter(0));
+                this.message.send(MessageParser.message("ExchangeWhitesWith",selected));
+
+                answer = this.message.receive();
+                if(!answer.equals("OK")) View.showError("Please, try again...");
+
+            } while(!answer.equals("OK"));
         }
-        //TODO: print the current view of the Warehouse
-        System.out.println("WAREHOUSE");
-        for(int shelf=1; shelf<4; shelf++) {
-            //TODO: change the way the player do the movement
-            System.out.println(">> Do you want to store something on shelf "+shelf+"? y/n << ");
-            String answer = input.nextLine();
-            if(answer.equalsIgnoreCase("y")) {
-                Resource resource = Resource.VOID;
-                while (resource.equals(Resource.VOID)) {
-                    System.out.println(">> Which Resource do you want to store? << ");
-                    String resourceAlias = input.nextLine();
-                    resource = Resource.toResource(resourceAlias);
-                }
-                //TODO: send request to the Server for the movement or do it locally?
+        else if(!parser.getOrder().equals("OK"))
+            View.showError("Something went wrong...");
+
+        // Place resources into the Warehouse.
+        while(true)
+        {
+            String newConfig = View.selectWarehouse();
+            this.message.send(MessageParser.message("configWarehouse",newConfig));
+
+            parser.parse(this.message.receive());
+
+            switch (parser.getOrder()) {
+
+                case "Complete":
+                    View.tell("Resources taken successfully!");
+                    return;
+
+                case "wasted":
+                    View.tell("You have wasted " + parser.getIntParameter(0) + " resources...");
+                    return;
+
+                case "InvalidConfiguration":
+                    View.showError("It seems that you're configuration was somehow wrong...");
+                    break;
             }
         }
     }

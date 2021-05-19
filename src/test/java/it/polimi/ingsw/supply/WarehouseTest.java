@@ -36,26 +36,6 @@ public class WarehouseTest {
     }
 
     @Test
-    public void testGetLeaderStockLimit() {
-        Warehouse wh = new Warehouse();
-        StockPower power1 = new StockPower(2, Resource.STONE);
-        StockPower power2 = new StockPower(1, Resource.STONE);
-        StockPower power3 = new StockPower(3, Resource.SERVANT);
-        StockPower power4 = new StockPower(2, Resource.SHIELD);
-        wh.addStockPower(power1);
-        wh.addStockPower(power2);
-        wh.addStockPower(power3);
-        wh.addStockPower(power4);
-
-        ResourcePack pack = new ResourcePack(0,3,3,2);
-
-        assertEquals(pack, wh.getLeaderStockLimit());
-        assertEquals(3, wh.getLeaderStockLimit(Resource.SERVANT));
-        assertEquals(3, wh.getLeaderStockLimit(Resource.STONE));
-        assertEquals(0, wh.getLeaderStockLimit(Resource.COIN));
-    }
-
-    @Test
     public void testAdd() {
         ResourcePack rp = new ResourcePack(1,2,3);
         Warehouse wh = new Warehouse();
@@ -74,47 +54,40 @@ public class WarehouseTest {
     }
 
     @Test
-    public void testSwitchShelves() {
-        ResourcePack rp = new ResourcePack(1,2,3);
+    public void testStock() {
+        ResourcePack rp = new ResourcePack(0,0,3);
         Warehouse wh = new Warehouse();
 
         wh.add(rp);
 
-        wh.stock(0, Resource.COIN, 1);
-        wh.stock(1, Resource.STONE, 2);
-        wh.stock(2, Resource.SERVANT, 3);
+        wh.stock(1, Resource.COIN, 1);
+        wh.stock(2, Resource.STONE, 2);
+        wh.stock(3, Resource.SERVANT, 3);
 
-        wh.switchShelves(0,1);
 
-        assertEquals("{\n\t1 {STONE:1}\n\t2 {COIN:1}\n\t3 {SERVANT:3}\n}", wh.toString());
-        assertEquals("{\"resources\":{\"STONE\":1}}", wh.getPendingView());
-
-        wh.switchShelves(0, 2);
-
-        assertEquals("{\n\t1 {SERVANT:1}\n\t2 {COIN:1}\n\t3 {STONE:1}\n}", wh.toString());
-        assertTrue(wh.getPendingView().contains("\"SERVANT\":2"));
-        assertTrue(wh.getPendingView().contains("\"STONE\":1"));
+        String expectedConfig = "{\"resources\":[\"COIN\",\"STONE\",\"SERVANT\"],\"amounts\":[1,2,3],\"pending\":{\"resources\":{\"SERVANT\":3}}}";
+        assertEquals(expectedConfig, wh.getConfig());
     }
 
     @Test
-    public void testStock() {
-        ResourcePack rp = new ResourcePack(1,3,3);
+    public void testMove() {
         Warehouse wh = new Warehouse();
+        wh.addStockPower(new StockPower(2,Resource.SHIELD));
 
-        wh.add(rp);
+        wh.add(new ResourcePack(1,2,3,4));
 
-        wh.stock(0, Resource.COIN, 1);
-        wh.stock(1, Resource.STONE, 2);
-        wh.stock(2, Resource.SERVANT, 3);
+        wh.move(1,Resource.COIN,1);
+        wh.move(2,Resource.STONE,2);
+        wh.move(3,Resource.SERVANT,3);
 
-        assertEquals("{\n\t1 {COIN:1}\n\t2 {STONE:2}\n\t3 {SERVANT:3}\n}", wh.toString());
-        assertEquals("{\"resources\":{\"STONE\":1}}", wh.getPendingView());
+        String expectedConfig = "{\"resources\":[\"COIN\",\"STONE\",\"SERVANT\"],\"amounts\":[1,2,3,0],\"pending\":{\"resources\":{\"SHIELD\":4}}}";
+        assertEquals(expectedConfig,wh.getConfig());
 
+        wh.move(2,1,2);
+        wh.done();
 
-        wh.stock(2, Resource.STONE, 4);
-
-        assertEquals("{\n\t1 {COIN:1}\n\t2 {VOID:0}\n\t3 {STONE:3}\n}", wh.toString());
-        assertEquals("{\"resources\":{\"SERVANT\":3}}", wh.getPendingView());
+        expectedConfig = "{\"resources\":[\"VOID\",\"COIN\",\"SERVANT\"],\"amounts\":[0,1,3,0],\"pending\":{\"resources\":{}}}";
+        assertEquals(expectedConfig,wh.getConfig());
     }
 
     @Test
@@ -125,28 +98,26 @@ public class WarehouseTest {
 
         wh.add(rp);
 
-        wh.stock(0, Resource.COIN, 1);
-        wh.stock(1, Resource.STONE, 2);
-        wh.stock(2, Resource.SHIELD, 3);
+        wh.stock(1, Resource.COIN, 1);
+        wh.stock(2, Resource.STONE, 2);
+        wh.stock(3, Resource.SHIELD, 3);
 
         assertEquals(wh.getResources(),result);
     }
 
     @Test
-    public void testConsume() {
-        ResourcePack rp = new ResourcePack(1,2,3,4,5);
+    public void testConsume() throws NonConsumablePackException {
         ResourcePack cost = new ResourcePack(3,0,3,5);
         ResourcePack result = new ResourcePack(2,0,0,5);
         Warehouse wh = new Warehouse();
 
-        wh.add(rp);
+        wh.stock(1, Resource.COIN, 1);
+        wh.stock(2, Resource.STONE, 2);
+        wh.stock(3, Resource.SERVANT, 3);
 
-        wh.stock(0, Resource.COIN, 1);
-        wh.stock(1, Resource.STONE, 2);
-        wh.stock(2, Resource.SERVANT, 3);
-
-        assertEquals(wh.consume(cost), result);
-        assertEquals(wh.toString(),"{\n\t1 {VOID:0}\n\t2 {STONE:2}\n\t3 {VOID:0}\n}");
+        assertEquals(wh.consume(cost),result);
+        String expectedConfig = "{\"resources\":[\"VOID\",\"STONE\",\"VOID\"],\"amounts\":[0,2,0],\"pending\":{\"resources\":{}}}";
+        assertEquals(wh.getConfig(),expectedConfig);
     }
 
     @Test
@@ -160,9 +131,9 @@ public class WarehouseTest {
 
         wh.add(rp);
 
-        wh.stock(0, Resource.COIN, 1);
-        wh.stock(1, Resource.STONE, 2);
-        wh.stock(2, Resource.SERVANT, 3);
+        wh.stock(1, Resource.COIN, 1);
+        wh.stock(2, Resource.STONE, 2);
+        wh.stock(3, Resource.SERVANT, 3);
 
         assertTrue(wh.isConsumable(cost1));
         assertFalse(wh.isConsumable(cost2));
@@ -171,24 +142,15 @@ public class WarehouseTest {
     }
 
     @Test
-    public void testWastedIfDone() {
-        ResourcePack rp = new ResourcePack(1,2,3);
-        Warehouse wh = new Warehouse();
-
-        wh.add(rp);
-        assertEquals(6, wh.wastedIfDone());
-    }
-
-    @Test
     public void testDone() {
         ResourcePack rp = new ResourcePack(1,2,3);
         Warehouse wh = new Warehouse();
 
         wh.add(rp); //all resources set as pending
-        assertTrue(wh.getPendingView().contains("\"SERVANT\":3"));
-        assertTrue(wh.getPendingView().contains("\"STONE\":2"));
-        assertTrue(wh.getPendingView().contains("\"COIN\":1"));
+        assertTrue(wh.getPendingResources().toString().contains("\"SERVANT\":3"));
+        assertTrue(wh.getPendingResources().toString().contains("\"STONE\":2"));
+        assertTrue(wh.getPendingResources().toString().contains("\"COIN\":1"));
         wh.done(); //all resources deleted
-        assertEquals("{\"resources\":{}}", wh.getPendingView());
+        assertEquals("{\"resources\":{}}", wh.getPendingResources().toString());
     }
 }

@@ -68,7 +68,7 @@ public class LeaderStackTest {
     @Test
     public void testActivate() {
         MarketBoard marketBoard = new MarketBoard();
-        PlayerBoard playerBoard = new PlayerBoard(marketBoard, null);
+        PlayerBoard playerBoard = new PlayerBoard(null,marketBoard, null);
 
 
         LeaderStack stack = new LeaderStack();
@@ -202,7 +202,7 @@ public class LeaderStackTest {
     public void testGetActiveLeader() {
 
         MarketBoard marketBoard = new MarketBoard();
-        PlayerBoard playerBoard = new PlayerBoard(marketBoard, null);
+        PlayerBoard playerBoard = new PlayerBoard(null, marketBoard, null);
 
         LeaderStack stack = new LeaderStack();
 
@@ -260,7 +260,7 @@ public class LeaderStackTest {
     @Test
     public void testGetActiveLeaderOverload() {
         MarketBoard marketBoard = new MarketBoard();
-        PlayerBoard playerBoard = new PlayerBoard(marketBoard, null);
+        PlayerBoard playerBoard = new PlayerBoard(null, marketBoard, null);
 
         LeaderStack stack = new LeaderStack();
 
@@ -416,7 +416,7 @@ public class LeaderStackTest {
     @Test
     public void testGetPoints() {
         MarketBoard marketBoard = new MarketBoard();
-        PlayerBoard playerBoard = new PlayerBoard(marketBoard, null);
+        PlayerBoard playerBoard = new PlayerBoard(null, marketBoard, null);
 
         LeaderStack stack = new LeaderStack();
         assertEquals(stack.getPoints(),0);
