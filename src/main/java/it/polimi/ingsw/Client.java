@@ -6,6 +6,7 @@ import it.polimi.ingsw.util.MessageManager;
 import it.polimi.ingsw.util.MessageParser;
 import it.polimi.ingsw.view.Screen;
 import it.polimi.ingsw.view.View;
+import it.polimi.ingsw.view.Error;
 
 import java.io.IOException;
 
@@ -14,10 +15,6 @@ import java.util.*;
 public class Client {
 
     private MessageManager message;
-
-    //TODO: decide actual type of local objects client-side (View classes)
-    private MarketBoard.ResourceMarket marketTray;
-    private List<Resource> whiteExchange;
 
     public static void main(String[] args) {
 
@@ -65,13 +62,13 @@ public class Client {
 
         this.message.send("NewGame");
         if(!this.message.receive().equals("OK")) {
-            View.showError("Something went wrong...");
+            View.showError(Error.UNABLE_TO_START_A_NEW_GAME);
             return;
         }
 
         this.message.send(MessageParser.message("setNickname",View.selectNickname()));
         if(!this.message.receive().equals("OK")) {
-            View.showError("Something went wrong...");
+            View.showError(Error.INVALID_NICKNAME);
             return;
         }
 
@@ -79,11 +76,11 @@ public class Client {
 
         answer = this.message.receive();
         while(answer.equals("invalidNumPlayer")) {
-            View.showError("Invalid number of player...");
+            View.showError(Error.INVALID_NUMBER_OF_PLAYER);
             this.message.send(MessageParser.message("setNumPlayer",View.selectNumberOfPlayer()));
         }
 
-        if(!answer.equals("WAIT")) View.showError("Something went wrong: " + answer);
+        if(!answer.equals("WAIT")) View.showError(Error.UNKNOWN_ERROR);
 
         this.playGame();
     }
@@ -100,7 +97,7 @@ public class Client {
         this.message.send(MessageParser.message("setNickname",View.selectNickname()));
 
         while(!this.message.receive().equals("WAIT")) {
-            View.showError("Name already taken!");
+            View.showError(Error.NICKNAME_TAKEN);
             this.message.send(MessageParser.message("setNickname",View.selectNickname()));
         }
 
@@ -162,7 +159,7 @@ public class Client {
 
         answer = this.message.receive();
         if (!answer.equals("OK")) {
-            View.showError("This action cannot be performed due to some unknown error...");
+            View.showError(Error.UNABLE_TO_PLAY_ACTION);
             return;
         }
 
@@ -186,7 +183,7 @@ public class Client {
 
             // if the server doesn't allows the card to be bought
             if (answer.equals("KO")) {
-                View.showError("It's not possible to buy this card, please choose another one.");
+                View.showError(Error.INVALID_CARD_SELECTION);
             }
 
         } while(!answer.equals("OK"));
@@ -208,7 +205,7 @@ public class Client {
             answer = this.message.receive();
 
             if (answer.equals("KO")) {
-                View.showError("Please choose another position!");
+                View.showError(Error.INVALID_POSITION);
             }
 
         } while(!answer.equals("OK"));
@@ -223,7 +220,7 @@ public class Client {
 
         answer = this.message.receive();
         if(!answer.equals("OK")) {
-            View.showError("This action cannot be performed due to some unknown error...");
+            View.showError(Error.UNABLE_TO_PLAY_ACTION);
             // return;
         }
 
@@ -258,7 +255,7 @@ public class Client {
 
         if(!parser.getOrder().equals("Taken"))
         {
-            View.showError("Unable to get resources due to some unknown error...");
+            View.showError(Error.FAIL_TO_GET_RESOURCES);
             return;
         }
 
@@ -274,12 +271,12 @@ public class Client {
                 this.message.send(MessageParser.message("ExchangeWhitesWith",selected));
 
                 answer = this.message.receive();
-                if(!answer.equals("OK")) View.showError("Please, try again...");
+                if(!answer.equals("OK")) View.showError(Error.CANNOT_CONVERT_WHITE);
 
             } while(!answer.equals("OK"));
         }
         else if(!parser.getOrder().equals("OK"))
-            View.showError("Something went wrong...");
+            View.showError(Error.UNKNOWN_ERROR);
 
         // Place resources into the Warehouse.
         while(true)
@@ -300,7 +297,7 @@ public class Client {
                     return;
 
                 case "InvalidConfiguration":
-                    View.showError("It seems that you're configuration was somehow wrong...");
+                    View.showError(Error.WRONG_CONFIGURATION);
                     break;
             }
         }

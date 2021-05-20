@@ -27,9 +27,9 @@ public class View {
         System.out.println("FANCY >> " + message);
     }
 
-    public static void showError(String error)
+    public static void showError(Error error)
     {
-        Screen.printError(error);
+        Screen.printError(error.toString());
     }
 
     public static String selectNickname()
@@ -72,7 +72,7 @@ public class View {
 
         while(!Pattern.matches("(?:(?<color>[BGPY])(?<level>[123]))|esc",selected))
         {
-            View.showError("Your selection does not seem correct... please try again!");
+            View.showError(Error.INVALID_SELECTION);
             System.out.print(">> ");
             selected = input.nextLine();
         }
@@ -88,7 +88,7 @@ public class View {
 
         while(!Pattern.matches("[123]|esc",position))
         {
-            View.showError("Please choose a position between 1 and 3.");
+            View.showError(Error.INVALID_POSITION);
             System.out.print(">> ");
             position = input.nextLine();
         }
@@ -110,7 +110,7 @@ public class View {
             switch(rowOrCol)
             {
                 case "row":
-                    System.out.print("\nWhich row do you want to take? << ");
+                    System.out.print("Which row do you want to take? << ");
                     int rowIndex;
 
                     while(true)
@@ -122,10 +122,10 @@ public class View {
                         try {
                             rowIndex = Integer.parseInt(index);
                             if(rowIndex >= 1 && rowIndex < 4) return "row " + rowIndex;
-                            else View.showError("Please choose a row between 1 and 3.");
+                            else View.showError(Error.INVALID_ROW);
 
                         } catch(NumberFormatException e) {
-                            View.showError("Your selection is not correct, please try again!");
+                            View.showError(Error.INVALID_SELECTION);
                         }
                     }
 
@@ -141,11 +141,11 @@ public class View {
 
                         try {
                             columnIndex = Integer.parseInt(index);
-                            if(columnIndex >= 1 && columnIndex < 4) return "row " + columnIndex;
-                            else View.showError("Please choose a row between 1 and 3.");
+                            if(columnIndex >= 1 && columnIndex < 5) return "column " + columnIndex;
+                            else View.showError(Error.INVALID_COLUMN);
 
                         } catch(NumberFormatException e) {
-                            View.showError("Your selection is not correct, please try again!");
+                            View.showError(Error.INVALID_SELECTION);
                         }
                     }
 
@@ -153,7 +153,7 @@ public class View {
                     return "back";
 
                 default:
-                    View.showError("Please type 'row' or 'column', or 'back' to change action.");
+                    View.showError(Error.INVALID_ROW_OR_COLUMN);
                     break;
             }
         }
