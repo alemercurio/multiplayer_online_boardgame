@@ -12,8 +12,8 @@ import java.util.List;
 
 public class FactoryView {
 
-    List<Production> productions;
-    List<Integer> active;
+    private List<Production> productions;
+    private final List<Integer> active;
 
     public FactoryView()
     {
@@ -39,10 +39,19 @@ public class FactoryView {
         this.active.remove(index);
     }
 
+    public int numberOfActive()
+    {
+        return this.active.size();
+    }
+
     public String getActive()
     {
-        Gson parser = new Gson();
-        return parser.toJson(this.active);
+        return new Gson().toJson(this.active);
+    }
+
+    public void clear()
+    {
+        this.active.clear();
     }
 
     /**
@@ -86,6 +95,8 @@ public class FactoryView {
 
         System.out.print("\n\tTotal Cost: ");
         Screen.print(this.productionRequirements());
+        System.out.print("\n\tAvailable: ");
+        Screen.print(View.strongbox.getCopy().add(View.warehouse.getResources()));
         System.out.print("\n\tProduct: ");
         Screen.print(this.productionResult());
     }

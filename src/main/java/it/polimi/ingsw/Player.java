@@ -3,6 +3,7 @@ import it.polimi.ingsw.cards.*;
 import it.polimi.ingsw.supply.*;
 import it.polimi.ingsw.faith.*;
 import it.polimi.ingsw.util.MessageParser;
+import it.polimi.ingsw.view.Screen;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -189,7 +190,6 @@ public class Player implements Runnable {
                 break;
 
             case "takeResources":
-                System.out.println(">> " + this.game.getNickname(this) + " wants resources");
                 this.takeResources();
                 if(!this.game.isSinglePlayer())
                     this.game.broadCast(this.game.getNickname(this) + " has gathered resources...");
@@ -203,6 +203,7 @@ public class Player implements Runnable {
 
             // TODO: remove
             case "test":
+                Screen.printError(this.nickname + " is cheating!");
                 this.playerBoard.storage.strongbox.add(new ResourcePack(10,10,10,10));
                 this.playerBoard.factory.addProductionPower(new Production(
                         new ResourcePack(2),
@@ -210,6 +211,7 @@ public class Player implements Runnable {
                 this.playerBoard.addWhite(Resource.COIN);
                 this.playerBoard.addWhite(Resource.SHIELD);
                 this.playerBoard.addLeaderStock(new StockPower(2,Resource.COIN));
+                this.send(MessageParser.message("update","strongbox",this.playerBoard.storage.strongbox));
                 break;
         }
     }
@@ -360,6 +362,7 @@ public class Player implements Runnable {
     }
 
     public void activateProduction() {
+
         String msg;
         MessageParser mp = new MessageParser();
 
@@ -377,13 +380,31 @@ public class Player implements Runnable {
             else if(mp.getOrder().equals("active")) {
                 this.playerBoard.factory.setActiveProduction(mp.getObjectParameter(0,int[].class));
 
-                try {
-                    whiteToConvert = this.playerBoard.activateProduction();
-                    this.send("OK");
+                whiteToConvert = this.playerBoard.factory.productionRequirements().get(Resource.VOID);
 
-                } catch (NonConsumablePackException e) {
-                    this.send("NotEnoughResources");
-                    toRepeat = true;
+                if(whiteToConvert != 0)
+                {
+                    ResourcePack freeRequirement = selectResources(whiteToConvert);
+
+                    try {
+                        whiteToConvert = this.playerBoard.activateProduction(freeRequirement);
+                        this.send("OK");
+
+                    } catch (NonConsumablePackException e) {
+                        this.send("NotEnoughResources");
+                        toRepeat = true;
+                    }
+                }
+                else
+                {
+                    try {
+                        whiteToConvert = this.playerBoard.activateProduction();
+                        this.send("OK");
+
+                    } catch (NonConsumablePackException e) {
+                        this.send("NotEnoughResources");
+                        toRepeat = true;
+                    }
                 }
 
             } else {
@@ -395,12 +416,14 @@ public class Player implements Runnable {
 
         if(whiteToConvert != 0) {
             this.playerBoard.storage.strongbox.add(this.selectResources(whiteToConvert));
+            this.send(MessageParser.message("update","strongbox",this.playerBoard.storage.strongbox));
         }
 
         this.send("COMPLETE");
     }
 
     public ResourcePack selectResources(int amount) {
+
         String msg;
         MessageParser mp = new MessageParser();
 

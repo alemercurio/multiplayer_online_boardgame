@@ -11,6 +11,7 @@ public enum Error {
     INVALID_CARD_SELECTION("It's not possible to buy this card, please choose another one."),
     INVALID_POSITION("Please, choose another position!"),
     FAIL_TO_GET_RESOURCES("Failed to get resources..."),
+    NOT_ENOUGH_RESOURCES("Seems that you do not have enough resources..."),
     CANNOT_CONVERT_WHITE("It seems that your selection was not correct..."),
     WRONG_CONFIGURATION("It seems that you're configuration was somehow wrong..."),
     INVALID_SELECTION("Your selection does not seem correct... please try again!"),

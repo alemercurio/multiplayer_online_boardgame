@@ -3,7 +3,6 @@ package it.polimi.ingsw;
 import it.polimi.ingsw.cards.*;
 import it.polimi.ingsw.faith.FaithTrack;
 import it.polimi.ingsw.supply.*;
-import it.polimi.ingsw.util.MessageManager;
 import it.polimi.ingsw.util.MessageParser;
 
 import java.util.ArrayList;
@@ -59,13 +58,52 @@ public class PlayerBoard
         ResourcePack required = this.factory.productionRequirements();
         ResourcePack available = this.storage.getAllResource();
         if(available.isConsumable(required)) {
+
             // Consumes resources required to activate productions.
             this.storage.autoConsume(required);
+
             // Collects the products.
             ResourcePack products = this.factory.productionChain();
             int white = products.flush(Resource.VOID);
+
             this.faithTrack.advance(products.flush(Resource.FAITHPOINT));
+
             this.storage.stockStrongbox(products);
+            this.player.send(MessageParser.message("update","strongbox",this.storage.strongbox));
+
+            return white;
+        }
+        else throw new NonConsumablePackException();
+    }
+
+    public int activateProduction(ResourcePack whiteSelection) throws NonConsumablePackException
+    {
+        ResourcePack required = this.factory.productionRequirements();
+        ResourcePack available = this.storage.getAllResource();
+
+        if(whiteSelection.size() == required.get(Resource.VOID))
+        {
+            required.add(whiteSelection);
+            required.flush(Resource.VOID);
+            required.flush(Resource.FAITHPOINT);
+        }
+        else throw new NonConsumablePackException();
+
+        if(available.isConsumable(required)) {
+
+            // Consumes resources required to activate productions.
+            this.storage.autoConsume(required);
+            this.player.send(MessageParser.message("update","WH",this.storage.strongbox));
+
+            // Collects the products.
+            ResourcePack products = this.factory.productionChain();
+            int white = products.flush(Resource.VOID);
+
+            this.faithTrack.advance(products.flush(Resource.FAITHPOINT));
+
+            this.storage.stockStrongbox(products);
+            this.player.send(MessageParser.message("update","strongbox",this.storage.strongbox));
+
             return white;
         }
         else throw new NonConsumablePackException();

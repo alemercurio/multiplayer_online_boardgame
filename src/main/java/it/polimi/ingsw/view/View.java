@@ -2,6 +2,7 @@ package it.polimi.ingsw.view;
 
 import com.google.gson.Gson;
 import it.polimi.ingsw.cards.StockPower;
+import it.polimi.ingsw.supply.NonConsumablePackException;
 import it.polimi.ingsw.supply.Resource;
 import it.polimi.ingsw.supply.ResourcePack;
 
@@ -13,6 +14,7 @@ public class View {
     public static String[] otherPlayers;
     public static FactoryView factory = new FactoryView();
     public static WarehouseView warehouse = new WarehouseView();
+    public static ResourcePack strongbox = new ResourcePack();
     public static PlayerBoardView playerBoard = new PlayerBoardView();
 
     // METODI DI INTERFACCIA
@@ -206,7 +208,10 @@ public class View {
                     }
                 }
                 else if(cmd.equals("DONE")) {
-                    if(amount == 0) return result;
+                    if(amount == 0) {
+                        System.out.print("\n");
+                        return result;
+                    }
                     else System.out.println("\t>> There are still resource left to decide!");
                 }
                 else {
@@ -313,6 +318,199 @@ public class View {
         return View.warehouse.getConfig();
     }
 
+    public static String selectProduction()
+    {
+        String order;
+        Scanner input = new Scanner(System.in);
+
+        while(true) {
+            View.factory.print();
+            System.out.print("\n>> ");
+
+            Scanner cmd = new Scanner(input.nextLine().toUpperCase());
+            order = cmd.next();
+
+            switch(order) {
+                case "ACTIVE":
+                    if (cmd.hasNext()) {
+                        try {
+                            String[] toActive = cmd.next().split(",");
+                            for (String index : toActive) {
+                                View.factory.setActive(Integer.parseInt(index));
+                            }
+                        } catch (NumberFormatException e) {
+                            Screen.printError("Some arguments are wrong...");
+                        }
+                    }
+                    break;
+                case "REMOVE":
+                    if (cmd.hasNext()) {
+                        try {
+                            String[] toRemove = cmd.next().split(",");
+                            for (String index : toRemove) {
+                                View.factory.setInactive(Integer.parseInt(index));
+                            }
+                        } catch (NumberFormatException e) {
+                            Screen.printError("Some arguments are wrong...");
+                        }
+                    }
+                    break;
+                case "BACK":
+                    return "back";
+
+                case "DONE":
+                    if(View.factory.numberOfActive() == 0) return "back";
+                    else return "active";
+
+                default:
+                    Screen.printError("Invalid command, please try again!");
+                    break;
+            }
+        }
+    }
+
+    public static ResourcePack selectResources(int amount) {
+
+        LinkedList<Resource> selected = new LinkedList<>();
+        LinkedList<Integer> quantity = new LinkedList<>();
+
+        ResourcePack result = new ResourcePack();
+        Scanner input = new Scanner(System.in);
+
+        String cmd;
+        int toAdd;
+
+        System.out.println(">> You have " + amount + " resources to choose!");
+
+        do {
+            Screen.print(result);
+            if(amount != 0) System.out.print(" (" + amount + " x RESOURCE) >> ");
+            else System.out.print(" (DONE?) >> ");
+            cmd = input.nextLine().toUpperCase();
+
+            if(cmd.equals("BACK")) {
+                if(!selected.isEmpty()) {
+                    try {
+                        result.consume(selected.poll(),quantity.getFirst());
+                        if(!quantity.isEmpty()) amount = amount + quantity.poll();
+                    } catch(Exception ignored) { /* Cannot happen! */ }
+                }
+            }
+            else if(cmd.equals("DONE")) {
+                if(amount == 0) {
+                    System.out.print("\n");
+                    return result;
+                }
+                else System.out.println("\t>> There are still resource left to decide!");
+            }
+            else {
+                try {
+                    Scanner scanner = new Scanner(cmd);
+                    Resource res = Resource.valueOf(scanner.next());
+
+                    if(res.isSpecial())
+                        Screen.printError("Cannot convert to a special resource!");
+                    else {
+                        if(scanner.hasNextInt()) toAdd = scanner.nextInt();
+                        else toAdd = 1;
+
+                        if(toAdd > amount) System.out.println("\t>> You are asking for too many resources...");
+                        else {
+                            result.add(res,toAdd);
+                            selected.addFirst(res);
+                            quantity.addFirst(toAdd);
+
+                            amount = amount - toAdd;
+                        }
+                    }
+                } catch(IllegalArgumentException e) {
+                    System.out.println("\t>> Unknown resource :(");
+                }
+            }
+
+        } while(true);
+    }
+
+    public static ResourcePack selectFreeRequirement(int amount) {
+
+        LinkedList<Resource> selected = new LinkedList<>();
+        LinkedList<Integer> quantity = new LinkedList<>();
+
+        ResourcePack result = new ResourcePack();
+
+        ResourcePack available = View.strongbox.getCopy().add(View.warehouse.getResources());
+
+        try {
+            available.consume(View.factory.productionRequirements());
+        } catch (NonConsumablePackException ignored) { /* this should not happen */ }
+
+        Scanner input = new Scanner(System.in);
+
+        String cmd;
+        int toAdd;
+
+        System.out.println(">> To activate production you have to select " + amount + " more resources.");
+        System.out.print("\tYou should choose between these: ");
+        Screen.print(available);
+        System.out.println("\n");
+
+        do {
+            Screen.print(result);
+            if(amount != 0) System.out.print(" (" + amount + " x RESOURCE) >> ");
+            else System.out.print(" (DONE?) >> ");
+            cmd = input.nextLine().toUpperCase();
+
+            if(cmd.equals("BACK")) {
+                if(!selected.isEmpty()) {
+                    try {
+                        result.consume(selected.poll(),quantity.getFirst());
+                        if(!quantity.isEmpty()) amount = amount + quantity.poll();
+                    } catch(Exception ignored) { /* Cannot happen! */ }
+                }
+            }
+            else if(cmd.equals("DONE")) {
+                if(amount == 0) {
+                    System.out.print("\n");
+                    return result;
+                }
+                else System.out.println("\t>> There are still resource left to decide!");
+            }
+            else {
+                try {
+                    Scanner scanner = new Scanner(cmd);
+                    Resource res = Resource.valueOf(scanner.next());
+
+                    if(res.isSpecial())
+                        Screen.printError("Cannot convert to a special resource!");
+                    else {
+                        if(scanner.hasNextInt()) toAdd = scanner.nextInt();
+                        else toAdd = 1;
+
+                        if(toAdd > amount) System.out.println("\t>> You are asking for too many resources...");
+                        else {
+                            result.add(res,toAdd);
+
+                            if(!available.isConsumable(result)) {
+                                Screen.printError("Your selection is not correct :(");
+                                try {
+                                    result.consume(res,toAdd);
+                                } catch (NonConsumablePackException ignored) { /* this should not happen */ }
+                            }
+                            else {
+                                selected.addFirst(res);
+                                quantity.addFirst(toAdd);
+                                amount = amount - toAdd;
+                            }
+                        }
+                    }
+                } catch(IllegalArgumentException e) {
+                    System.out.println("\t>> Unknown resource :(");
+                }
+            }
+
+        } while(true);
+    }
+
     public static void gameEnd()
     {
         System.out.println(">> Game has ended!");
@@ -345,6 +543,10 @@ public class View {
 
             case "WH":
                 View.warehouse.addStockPower(new Gson().fromJson(state,StockPower.class));
+                break;
+
+            case "strongbox":
+                View.strongbox = new Gson().fromJson(state,ResourcePack.class);
                 break;
         }
     }

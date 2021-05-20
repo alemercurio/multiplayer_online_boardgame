@@ -304,12 +304,12 @@ public class Client {
     }
 
     public void activateProduction() {
+
         if(!this.message.receive().equals("OK")) {
-            Screen.printError("Unable to activate production");
+            View.showError(Error.UNABLE_TO_PLAY_ACTION);
             return;
         }
 
-        Scanner input = new Scanner(System.in);
         String cmd;
         String answer;
         MessageParser mp = new MessageParser();
@@ -318,38 +318,41 @@ public class Client {
         do {
             toRepeat = false;
 
-            do {
+            cmd = View.selectProduction();
 
-                View.factory.print();
-                System.out.print("\n>> ");
-                cmd = input.nextLine().toUpperCase();
-                Scanner order = new Scanner(cmd);
-
-                if(order.next().equals("ACTIVE")) {
-                    if(order.hasNext()) {
-                        try {
-                            String[] toActive = order.next().split(",");
-                            for(String index : toActive) {
-                                View.factory.setActive(Integer.parseInt(index));
-                            }
-                        }
-                        catch(NumberFormatException e) {
-                            Screen.printError("Some arguments are wrong...");
-                        }
-                    }
-                }
-
-            } while(!cmd.equals("DONE"));
+            if(cmd.equals("back")) {
+                this.message.send("esc");
+                return;
+            }
 
             this.message.send(MessageParser.message("active",View.factory.getActive()));
 
-            answer = this.message.receive();
+            mp.parse(this.message.receive());
+            answer = mp.getOrder();
+
+            if(answer.equals("convert")) {
+
+                do {
+                    ResourcePack selected = View.selectFreeRequirement(mp.getIntParameter(0));
+                    this.message.send(MessageParser.message("selected",selected));
+
+                    if(this.message.receive().equals("SelectionNotValid")) {
+                        View.showError(Error.INVALID_SELECTION);
+                        toRepeat = true;
+                    }
+                    else toRepeat = false;
+
+                } while(toRepeat);
+
+                answer = this.message.receive();
+            }
+
             if(answer.equals("NotEnoughResources")) {
-                Screen.printError("Seems that you do not have enough resources...");
+                View.showError(Error.NOT_ENOUGH_RESOURCES);
                 toRepeat = true;
             }
             else if(!answer.equals("OK")) {
-                Screen.printError("Something went wrong...");
+                View.showError(Error.UNKNOWN_ERROR);
                 toRepeat = true;
             }
 
@@ -357,83 +360,34 @@ public class Client {
 
         answer = this.message.receive();
         mp.parse(answer);
+
         if(mp.getOrder().equals("convert")) {
-            System.out.println(">> You have " + mp.getIntParameter(0) + " resources to choose!");
-            this.selectResourcesWithServer(mp.getIntParameter(0));
+
+             do {
+
+                ResourcePack selected = View.selectResources(mp.getIntParameter(0));
+                this.message.send(MessageParser.message("selected",selected));
+
+                if(this.message.receive().equals("SelectionNotValid")) {
+                    View.showError(Error.INVALID_SELECTION);
+                    toRepeat = true;
+                }
+                else toRepeat = false;
+
+            } while(toRepeat);
+
             answer = this.message.receive();
             mp.parse(answer);
         }
 
+        View.factory.clear();
+
         if(answer.equals("COMPLETE"))
-            System.out.println(">> Successfully activated production!");
+            View.tell("Successfully activated production!");
     }
 
-    public void selectResourcesWithServer(int amount) {
-        while(true) {
-            ResourcePack selected = selectResources(amount);
-            this.message.send(MessageParser.message("selected",selected));
+    public void playLeader()
+    {
 
-            if(this.message.receive().equals("SelectionNotValid")) {
-                Screen.printError("Selection not valid... try again!");
-            }
-            else return;
-        }
-    }
-
-    public static ResourcePack selectResources(int amount) {
-
-        LinkedList<Resource> selected = new LinkedList<>();
-        LinkedList<Integer> quantity = new LinkedList<>();
-
-        ResourcePack result = new ResourcePack();
-        Scanner input = new Scanner(System.in);
-
-        String cmd;
-        int toAdd;
-
-        do {
-            Screen.print(result);
-            if(amount != 0) System.out.print(" (" + amount + " x RESOURCE) >> ");
-            else System.out.print(" (DONE?) >> ");
-            cmd = input.nextLine().toUpperCase();
-
-            if(cmd.equals("BACK")) {
-                if(!selected.isEmpty()) {
-                    try {
-                        result.consume(selected.poll(),quantity.getFirst());
-                        if(!quantity.isEmpty()) amount = amount + quantity.poll();
-                    } catch(Exception ignored) { /* Cannot happen! */ }
-                }
-            }
-            else if(cmd.equals("DONE")) {
-                if(amount == 0) return result;
-                else System.out.println("\t>> There are still resource left to decide!");
-            }
-            else {
-                try {
-                    Scanner scanner = new Scanner(cmd);
-                    Resource res = Resource.valueOf(scanner.next());
-
-                    if(res.isSpecial())
-                        Screen.printError("Cannot convert to a special resource!");
-                    else {
-                        if(scanner.hasNextInt()) toAdd = scanner.nextInt();
-                        else toAdd = 1;
-
-                        if(toAdd > amount) System.out.println("\t>> You are asking for too many resources...");
-                        else {
-                            result.add(res,toAdd);
-                            selected.addFirst(res);
-                            quantity.addFirst(toAdd);
-
-                            amount = amount - toAdd;
-                        }
-                    }
-                } catch(IllegalArgumentException e) {
-                    System.out.println("\t>> Unknown resource :(");
-                }
-            }
-
-        } while(true);
     }
 }
