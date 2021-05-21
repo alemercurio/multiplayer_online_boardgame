@@ -29,6 +29,27 @@ public class View {
         System.out.println("FANCY >> " + message);
     }
 
+    public static String selectConnection()
+    {
+        Scanner input = new Scanner(System.in);
+
+        Screen.setColor(105);
+        System.out.println("\t\t~ Master of Renaissance ~");
+        Screen.reset();
+
+        System.out.println("\tTo use this game you should specifify the IP Address and port of the server.");
+        System.out.println("\tBut do not worry! You can do it now: ");
+
+        while(true)
+        {
+            System.out.print("\t(IP Port | esc) >> ");
+            String selection = input.nextLine();
+            if(Pattern.matches("(?:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})[ ]*[0-9]{1,5})|esc",selection))
+                return selection;
+            else Screen.printError("Invalid expression.. please try again!");
+        }
+    }
+
     public static void showError(Error error)
     {
         Screen.printError(error.toString());

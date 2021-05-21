@@ -20,12 +20,30 @@ public class Client {
 
         Client client = new Client();
 
-        try {
-            client.message = new MessageManager("127.0.0.1",2703);
-        } catch (IOException e) {
-            Screen.printError("Server unavailable...");
-            return;
+        if(args.length != 2) {
+
+            String selection = View.selectConnection();
+
+            if(selection.equals("esc")) return;
+
+            Scanner connectionInfo = new Scanner(selection);
+            try {
+                client.message = new MessageManager(connectionInfo.next(),connectionInfo.nextInt());
+            } catch (IOException e) {
+                Screen.printError("Server unavailable...");
+                return;
+            }
         }
+        else {
+            try {
+                client.message = new MessageManager(args[0],Integer.parseInt(args[1]));
+            } catch (IOException e) {
+                Screen.printError("Server unavailable...");
+                return;
+            }
+        }
+
+
 
         client.message.start();
 

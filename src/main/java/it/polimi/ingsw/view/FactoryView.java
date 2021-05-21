@@ -82,6 +82,8 @@ public class FactoryView {
 
     public void print()
     {
+        System.out.print("\n");
+
         for(int i = 0; i < this.productions.size(); i++)
         {
             if(this.active.contains(i))
@@ -99,5 +101,7 @@ public class FactoryView {
         Screen.print(View.strongbox.getCopy().add(View.warehouse.getResources()));
         System.out.print("\n\tProduct: ");
         Screen.print(this.productionResult());
+
+        System.out.print("\n");
     }
 }
