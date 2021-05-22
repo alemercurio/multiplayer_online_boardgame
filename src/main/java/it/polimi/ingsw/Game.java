@@ -1,5 +1,6 @@
 package it.polimi.ingsw;
 
+import it.polimi.ingsw.cards.LeaderCard;
 import it.polimi.ingsw.faith.Vatican;
 import it.polimi.ingsw.supply.MarketBoard;
 
@@ -16,6 +17,7 @@ public abstract class Game {
 
     protected final Vatican vatican;
     protected final MarketBoard market;
+    private static final List<LeaderCard> leaders = LeaderCard.getLeaderCardDeck("src/main/resources/JSON/LeaderCard.json");
 
     public Game() {
         this.vatican = new Vatican(this,"src/main/resources/JSON/Vatican.json");
@@ -71,4 +73,10 @@ public abstract class Game {
     public abstract void nextPlayer(Player player);
 
     public abstract void endGame();
+
+    // NEW
+
+    public void waitForOtherPlayer() { }
+    public static List<LeaderCard> getLeaderDeck() { return new ArrayList<LeaderCard>(Game.leaders); }
+    public List<LeaderCard> getLeaders() { return null; }
 }

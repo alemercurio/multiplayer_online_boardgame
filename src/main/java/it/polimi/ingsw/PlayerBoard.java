@@ -14,7 +14,7 @@ public class PlayerBoard
     private final MarketBoard market;
     private final Player player;
     public final Storage storage;
-    private final LeaderStack leaders;
+    public final LeaderStack leaders;
     private final DevelopmentCardStack devCards;
     public final Factory factory;
     private final FaithTrack faithTrack;

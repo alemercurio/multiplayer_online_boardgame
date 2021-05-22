@@ -21,6 +21,14 @@ public class VoidPower implements Power {
     }
 
     /**
+     * Returns the resource which white marbles from the market can be converted into.
+     * @return the resource associated with the current power.
+     */
+    public Resource getResource() {
+       return this.resource;
+    }
+
+    /**
      * The activation of this Power grants the ability to exchange
      * VOID resources gained from the Market to another non-special one.
      * @param board the Player's PlayerBoard.

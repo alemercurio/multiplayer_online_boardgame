@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view;
 
 import com.google.gson.Gson;
+import it.polimi.ingsw.cards.LeaderCard;
 import it.polimi.ingsw.cards.StockPower;
 import it.polimi.ingsw.supply.NonConsumablePackException;
 import it.polimi.ingsw.supply.Resource;
@@ -12,6 +13,7 @@ import java.util.regex.Pattern;
 public class View {
 
     public static String[] otherPlayers;
+    public static LeaderView leaderStack = new LeaderView();
     public static FactoryView factory = new FactoryView();
     public static WarehouseView warehouse = new WarehouseView();
     public static ResourcePack strongbox = new ResourcePack();
@@ -75,6 +77,36 @@ public class View {
         System.out.println("\tPlayers: " + Arrays.toString(View.otherPlayers));
     }
 
+    public static int[] selectLeader(List<LeaderCard> leaders)
+    {
+        Scanner input = new Scanner(System.in);
+
+        System.out.print("\n");
+        for(int i = 1; i <= leaders.size(); i++)
+        {
+            System.out.print(i + ")");
+            Screen.print(leaders.get(i - 1));
+            System.out.print("\n");
+        }
+
+        while(true) {
+
+            System.out.print("\n(keep n,m) >> ");
+            Scanner selection = new Scanner(input.nextLine());
+
+            if(!selection.next().equals("keep") || !selection.hasNext())
+                Screen.printError("Please, use \"keep\" followed by the indexes of the leaders you want to keep!");
+            else {
+                int[] selected = Arrays.stream(selection.next().split(","))
+                        .mapToInt(Integer::parseInt).distinct().filter(n -> (n > 0 && n <= 4)).toArray();
+
+                if(selected.length != 2)
+                    Screen.printError("You can keep only two Leaders; Their indexes must be between one and four.");
+                else return selected;
+            }
+        }
+    }
+
     public static void showAction(String action)
     {
         System.out.println(">> " + action);
@@ -85,6 +117,41 @@ public class View {
         Scanner input = new Scanner(System.in);
         System.out.print("playing >> ");
         return input.nextLine();
+    }
+
+    public static String selectLeaderAction()
+    {
+        if(View.leaderStack.noLeaderToPlay()) {
+            System.out.println("It seems that you have no inactive leaders left to play!");
+            return "back";
+        }
+
+        int inactiveLeaderCount = View.leaderStack.printInactive();
+        Scanner input = new Scanner(System.in);
+
+        while(true) {
+            System.out.print("(play|discard) >> ");
+            Scanner selection = new Scanner(input.nextLine().toLowerCase());
+
+            String order = selection.next();
+            if(Pattern.matches("play|discard",order))
+            {
+                if(selection.hasNextInt())
+                {
+                    int index = selection.nextInt();
+                    if(index < 1 || index > inactiveLeaderCount)
+                        Screen.printError("Invalid index... please try again!");
+                    else return order + " " + index;
+                }
+                else if(inactiveLeaderCount == 1)
+                {
+                    return order + " 1";
+                }
+                else Screen.printError("Please, use \"play\" or \"discard\" followed by the index of the card!");
+            }
+            else if(order.equals("back")) return "back";
+            else Screen.printError("Please, use \"play\" or \"discard\" followed by the index of the card!");
+        }
     }
 
     public static String selectDevCard()
@@ -568,6 +635,10 @@ public class View {
 
             case "strongbox":
                 View.strongbox = new Gson().fromJson(state,ResourcePack.class);
+                break;
+
+            case "leaders":
+                View.leaderStack.update(state);
                 break;
         }
     }

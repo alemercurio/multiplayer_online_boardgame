@@ -1,12 +1,13 @@
 package it.polimi.ingsw;
 
 import com.google.gson.Gson;
+import it.polimi.ingsw.cards.LeaderCard;
 import it.polimi.ingsw.util.MessageParser;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of a multiplayer Game.
@@ -14,17 +15,24 @@ import java.util.Queue;
  * @author Francesco Tosini
  */
 public class MultiGame extends Game {
+
     private final int numPlayer;
     private final Map<Player,String> nameTable;
-    private final Queue<Player> round;
+    private final LinkedList<Player> round;
+    private final AtomicInteger readyPlayers;
     private Player playerWithInkwell;
+    private List<LeaderCard> leaders;
     private boolean endGame;
 
     public MultiGame(int numPlayer) {
         super();
         this.numPlayer = numPlayer;
         this.nameTable = new HashMap<>();
+        this.readyPlayers = new AtomicInteger(0);
         this.round = new LinkedList<>();
+
+        this.leaders = Game.getLeaderDeck();
+        Collections.shuffle(this.leaders);
         this.endGame = false;
     }
 
@@ -33,7 +41,6 @@ public class MultiGame extends Game {
 
         this.addPlayer(creator);
         this.nameTable.put(creator,nickname);
-        this.playerWithInkwell = creator;
     }
 
     @Override
@@ -79,14 +86,63 @@ public class MultiGame extends Game {
     public synchronized void addPlayer(Player player) {
         this.round.add(player);
         player.setForGame(this.vatican.getFaithTrack(),this.market);
-
-        // TODO: remove
-        System.out.println("(GAME) >> add Player (" + this.round.size() + "/" + this.numPlayer + ")");
-
         if(this.round.size() == this.numPlayer) Game.newGames.remove(this);
+
+        String otherPlayer = new Gson().toJson(this.nameTable.values().toArray());
+        player.send(MessageParser.message("update","player",otherPlayer));
+    }
+
+    public List<LeaderCard> getLeaders()
+    {
+        List<LeaderCard> drawn = new ArrayList<>();
+
+        for(int i = 0; i < 4; i++) {
+            if(this.leaders.isEmpty()) {
+                this.leaders = Game.getLeaderDeck();
+                Collections.shuffle(this.leaders);
+            }
+            drawn.add(this.leaders.remove(0));
+        }
+
+        return drawn;
+    }
+
+    public void waitForOtherPlayer()
+    {
+        synchronized(this.readyPlayers)
+        {
+            this.readyPlayers.incrementAndGet();
+            this.readyPlayers.notifyAll();
+
+            if(this.readyPlayers.get() != this.numPlayer)
+            {
+                // The player is not the last one.
+                while(this.readyPlayers.get() != this.numPlayer) {
+                    try {
+                        this.readyPlayers.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            else
+            {
+                // The player is the last one who got ready
+
+                Collections.shuffle(this.round);
+
+                String otherPlayer = this.round.stream().map(Player::getNickname).collect(Collectors.toList()).toString();
+                System.out.println(otherPlayer);
+                this.broadCast(MessageParser.message("update","player",otherPlayer));
+
+                this.playerWithInkwell = this.round.poll();
+                if (this.playerWithInkwell != null) this.playerWithInkwell.setActive();
+            }
+        }
     }
 
     public void start() {
+
         // Ensures that every player has set its nickname.
         synchronized(this.nameTable) {
             while(this.nameTable.size() != this.numPlayer) {
@@ -103,8 +159,9 @@ public class MultiGame extends Game {
         this.broadCast(MessageParser.message("update","player",otherPlayer));
 
         this.broadCast("GameStart");
-        Player first = this.round.poll();
-        first.setActive();
+
+        this.readyPlayers.set(0);
+        for(Player player : this.round) player.setActive();
     }
 
     @Override

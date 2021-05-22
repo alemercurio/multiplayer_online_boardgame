@@ -62,6 +62,17 @@ public class ColorPack {
     }
 
     /**
+     * Returns how many DevelopmentCards with the specified Color and level
+     * are stored in the current ColorPack.
+     * @param color the Color of the desired cards.
+     * @param level the level of the desired cards.
+     * @return the amount of cards with the given color and level within the current pack.
+     */
+    public int get(Color color,int level) {
+        return this.cardSet.getOrDefault(new CardKey(color,level),0);
+    }
+
+    /**
      * Returns True if the given ColorPack is fully contained in the current one.
      * @param required the ColorPack to test.
      * @return a boolean that answer the question.
@@ -76,6 +87,14 @@ public class ColorPack {
             if(available < e.getValue()) return false;
         }
         return true;
+    }
+
+    /**
+     * Tests if the current ColorPack is empty.
+     * @return true if the current pack is empty, false otherwise.
+     */
+    public boolean isEmpty() {
+        return this.cardSet.isEmpty();
     }
 
     /**

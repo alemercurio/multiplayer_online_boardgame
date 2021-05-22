@@ -1,6 +1,7 @@
 package it.polimi.ingsw.cards;
 
 import it.polimi.ingsw.PlayerBoard;
+import it.polimi.ingsw.supply.Resource;
 import it.polimi.ingsw.supply.ResourcePack;
 
 /**
@@ -18,6 +19,15 @@ public class DiscountPower implements Power {
      */
     public DiscountPower(ResourcePack discount) {
         this.discount = discount.getCopy();
+    }
+
+    /**
+     * Returns the discount that the current power makes able to apply when buying a
+     * DevelopmentCard from the market.
+     * @return the discount associated with the current power.
+     */
+    public ResourcePack getDiscount() {
+        return this.discount.getCopy();
     }
 
     /**

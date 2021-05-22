@@ -1,4 +1,7 @@
 package it.polimi.ingsw;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import it.polimi.ingsw.cards.*;
 import it.polimi.ingsw.supply.*;
 import it.polimi.ingsw.faith.*;
@@ -7,7 +10,10 @@ import it.polimi.ingsw.view.Screen;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Type;
 import java.net.Socket;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Player implements Runnable {
@@ -155,8 +161,17 @@ public class Player implements Runnable {
     }
 
     public void playGame() {
+
+        this.waitForActive();
+
+        this.selectLeader(this.game.getLeaders());
+
+        this.isActive = false;
+        this.game.waitForOtherPlayer();
+
         while(!this.hasEnded) {
             this.waitForActive();
+
             if(!this.hasEnded) {
                 this.playRound();
                 this.isActive = false;
@@ -171,6 +186,51 @@ public class Player implements Runnable {
             if(!this.hasEnded) this.game.nextPlayer(this);
         }
         this.send("GameEnd");
+    }
+
+    public void selectLeader(List<LeaderCard> leaders)
+    {
+        Type listOfLeaderCard = new TypeToken<List<LeaderCard>>() {}.getType();
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(Power.class,new LeaderCard.PowerReader());
+        builder.enableComplexMapKeySerialization();
+        Gson parser = builder.create();
+
+        String leadersData = parser.toJson(leaders,listOfLeaderCard);
+        this.send(MessageParser.message("selectLeader",leadersData));
+
+        while(true) {
+
+            MessageParser mp = new MessageParser();
+            mp.parse(this.receive());
+
+            if(mp.getOrder().equals("keepLeaders"))
+            {
+                int[] selection = mp.getObjectParameter(0,int[].class);
+
+                if(selection.length != 2) this.send("InvalidSelection");
+                else
+                {
+                    List<LeaderCard> selectedLeaders = new LinkedList<>();
+
+                    try {
+                        selectedLeaders.add(leaders.get(selection[0] - 1));
+                        selectedLeaders.add(leaders.get(selection[1] - 1));
+
+                        this.playerBoard.giveLeaders(selectedLeaders);
+                        this.send(MessageParser.message("update","leaders", parser.toJson(this.playerBoard.leaders)));
+
+                        this.send("OK");
+                        return;
+
+                    } catch(IndexOutOfBoundsException e)
+                    {
+                        this.send("InvalidSelection");
+                    }
+                }
+            }
+            else this.send("InvalidOption");
+        }
     }
 
     public void playRound() {
@@ -201,6 +261,10 @@ public class Player implements Runnable {
                 this.activateProduction();
                 break;
 
+            case "leader":
+                this.leaderAction();
+                break;
+
             // TODO: remove
             case "test":
                 Screen.printError(this.nickname + " is cheating!");
@@ -213,6 +277,48 @@ public class Player implements Runnable {
                 this.playerBoard.addLeaderStock(new StockPower(2,Resource.COIN));
                 this.send(MessageParser.message("update","strongbox",this.playerBoard.storage.strongbox));
                 break;
+        }
+    }
+
+    public void leaderAction()
+    {
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(Power.class,new LeaderCard.PowerReader());
+        builder.enableComplexMapKeySerialization();
+        Gson parser = builder.create();
+
+        this.send(MessageParser.message("update","leaders", parser.toJson(this.playerBoard.leaders)));
+        this.send("OK");
+
+        while(true)
+        {
+            MessageParser mp = new MessageParser();
+            mp.parse(this.receive());
+
+            switch (mp.getOrder()) {
+                case "esc":
+                    return;
+
+                case "play":
+                    if (this.playerBoard.playLeaderCard(mp.getIntParameter(0) - 1)) {
+                        this.send(MessageParser.message("update", "leaders", parser.toJson(this.playerBoard.leaders)));
+                        this.send("OK");
+                        return;
+                    } else this.send("UnableToPlay");
+                    break;
+
+                case "discard":
+                    if (this.playerBoard.discardLeader(mp.getIntParameter(0) - 1)) {
+                        this.send(MessageParser.message("update", "leaders", parser.toJson(this.playerBoard.leaders)));
+                        this.send("OK");
+                        return;
+                    } else this.send("Error");
+                    break;
+
+                default:
+                    this.send("Error");
+                    break;
+            }
         }
     }
 
@@ -380,30 +486,35 @@ public class Player implements Runnable {
             else if(mp.getOrder().equals("active")) {
                 this.playerBoard.factory.setActiveProduction(mp.getObjectParameter(0,int[].class));
 
-                whiteToConvert = this.playerBoard.factory.productionRequirements().get(Resource.VOID);
+                if(!this.playerBoard.storage.isConsumable(this.playerBoard.factory.productionRequirements()))
+                    this.send("NotEnoughResources");
 
-                if(whiteToConvert != 0)
-                {
-                    ResourcePack freeRequirement = selectResources(whiteToConvert);
+                else {
+                    whiteToConvert = this.playerBoard.factory.productionRequirements().get(Resource.VOID);
 
-                    try {
-                        whiteToConvert = this.playerBoard.activateProduction(freeRequirement);
-                        this.send("OK");
+                    if(whiteToConvert != 0)
+                    {
+                        ResourcePack freeRequirement = selectResources(whiteToConvert);
 
-                    } catch (NonConsumablePackException e) {
-                        this.send("NotEnoughResources");
-                        toRepeat = true;
+                        try {
+                            whiteToConvert = this.playerBoard.activateProduction(freeRequirement);
+                            this.send("OK");
+
+                        } catch (NonConsumablePackException e) {
+                            this.send("NotEnoughResources");
+                            toRepeat = true;
+                        }
                     }
-                }
-                else
-                {
-                    try {
-                        whiteToConvert = this.playerBoard.activateProduction();
-                        this.send("OK");
+                    else
+                    {
+                        try {
+                            whiteToConvert = this.playerBoard.activateProduction();
+                            this.send("OK");
 
-                    } catch (NonConsumablePackException e) {
-                        this.send("NotEnoughResources");
-                        toRepeat = true;
+                        } catch (NonConsumablePackException e) {
+                            this.send("NotEnoughResources");
+                            toRepeat = true;
+                        }
                     }
                 }
 

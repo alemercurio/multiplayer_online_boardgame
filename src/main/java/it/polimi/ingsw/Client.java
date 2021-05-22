@@ -1,5 +1,8 @@
 package it.polimi.ingsw;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import it.polimi.ingsw.cards.*;
 import it.polimi.ingsw.supply.*;
 import it.polimi.ingsw.util.MessageManager;
@@ -10,6 +13,7 @@ import it.polimi.ingsw.view.Error;
 
 import java.io.IOException;
 
+import java.lang.reflect.Type;
 import java.util.*;
 
 public class Client {
@@ -122,13 +126,51 @@ public class Client {
         this.playGame();
     }
 
+    public void selectLeader()
+    {
+        String answer;
+        MessageParser mp = new MessageParser();
+
+        mp.parse(this.message.receive());
+
+        if(!mp.getOrder().equals("selectLeader"))
+        {
+            View.showError(Error.UNKNOWN_ERROR);
+            return;
+        }
+
+        Type listOfLeaderCard = new TypeToken<List<LeaderCard>>() {}.getType();
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(Power.class,new LeaderCard.PowerReader());
+        builder.enableComplexMapKeySerialization();
+        Gson parser = builder.create();
+
+        String leadersData = mp.getStringParameter(0);
+        List<LeaderCard> leaders = parser.fromJson(leadersData,listOfLeaderCard);
+
+        while(true) {
+
+            int[] selection = View.selectLeader(leaders);
+            this.message.send(MessageParser.message("keepLeaders",Arrays.toString(selection)));
+
+            answer = this.message.receive();
+            if(!answer.equals("OK")) View.showError(Error.INVALID_SELECTION);
+            else return;
+
+        }
+    }
+
     public void playGame() {
 
         String answer;
 
+        System.out.println(Arrays.toString(View.otherPlayers));
+
         View.fancyTell("Waiting for other players!");
         do { answer = this.message.receive(); } while(!answer.equals("GameStart"));
         View.gameStart();
+
+        this.selectLeader();
 
         boolean active = true;
         while(active) {
@@ -153,6 +195,10 @@ public class Client {
                     case "activateProduction":
                         this.message.send("activateProduction");
                         this.activateProduction();
+                        break;
+                    case "leader":
+                        this.message.send("leader");
+                        this.leaderAction();
                         break;
 
                     // TODO: remove
@@ -404,8 +450,40 @@ public class Client {
             View.tell("Successfully activated production!");
     }
 
-    public void playLeader()
+    public void leaderAction()
     {
+        String answer = this.message.receive();
 
+        if(!answer.equals("OK")) {
+            View.showError(Error.UNKNOWN_ERROR);
+        }
+
+        while(true)
+        {
+            String selection = View.selectLeaderAction();
+
+            if(selection.equals("back")) {
+                this.message.send("esc");
+                return;
+            }
+
+            Scanner selected = new Scanner(selection);
+            this.message.send(MessageParser.message(selected.next(),selected.nextInt()));
+
+            answer = this.message.receive();
+            switch(answer) {
+                case "OK":
+                    View.tell("Done!");
+                    return;
+
+                case "Error":
+                    View.showError(Error.UNKNOWN_ERROR);
+                    break;
+
+                case "UnableToPlay":
+                    View.showError(Error.UNABLE_TO_PLAY_LEADER);
+                    break;
+            }
+        }
     }
 }

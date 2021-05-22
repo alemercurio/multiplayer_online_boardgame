@@ -17,7 +17,8 @@ public enum Error {
     INVALID_SELECTION("Your selection does not seem correct... please try again!"),
     INVALID_ROW("Please choose a row between 1 and 3."),
     INVALID_COLUMN("Please choose a column between 1 and 4."),
-    INVALID_ROW_OR_COLUMN("Please type 'row' or 'column', or 'back' to change action.");
+    INVALID_ROW_OR_COLUMN("Please type 'row' or 'column', or 'back' to change action."),
+    UNABLE_TO_PLAY_LEADER("You cannot play this Leader!");
 
 
     private final String message;

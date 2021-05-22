@@ -20,6 +20,15 @@ public class ProductionPower implements Power {
     }
 
     /**
+     * Returns the production granted by the current ProductionPower.
+     * @return the Production given by the current Power.
+     */
+    public Production getProduction() {
+        // Because Production objects are immutable, it is not necessary to make a copy.
+        return this.production;
+    }
+
+    /**
      * The activation of this Power makes its Production available for the Player.
      * @param board the Player's PlayerBoard.
      */

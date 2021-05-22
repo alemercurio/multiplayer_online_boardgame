@@ -84,6 +84,15 @@ public class LeaderCard extends Card {
         return this.reqDevCards.getCopy();
     }
 
+    /**
+     * Returns the power associated with the current LeaderCard.
+     * @return the power given by the current Leader.
+     */
+    public Power getPower() {
+        // Since Power objects are immutale no copy is needed.
+        return this.power;
+    }
+
     public static class PowerReader implements JsonSerializer<Power>, JsonDeserializer<Power> {
 
         @Override
