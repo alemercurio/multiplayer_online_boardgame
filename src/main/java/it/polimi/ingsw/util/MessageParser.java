@@ -4,19 +4,29 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 
-import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * The MessageParser class parses messages with the following format:
  * command(< parameters without spaces >);
  */
 public class MessageParser
 {
-    private static final Pattern pattern = Pattern.compile("(?<command>\\w+)(?:\\((?<parameter>(?:(?:\\{.*}|.+),)*(?:\\{.*}|.+))?\\))?");
-    private String order = "NOP";
-    private String[] parameters;
+    private static class Message
+    {
+        private final String order;
+        private final String[] parameters;
+
+        private Message(String order,Object...parameters)
+        {
+            this.order = order;
+
+            this.parameters = new String[parameters.length];
+            for(int i = 0; i < parameters.length; i++)
+                this.parameters[i] = parameters[i].toString();
+        }
+    }
+
+    private static final Gson parser = new Gson();
+    private Message message;
 
     /**
      * Parses the given String as a message; results are stored in the current MessageParser.
@@ -24,50 +34,13 @@ public class MessageParser
      * @param cmd the String to parse.
      */
     public void parse(String cmd) {
-        Matcher matcher = pattern.matcher(cmd);
-        String[] fragments;
-        ArrayList<String> shards = new ArrayList<>();
 
-        if(matcher.matches()) {
-            this.order = matcher.group("command");
-            if(matcher.group("parameter") != null) {
-
-                fragments = matcher.group("parameter").split(",");
-
-                StringBuilder shard = new StringBuilder();
-                boolean collectCurly = false;
-                boolean collectSquare = false;
-
-                for(String param : fragments) {
-                    if(collectCurly || collectSquare) {
-                        shard.append(",").append(param);
-                        if((collectCurly && param.charAt(param.length() - 1) == '}')) {
-                            shards.add(shard.toString());
-                            collectCurly = false;
-                        }
-                        else if(collectSquare && param.charAt(param.length() - 1) == ']') {
-                            shards.add(shard.toString());
-                            collectSquare = false;
-                        }
-                    } else {
-                        if(param.charAt(0) == '{' && param.charAt(param.length() - 1) != '}') {
-                            shard = new StringBuilder(param);
-                            collectCurly = true;
-                        }
-                        else if(param.charAt(0) == '[' && param.charAt(param.length() - 1) != ']') {
-                            shard = new StringBuilder(param);
-                            collectSquare = true;
-                        }
-                        else shards.add(param);
-                    }
-                }
-
-                this.parameters = shards.toArray(new String[0]);
-            }
+        try {
+            this.message = parser.fromJson(cmd,Message.class);
+        } catch(Exception e) {
+            this.message = new Message(cmd);
         }
-        else {
-            this.order = "NOP";
-        }
+
     }
 
     /**
@@ -77,7 +50,8 @@ public class MessageParser
      */
     public String getOrder()
     {
-        return this.order;
+        if(this.message == null) return "NOP";
+        else return this.message.order;
     }
 
     /**
@@ -87,8 +61,8 @@ public class MessageParser
      */
     public int getNumberOfParameters()
     {
-        if(this.parameters == null) return 0;
-        else return this.parameters.length;
+        if(this.message == null) return 0;
+        else return this.message.parameters.length;
     }
 
     /**
@@ -100,8 +74,8 @@ public class MessageParser
      */
     public int getIntParameter(int index)
     {
-        if(index >= 0 && index < this.parameters.length)
-            return Integer.parseInt(this.parameters[index]);
+        if(index >= 0 && index < this.message.parameters.length)
+            return Integer.parseInt(this.message.parameters[index]);
         else return 0;
     }
 
@@ -114,8 +88,8 @@ public class MessageParser
      */
     public String getStringParameter(int index)
     {
-        if(index >= 0 && index < this.parameters.length)
-            return this.parameters[index];
+        if(index >= 0 && index < this.message.parameters.length)
+            return this.message.parameters[index];
         else return null;
     }
 
@@ -129,9 +103,8 @@ public class MessageParser
      */
     public <T> T getObjectParameter(int index, Class<T> type)
     {
-        Gson parser = new Gson();
-        if(index >= 0 && index < this.parameters.length)
-            return parser.fromJson(this.parameters[index],type);
+        if(index >= 0 && index < this.message.parameters.length)
+            return parser.fromJson(this.message.parameters[index],type);
         else return null;
     }
 
@@ -150,8 +123,8 @@ public class MessageParser
         builder.registerTypeAdapter(type,adapter);
         Gson parser = builder.create();
 
-        if(index >= 0 && index < this.parameters.length)
-            return parser.fromJson(this.parameters[index],type);
+        if(index >= 0 && index < this.message.parameters.length)
+            return parser.fromJson(this.message.parameters[index],type);
         else return null;
     }
 
@@ -163,15 +136,7 @@ public class MessageParser
      */
     public static String message(String order,Object...parameters)
     {
-        StringBuilder messageBuilder = new StringBuilder(order);
-        if(parameters.length != 0)
-        {
-            messageBuilder.append('(');
-            for(Object obj : parameters)
-                messageBuilder.append(obj).append(',');
-            messageBuilder.setCharAt(messageBuilder.length() - 1,')');
-        }
-        return messageBuilder.toString();
+        return parser.toJson(new Message(order,parameters));
     }
 }
 
