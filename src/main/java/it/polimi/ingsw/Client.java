@@ -126,8 +126,8 @@ public class Client {
         this.playGame();
     }
 
-    public void selectLeader()
-    {
+    public void selectLeader() {
+
         String answer;
         MessageParser mp = new MessageParser();
 
@@ -450,16 +450,15 @@ public class Client {
             View.tell("Successfully activated production!");
     }
 
-    public void leaderAction()
-    {
+    public void leaderAction() {
         String answer = this.message.receive();
 
         if(!answer.equals("OK")) {
             View.showError(Error.UNKNOWN_ERROR);
         }
 
-        while(true)
-        {
+        while(true) {
+
             String selection = View.selectLeaderAction();
 
             if(selection.equals("back")) {

@@ -131,17 +131,16 @@ public class WarehouseView extends Warehouse{
         this.pendingResources.add(resources);
     }
 
-    public void addStockPower(StockPower power)
-    {
+    public void addStockPower(StockPower power) {
         this.stock.add(new LimitedStock(power.getType(),power.getLimit()));
     }
 
-    public List<StockPower> getStockPower()
-    {
+    public List<StockPower> getStockPower() {
+
         List<StockPower> stockPowers = new ArrayList<>();
 
-        for(int i = 3; i < this.stock.size(); i++)
-        {
+        for(int i = 3; i < this.stock.size(); i++) {
+
             LimitedStock shelf = this.stock.get(i);
             stockPowers.add(new StockPower(shelf.size,shelf.resource));
         }
@@ -205,8 +204,7 @@ public class WarehouseView extends Warehouse{
         return true;
     }
 
-    public boolean isConsumable(ResourcePack pack)
-    {
+    public boolean isConsumable(ResourcePack pack) {
         ResourcePack required = pack.getCopy();
         required.flush(Resource.VOID);
         required.flush(Resource.FAITHPOINT);
@@ -231,12 +229,12 @@ public class WarehouseView extends Warehouse{
         return this.pendingResources.flush();
     }
 
-    public ResourcePack getResources()
-    {
+    public ResourcePack getResources() {
+
         ResourcePack resources = new ResourcePack();
 
-        for(LimitedStock shelf : this.stock)
-        {
+        for(LimitedStock shelf : this.stock) {
+
             if(!shelf.getResource().isSpecial())
                 resources.add(shelf.getResource(),shelf.getAvailable());
         }
@@ -245,8 +243,8 @@ public class WarehouseView extends Warehouse{
     }
 
 
-    public String getConfig()
-    {
+    public String getConfig() {
+
         ArrayList<Resource> resources = new ArrayList<>();
         ArrayList<Integer> amounts = new ArrayList<>();
 
@@ -266,8 +264,8 @@ public class WarehouseView extends Warehouse{
         return config.toString();
     }
 
-    public boolean update(String state)
-    {
+    public boolean update(String state) {
+
         Gson gson = new Gson();
         JsonElement element = gson.fromJson(state, JsonElement.class);
         JsonObject jsonObj = element.getAsJsonObject();
@@ -297,8 +295,8 @@ public class WarehouseView extends Warehouse{
         return true;
     }
 
-    public void print()
-    {
+    public void print() {
+
         System.out.print("\n1:     ");
         this.stock.get(0).print();
         System.out.print("\n2:   ");

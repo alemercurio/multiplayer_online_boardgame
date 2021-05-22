@@ -280,8 +280,8 @@ public class Player implements Runnable {
         }
     }
 
-    public void leaderAction()
-    {
+    public void leaderAction() {
+
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(Power.class,new LeaderCard.PowerReader());
         builder.enableComplexMapKeySerialization();
@@ -290,8 +290,8 @@ public class Player implements Runnable {
         this.send(MessageParser.message("update","leaders", parser.toJson(this.playerBoard.leaders)));
         this.send("OK");
 
-        while(true)
-        {
+        while(true) {
+
             MessageParser mp = new MessageParser();
             mp.parse(this.receive());
 
