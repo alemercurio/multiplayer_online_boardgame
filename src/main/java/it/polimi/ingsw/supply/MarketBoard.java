@@ -1,5 +1,6 @@
 package it.polimi.ingsw.supply;
 
+import com.google.gson.Gson;
 import it.polimi.ingsw.cards.Color;
 import it.polimi.ingsw.cards.DevelopmentCard;
 
@@ -99,15 +100,7 @@ public class MarketBoard {
 
         @Override
         public String toString() {
-            StringBuilder resMarket = new StringBuilder("{");
-            for(int r = 0;r < 3;r++) {
-                resMarket.append("\n\t");
-                for (int c = 0; c < 4; c++) {
-                    resMarket.append(marketTray[r][c].getAlias());
-                }
-            }
-            resMarket.append("\n}");
-            return resMarket.toString();
+            return new Gson().toJson(this,ResourceMarket.class);
         }
     }
 
@@ -226,15 +219,19 @@ public class MarketBoard {
 
         @Override
         public String toString() {
-            StringBuilder res = new StringBuilder("{");
-            for(int row = 2; row >= 0; row--) {
-                res.append("\n\t");
-                for(Color color : Color.values()) {
-                    res.append(" ").append(this.decksMap.get(color).get(row).size());
+
+            Map<Color,List<DevelopmentCard>> devCards = new HashMap<>();
+            for(Color color : Color.values())
+                devCards.put(color, new LinkedList<DevelopmentCard>());
+
+            for(Color color : this.decksMap.keySet())
+                for(LinkedList<DevelopmentCard> stack : this.decksMap.get(color))
+                {
+                    if(stack.isEmpty()) devCards.get(color).add(null);
+                    else devCards.get(color).add(stack.getFirst());
                 }
-            }
-            res.append("\n}");
-            return res.toString();
+
+            return new Gson().toJson(devCards);
         }
     }
 

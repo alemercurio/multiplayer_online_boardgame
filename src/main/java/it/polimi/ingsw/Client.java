@@ -160,17 +160,53 @@ public class Client {
         }
     }
 
+    public void initialAdvantage() {
+
+        String answer;
+        MessageParser mp = new MessageParser();
+
+        mp.parse(this.message.receive());
+
+        if(mp.getOrder().equals("advantage")) View.showInitialAdvantage(mp.getObjectParameter(0,ResourcePack.class));
+
+        mp.parse(this.message.receive());
+
+        if(mp.getOrder().equals("convert"))
+        {
+            do {
+                this.message.send(MessageParser.message("selected",View.selectResources(mp.getIntParameter(0))));
+
+                answer = this.message.receive();
+                if(!answer.equals("OK"))
+                    View.showError(Error.UNKNOWN_ERROR);
+
+            }while(!answer.equals("OK"));
+
+            answer = this.message.receive();
+            if(answer.equals("setWarehouse")) {
+
+                do {
+
+                    String newConfig = View.selectWarehouse();
+                    this.message.send(MessageParser.message("config",newConfig));
+                    answer = this.message.receive();
+
+                } while(!answer.equals("OK"));
+            }
+        }
+    }
+
     public void playGame() {
 
         String answer;
-
-        System.out.println(Arrays.toString(View.otherPlayers));
+        MessageParser mp = new MessageParser();
 
         View.fancyTell("Waiting for other players!");
         do { answer = this.message.receive(); } while(!answer.equals("GameStart"));
         View.gameStart();
 
         this.selectLeader();
+        this.initialAdvantage();
 
         boolean active = true;
         while(active) {
@@ -183,36 +219,46 @@ public class Client {
 
             if(answer.equals("PLAY")) {
 
-                switch(View.selectAction()) {
-                    case "buyDevCard":
-                        this.message.send("buyDevCard");
-                        this.buyDevelopmentCard();
-                        break;
-                    case "takeResources":
-                        this.message.send("takeResources");
-                        this.takeResources();
-                        break;
-                    case "activateProduction":
-                        this.message.send("activateProduction");
-                        this.activateProduction();
-                        break;
-                    case "leader":
-                        this.message.send("leader");
-                        this.leaderAction();
-                        break;
+                boolean endRound = true;
+                do {
+                    switch(View.selectAction()) {
 
-                    // TODO: remove
-                    case "test":
-                        this.message.send("test");
-                        break;
-                }
+                        case "buyDevCard":
+                            this.message.send("buyDevCard");
+                            endRound = this.buyDevelopmentCard();
+                            break;
+
+                        case "takeResources":
+                            this.message.send("takeResources");
+                            endRound = this.takeResources();
+                            break;
+
+                        case "activateProduction":
+                            this.message.send("activateProduction");
+                            endRound = this.activateProduction();
+                            break;
+
+                        case "leader":
+                            this.message.send("leader");
+                            this.leaderAction();
+                            endRound = false;
+                            break;
+
+                        // TODO: remove
+                        case "test":
+                            this.message.send("test");
+                            endRound = false;
+                            break;
+
+                    }
+                } while(!endRound);
             }
         }
 
         View.gameEnd();
     }
 
-    public void buyDevelopmentCard() {
+    public boolean buyDevelopmentCard() {
 
         // TODO: gli errori sono poco significativi... occorre far capire cosa è successo!
 
@@ -224,20 +270,15 @@ public class Client {
         answer = this.message.receive();
         if (!answer.equals("OK")) {
             View.showError(Error.UNABLE_TO_PLAY_ACTION);
-            return;
+            return false;
         }
 
-        View.tell("This is the market board, please choose a card!");
-
         do {
-            // TODO: mostrare il mercato
-
             selection = View.selectDevCard();
-            if(selection.equals("esc"))
+            if(selection.equals("back"))
             {
-                View.tell("Command cancelled...");
                 this.message.send("esc");
-                return;
+                return false;
             }
 
             cardLevel = Character.getNumericValue(selection.charAt(1));
@@ -252,17 +293,13 @@ public class Client {
 
         } while(!answer.equals("OK"));
 
-        // TODO: mostrare il DevCardStack
-
         //the card to buy exists
 
-        View.tell("Please, choose a position for the new card!");
         do {
             selection = View.selectDevCardPosition();
-            if (selection.equals("esc")) {
-                View.tell("Command canceled..");
+            if (selection.equals("back")) {
                 this.message.send("esc");
-                return;
+                return false;
             }
 
             this.message.send(MessageParser.message("position",Character.getNumericValue(selection.charAt(0))));
@@ -276,26 +313,27 @@ public class Client {
 
         View.tell("Card successfully bought!");
         // TODO: mostrare il DevCardStack
+
+        return true;
     }
 
-    public void takeResources() {
+    public boolean takeResources() {
 
         String answer;
 
         answer = this.message.receive();
         if(!answer.equals("OK")) {
             View.showError(Error.UNABLE_TO_PLAY_ACTION);
-            // return;
+            return false;
         }
 
-        // TODO: mostare il mercato delle risorse
         Scanner selection = new Scanner(View.selectMarbles());
 
         switch(selection.next())
         {
             case "back":
                 this.message.send("Quit");
-                return;
+                return false;
 
             case "row":
                 this.message.send(MessageParser.message("TakeRow",selection.nextInt()));
@@ -307,18 +345,18 @@ public class Client {
         }
 
         receiveResources();
+
+        return true;
     }
 
     public void receiveResources() {
 
         MessageParser parser = new MessageParser();
-        Scanner input = new Scanner(System.in);
 
         String answer = this.message.receive();
         parser.parse(answer);
 
-        if(!parser.getOrder().equals("Taken"))
-        {
+        if(!parser.getOrder().equals("Taken")) {
             View.showError(Error.FAIL_TO_GET_RESOURCES);
             return;
         }
@@ -367,11 +405,11 @@ public class Client {
         }
     }
 
-    public void activateProduction() {
+    public boolean activateProduction() {
 
         if(!this.message.receive().equals("OK")) {
             View.showError(Error.UNABLE_TO_PLAY_ACTION);
-            return;
+            return false;
         }
 
         String cmd;
@@ -386,7 +424,7 @@ public class Client {
 
             if(cmd.equals("back")) {
                 this.message.send("esc");
-                return;
+                return false;
             }
 
             this.message.send(MessageParser.message("active",View.factory.getActive()));
@@ -448,6 +486,8 @@ public class Client {
 
         if(answer.equals("COMPLETE"))
             View.tell("Successfully activated production!");
+
+        return true;
     }
 
     public void leaderAction() {

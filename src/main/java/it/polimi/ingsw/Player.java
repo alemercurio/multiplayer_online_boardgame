@@ -165,6 +165,7 @@ public class Player implements Runnable {
         this.waitForActive();
 
         this.selectLeader(this.game.getLeaders());
+        this.initialAdvantage();
 
         this.isActive = false;
         this.game.waitForOtherPlayer();
@@ -181,6 +182,10 @@ public class Player implements Runnable {
     }
 
     public void playSoloGame() {
+
+        this.selectLeader(this.game.getLeaders());
+        this.initialAdvantage();
+
         while(!this.hasEnded) {
             this.playRound();
             if(!this.hasEnded) this.game.nextPlayer(this);
@@ -233,51 +238,121 @@ public class Player implements Runnable {
         }
     }
 
+    public void initialAdvantage() {
+
+        MessageParser mp = new MessageParser();
+        ResourcePack advantage = this.game.getAdvantage(this);
+
+        this.send(MessageParser.message("advantage",advantage));
+
+        if(!advantage.isEmpty()) {
+
+            int white = this.playerBoard.storeResources(advantage);
+            this.send(MessageParser.message("convert",white));
+
+            boolean toRepeat;
+            do {
+                mp.parse(this.receive());
+                if(mp.getOrder().equals("selected")) {
+
+                    ResourcePack selected = mp.getObjectParameter(0,ResourcePack.class);
+                    if(selected.get(Resource.VOID) == 0 && selected.get(Resource.FAITHPOINT) == 0 && selected.size() == white) {
+
+                        this.playerBoard.storage.warehouse.add(selected);
+                        this.send("OK");
+                        toRepeat = false;
+
+                    } else {
+
+                        this.send("KO");
+                        toRepeat = true;
+
+                    }
+
+                } else {
+
+                    this.send("InvalidOption");
+                    toRepeat = true;
+
+                }
+            } while(toRepeat);
+
+            this.send(MessageParser.message("update","WHConfig",this.playerBoard.storage.warehouse.getConfig()));
+            this.send("setWarehouse");
+
+            while(true) {
+                mp.parse(this.receive());
+                if(mp.getOrder().equals("config"))
+                {
+                    if(this.playerBoard.storage.warehouse.update(mp.getStringParameter(0))) {
+
+                        this.send(MessageParser.message("update","WHConfig",this.playerBoard.storage.warehouse.getConfig()));
+                        this.send("OK");
+                        return;
+
+                    } else this.send("KO");
+                } else this.send("InvalidOption");
+            }
+        } else this.send("OK");
+    }
+
     public void playRound() {
         String cmd;
         // TODO: perfect
         this.game.broadCast("Turno di " + this.nickname);
         this.send("PLAY");
-        cmd = this.receive();
 
-        switch(cmd) {
-            case "buyDevCard":
-                System.out.println(">> " + this.game.getNickname(this) + " wants to buy a DevCard");
-                if(!this.game.isSinglePlayer())
-                    this.game.broadCast(this.game.getNickname(this) + " bought a DevCard...");
-                this.send("OK");
-                this.buyDevelopmentCard();
-                break;
+        boolean endRound = true;
+        do {
 
-            case "takeResources":
-                this.takeResources();
-                if(!this.game.isSinglePlayer())
-                    this.game.broadCast(this.game.getNickname(this) + " has gathered resources...");
-                break;
+            cmd = this.receive();
+            switch(cmd) {
 
-            case "activateProduction":
-                if(!this.game.isSinglePlayer())
-                    this.game.broadCast(this.nickname + " has activated production...");
-                this.activateProduction();
-                break;
+                case "buyDevCard":
+                    if(this.buyDevelopmentCard()) {
+                        endRound = true;
+                        if(!this.game.isSinglePlayer())
+                            this.game.broadCast(this.game.getNickname(this) + " bought a DevCard...");
+                    } else endRound = false;
+                    break;
 
-            case "leader":
-                this.leaderAction();
-                break;
+                case "takeResources":
+                    if(this.takeResources()) {
+                        endRound = true;
+                        if(!this.game.isSinglePlayer())
+                            this.game.broadCast(this.game.getNickname(this) + " has gathered resources...");
+                    } else endRound = false;
+                    break;
 
-            // TODO: remove
-            case "test":
-                Screen.printError(this.nickname + " is cheating!");
-                this.playerBoard.storage.strongbox.add(new ResourcePack(10,10,10,10));
-                this.playerBoard.factory.addProductionPower(new Production(
-                        new ResourcePack(2),
-                        new ResourcePack(0,2,0,0,0,6)));
-                this.playerBoard.addWhite(Resource.COIN);
-                this.playerBoard.addWhite(Resource.SHIELD);
-                this.playerBoard.addLeaderStock(new StockPower(2,Resource.COIN));
-                this.send(MessageParser.message("update","strongbox",this.playerBoard.storage.strongbox));
-                break;
-        }
+                case "activateProduction":
+                    if(this.activateProduction()) {
+                        endRound = true;
+                        if(!this.game.isSinglePlayer())
+                            this.game.broadCast(this.nickname + " has activated production...");
+                    } else endRound = false;
+                    break;
+
+                case "leader":
+                    this.leaderAction();
+                    endRound = false;
+                    break;
+
+                // TODO: remove
+                case "test":
+                    Screen.printError(this.nickname + " is cheating!");
+                    this.playerBoard.storage.strongbox.add(new ResourcePack(10,10,10,10));
+                    this.playerBoard.factory.addProductionPower(new Production(
+                            new ResourcePack(2),
+                            new ResourcePack(0,2,0,0,0,6)));
+                    this.playerBoard.addWhite(Resource.COIN);
+                    this.playerBoard.addWhite(Resource.SHIELD);
+                    this.playerBoard.addLeaderStock(new StockPower(2,Resource.COIN));
+                    this.send(MessageParser.message("update","strongbox",this.playerBoard.storage.strongbox));
+                    endRound = false;
+                    break;
+            }
+
+        } while(!endRound);
     }
 
     public void leaderAction() {
@@ -322,19 +397,20 @@ public class Player implements Runnable {
         }
     }
 
-    public void buyDevelopmentCard() {
+    public boolean buyDevelopmentCard() {
 
         MessageParser cmd = new MessageParser();
         int cardLevel = 0;
         Color cardColor = null;
         boolean cardSelected = false;
 
-        // TODO: update del mercato delle carte
+        this.send(MessageParser.message("update","market:card",this.game.market.cardMarket));
+        this.send("OK");
 
         do {
             cmd.parse(this.receive());
 
-            if(cmd.getOrder().equals("esc")) return;
+            if(cmd.getOrder().equals("esc")) return false;
             else if(cmd.getOrder().equals("Buy"))
             {
                 cardLevel = cmd.getIntParameter(0);
@@ -354,7 +430,7 @@ public class Player implements Runnable {
         do {
             cmd.parse(this.receive());
 
-            if(cmd.getOrder().equals("esc")) return;
+            if(cmd.getOrder().equals("esc")) return false;
             else if(cmd.getOrder().equals("position"))
             {
                 if(this.playerBoard.canBeStored(cardLevel,cmd.getIntParameter(0)))
@@ -366,9 +442,10 @@ public class Player implements Runnable {
                         /* this should never happen */
                     }
 
-                    // TODO: update del DevCardStack
+                    this.send(MessageParser.message("update","devCards",this.playerBoard.devCards));
                     this.send("OK");
-                    return;
+
+                    return true;
                 }
                 else this.send("KO");
             }
@@ -376,33 +453,37 @@ public class Player implements Runnable {
         } while(true);
     }
 
-    public void takeResources() {
+    public boolean takeResources() {
 
         MessageParser parser = new MessageParser();
+
+        this.send(MessageParser.message("update","market:res",this.game.market.resourceMarket));
 
         this.send("OK");
         String msg = this.receive();
 
-        if(msg.equals("Quit")) {
-            System.out.println("Back to action choice...");
-        }
-        else {
+        if (!msg.equals("Quit")) {
+
             parser.parse(msg);
 
-            if(parser.getOrder().equals("TakeRow")) {
+            if (parser.getOrder().equals("TakeRow")) {
 
-                int row = parser.getIntParameter(0);
+                int row = parser.getIntParameter(0) - 1;
                 ResourcePack gatheredResources = game.market.takeRow(row);
+                this.game.broadCastFull(MessageParser.message("update","market:res",this.game.market.resourceMarket));
                 sendResources(gatheredResources);
-            }
+                return true;
 
-            else if(parser.getOrder().equals("TakeColumn")) {
+            } else if (parser.getOrder().equals("TakeColumn")) {
 
-                int column = parser.getIntParameter(0);
+                int column = parser.getIntParameter(0) - 1;
                 ResourcePack gatheredResources = game.market.takeColumn(column);
                 sendResources(gatheredResources);
+                return true;
             }
+
         }
+        return false;
     }
 
     private void sendResources(ResourcePack gatheredResources) {
@@ -467,7 +548,7 @@ public class Player implements Runnable {
         }
     }
 
-    public void activateProduction() {
+    public boolean activateProduction() {
 
         String msg;
         MessageParser mp = new MessageParser();
@@ -482,7 +563,7 @@ public class Player implements Runnable {
             msg = this.receive();
             mp.parse(msg);
 
-            if(mp.getOrder().equals("esc")) return;
+            if(mp.getOrder().equals("esc")) return false;
             else if(mp.getOrder().equals("active")) {
                 this.playerBoard.factory.setActiveProduction(mp.getObjectParameter(0,int[].class));
 
@@ -531,6 +612,7 @@ public class Player implements Runnable {
         }
 
         this.send("COMPLETE");
+        return true;
     }
 
     public ResourcePack selectResources(int amount) {

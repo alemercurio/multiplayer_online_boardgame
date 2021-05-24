@@ -93,7 +93,7 @@ public class WarehouseView extends Warehouse{
         public int flush() {
             int available = this.available;
 
-            if (this.free) this.resource = Resource.VOID;
+            if(this.free) this.resource = Resource.VOID;
             this.available = 0;
 
             return available;
@@ -234,7 +234,6 @@ public class WarehouseView extends Warehouse{
         ResourcePack resources = new ResourcePack();
 
         for(LimitedStock shelf : this.stock) {
-
             if(!shelf.getResource().isSpecial())
                 resources.add(shelf.getResource(),shelf.getAvailable());
         }

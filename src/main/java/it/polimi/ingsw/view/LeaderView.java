@@ -60,7 +60,7 @@ public class LeaderView {
             System.out.print("\n");
             for(int i = 0; i < inactive.size(); i++)
             {
-                System.out.print((i + 1) + ") ");
+                System.out.print((i + 1) + ")");
                 Screen.print(inactive.get(i));
                 System.out.print("\n");
             }

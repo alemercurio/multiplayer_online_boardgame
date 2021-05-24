@@ -1,9 +1,14 @@
 package it.polimi.ingsw;
 
+import it.polimi.ingsw.cards.LeaderCard;
 import it.polimi.ingsw.solo.LorenzoIlMagnifico;
 import it.polimi.ingsw.solo.SoloAction;
 import it.polimi.ingsw.solo.SoloActionDeck;
 import it.polimi.ingsw.util.MessageParser;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Implementation of a solo Game.
@@ -73,5 +78,24 @@ public class SoloGame extends Game {
     public void playSolo() {
         SoloAction action = this.lorenzo.playSoloAction();
         this.broadCast(action.toString());
+    }
+
+    @Override
+    public List<LeaderCard> getLeaders() {
+
+        List<LeaderCard> leaders = Game.getLeaderDeck();
+        Collections.shuffle(leaders);
+
+        List<LeaderCard> drawn = new ArrayList<>();
+
+        for(int i = 0; i < 4; i++) {
+            if(leaders.isEmpty()) {
+                leaders = Game.getLeaderDeck();
+                Collections.shuffle(leaders);
+            }
+            drawn.add(leaders.remove(0));
+        }
+
+        return drawn;
     }
 }

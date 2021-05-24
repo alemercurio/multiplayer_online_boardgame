@@ -1,5 +1,7 @@
 package it.polimi.ingsw.cards;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -128,5 +130,10 @@ public class DevelopmentCardStack {
         return this.devCards.stream()
                 .mapToInt(stack -> stack.stream()
                 .mapToInt(Card::getPoints).sum()).sum();
+    }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
     }
 }

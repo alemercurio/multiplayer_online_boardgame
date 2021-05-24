@@ -15,7 +15,7 @@ public class PlayerBoard
     private final Player player;
     public final Storage storage;
     public final LeaderStack leaders;
-    private final DevelopmentCardStack devCards;
+    public final DevelopmentCardStack devCards;
     public final Factory factory;
     private final FaithTrack faithTrack;
 

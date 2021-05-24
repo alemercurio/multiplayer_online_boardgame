@@ -2,7 +2,10 @@ package it.polimi.ingsw.faith;
 
 import it.polimi.ingsw.Game;
 import it.polimi.ingsw.Player;
+import it.polimi.ingsw.cards.LeaderCard;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -50,6 +53,11 @@ public class VaticanTest {
         @Override
         public void endGame() {
             this.endSet = true;
+        }
+
+        @Override
+        public List<LeaderCard> getLeaders() {
+            return null;
         }
     }
 

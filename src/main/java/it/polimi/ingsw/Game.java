@@ -3,6 +3,7 @@ package it.polimi.ingsw;
 import it.polimi.ingsw.cards.LeaderCard;
 import it.polimi.ingsw.faith.Vatican;
 import it.polimi.ingsw.supply.MarketBoard;
+import it.polimi.ingsw.supply.ResourcePack;
 
 import java.util.*;
 
@@ -62,6 +63,8 @@ public abstract class Game {
 
     public abstract void broadCast(String message);
 
+    public void broadCastFull(String message) { }
+
     public abstract boolean nameAvailable(String name);
 
     public abstract boolean setNickname(Player player,String name);
@@ -78,5 +81,6 @@ public abstract class Game {
 
     public void waitForOtherPlayer() { }
     public static List<LeaderCard> getLeaderDeck() { return new ArrayList<LeaderCard>(Game.leaders); }
-    public List<LeaderCard> getLeaders() { return null; }
+    public abstract List<LeaderCard> getLeaders();
+    public ResourcePack getAdvantage(Player player) { return new ResourcePack(); }
 }

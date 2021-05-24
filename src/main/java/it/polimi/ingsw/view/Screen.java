@@ -181,4 +181,15 @@ public class Screen {
         Screen.print(leader.getPower());
 
     }
+
+    public static void print(DevelopmentCard devCard) {
+
+        System.out.print("{ ");
+        Screen.print(devCard.getColor());
+        System.out.print(" level " + devCard.getLevel() + " } cost:");
+        Screen.print(devCard.getCost());
+        System.out.print(" production: ");
+        Screen.print(devCard.getProduction());
+        System.out.print(" PV: " + devCard.getPoints());
+    }
 }

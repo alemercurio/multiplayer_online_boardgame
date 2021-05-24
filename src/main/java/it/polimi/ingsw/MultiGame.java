@@ -2,11 +2,11 @@ package it.polimi.ingsw;
 
 import com.google.gson.Gson;
 import it.polimi.ingsw.cards.LeaderCard;
+import it.polimi.ingsw.supply.ResourcePack;
 import it.polimi.ingsw.util.MessageParser;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -23,6 +23,11 @@ public class MultiGame extends Game {
     private Player playerWithInkwell;
     private List<LeaderCard> leaders;
     private boolean endGame;
+
+    private static ResourcePack[] initialAdvantages = { new ResourcePack(),
+            new ResourcePack(0,0,0,0,0,1),
+            new ResourcePack(0,0,0,0,1,1),
+            new ResourcePack(0,0,0,0,1,2) };
 
     public MultiGame(int numPlayer) {
         super();
@@ -129,12 +134,6 @@ public class MultiGame extends Game {
             {
                 // The player is the last one who got ready
 
-                Collections.shuffle(this.round);
-
-                String otherPlayer = this.round.stream().map(Player::getNickname).collect(Collectors.toList()).toString();
-                System.out.println(otherPlayer);
-                this.broadCast(MessageParser.message("update","player",otherPlayer));
-
                 this.playerWithInkwell = this.round.poll();
                 if (this.playerWithInkwell != null) this.playerWithInkwell.setActive();
             }
@@ -154,14 +153,22 @@ public class MultiGame extends Game {
             }
         }
 
-        Gson parser = new Gson();
-        String otherPlayer = parser.toJson(this.nameTable.values().toArray());
+        Collections.shuffle(this.round);
+        String otherPlayer = this.round.stream().map(Player::getNickname).collect(Collectors.toList()).toString();
         this.broadCast(MessageParser.message("update","player",otherPlayer));
 
         this.broadCast("GameStart");
 
+        this.broadCast(MessageParser.message("update","market:res",this.market.resourceMarket));
+        this.broadCast(MessageParser.message("update","market:card",this.market.cardMarket));
+
         this.readyPlayers.set(0);
         for(Player player : this.round) player.setActive();
+    }
+
+    public ResourcePack getAdvantage(Player player) {
+        int index = this.round.indexOf(player)%4;
+        return MultiGame.initialAdvantages[index];
     }
 
     @Override

@@ -13,7 +13,9 @@ import java.util.regex.Pattern;
 public class View {
 
     public static String[] otherPlayers;
+    public static MarketView market = new MarketView();
     public static LeaderView leaderStack = new LeaderView();
+    public static DevelopmentCardView devCardStack = new DevelopmentCardView();
     public static FactoryView factory = new FactoryView();
     public static WarehouseView warehouse = new WarehouseView();
     public static ResourcePack strongbox = new ResourcePack();
@@ -74,7 +76,8 @@ public class View {
     public static void gameStart()
     {
         System.out.println(">> Game starts!");
-        System.out.println("\tPlayers: " + Arrays.toString(View.otherPlayers));
+        if(View.otherPlayers.length != 0)
+            System.out.println("\tPlayers: " + Arrays.toString(View.otherPlayers));
     }
 
     public static int[] selectLeader(List<LeaderCard> leaders)
@@ -107,6 +110,16 @@ public class View {
         }
     }
 
+    public static void showInitialAdvantage(ResourcePack advantage)
+    {
+        if(advantage.isEmpty()) System.out.println(">> You received nothing as your initial advantage!");
+        else {
+            System.out.print(">> You received: ");
+            Screen.print(advantage);
+            System.out.println(" as your initial advantage!");
+        }
+    }
+
     public static void showAction(String action)
     {
         System.out.println(">> " + action);
@@ -115,8 +128,76 @@ public class View {
     public static String selectAction()
     {
         Scanner input = new Scanner(System.in);
-        System.out.print("playing >> ");
-        return input.nextLine();
+
+        while(true) {
+
+            System.out.println("\n>> It is your turn! Please choose one of the following actions: ");
+            System.out.println("\tR) Take resources from the market;");
+            System.out.println("\tB) Buy a Development Card;");
+            System.out.println("\tP) Activate Production;");
+            System.out.println("\tL) Play or Discard a LeaderCard.");
+            System.out.println("You can also use \"show\"\n");
+
+            System.out.print("playing >> ");
+            Scanner selection = new Scanner(input.nextLine());
+            String order = selection.next();
+
+            if(order.equals("show")) {
+
+                if(selection.hasNext()) {
+
+                    switch(selection.next()) {
+
+                        case "resources":
+                            View.warehouse.print();
+                            System.out.print("Strongbox: ");
+                            Screen.print(View.strongbox);
+                            System.out.print("\n");
+                            break;
+
+                        case "market:resource":
+                            View.market.printResourceMarket();
+                            break;
+
+                        case "market:card":
+                            View.market.printCardMarket();
+                            break;
+
+                        case "market":
+                            System.out.println("\t>> Please use \"market:resource\" or \"market:card\"!");
+                            break;
+
+                        case "devCard":
+                            View.devCardStack.print();
+                            break;
+
+                        case "leaders":
+                            View.leaderStack.printActive();
+                            View.leaderStack.printInactive();
+                            break;
+                    }
+
+                } else Screen.printError("Please, specify what you want to see!");
+            }
+            else if(order.matches("[RBPL]")) {
+
+                switch(order.charAt(0)) {
+
+                    case 'R':
+                        return "takeResources";
+
+                    case 'B':
+                        return "buyDevCard";
+
+                    case 'P':
+                        return "activateProduction";
+
+                    case 'L':
+                        return "leader";
+                }
+
+            } else Screen.printError("It seems that you have choose an invalid option... please try again!");
+        }
     }
 
     public static String selectLeaderAction()
@@ -157,10 +238,14 @@ public class View {
     public static String selectDevCard()
     {
         Scanner input = new Scanner(System.in);
+
+        System.out.println(">> This is the market board, please choose a card!");
+        View.market.printCardMarket();
+
         System.out.print(">> ");
         String selected = input.nextLine();
 
-        while(!Pattern.matches("(?:(?<color>[BGPY])(?<level>[123]))|esc",selected))
+        while(!Pattern.matches("(?:(?<color>[BGPY])(?<level>[123]))|back",selected))
         {
             View.showError(Error.INVALID_SELECTION);
             System.out.print(">> ");
@@ -173,10 +258,14 @@ public class View {
     public static String selectDevCardPosition()
     {
         Scanner input = new Scanner(System.in);
+
+        System.out.println(">> Please, choose a position for the new card!");
+        View.devCardStack.print();
+
         System.out.print(">> ");
         String position = input.nextLine();
 
-        while(!Pattern.matches("[123]|esc",position))
+        while(!Pattern.matches("[123]|back",position))
         {
             View.showError(Error.INVALID_POSITION);
             System.out.print(">> ");
@@ -189,7 +278,10 @@ public class View {
     public static String selectMarbles()
     {
         Scanner input = new Scanner(System.in);
-        System.out.print("Do you want a row or a column? << ");
+
+        View.market.printResourceMarket();
+
+        System.out.print("\nDo you want a row or a column? << ");
         String rowOrCol;
         String index;
 
@@ -220,7 +312,7 @@ public class View {
                     }
 
                 case "column":
-                    System.out.print("\nWhich column do you want to take? << ");
+                    System.out.print("Which column do you want to take? << ");
                     int columnIndex;
 
                     while(true)
@@ -639,6 +731,18 @@ public class View {
 
             case "leaders":
                 View.leaderStack.update(state);
+                break;
+
+            case "market:res":
+                View.market.updateResourceMarket(state);
+                break;
+
+            case "market:card":
+                View.market.updateCardMarket(state);
+                break;
+
+            case "devCards":
+                View.devCardStack.update(state);
                 break;
         }
     }
