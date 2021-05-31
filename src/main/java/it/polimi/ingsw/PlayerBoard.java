@@ -17,7 +17,7 @@ public class PlayerBoard
     public final LeaderStack leaders;
     public final DevelopmentCardStack devCards;
     public final Factory factory;
-    private final FaithTrack faithTrack;
+    public final FaithTrack faithTrack;
 
     private final ResourcePack marketDiscounts;
     private final List<Resource> whiteExchange;
@@ -33,9 +33,13 @@ public class PlayerBoard
         this.storage = new Storage();
         this.leaders = new LeaderStack();
         this.devCards = new DevelopmentCardStack();
+
         this.factory = new Factory();
         this.factory.addProductionPower(baseProduction);
+
         this.faithTrack = faithTrack;
+        this.player.send(MessageParser.message("update","faith:track",this.faithTrack));
+        this.player.send(MessageParser.message("update","faith:config",this.faithTrack.getConfig()));
 
         this.marketDiscounts = new ResourcePack();
         this.whiteExchange = new ArrayList<>();
@@ -159,9 +163,13 @@ public class PlayerBoard
     public int storeResources(ResourcePack loot)
     {
         ResourcePack toStore = loot.getCopy();
+
         this.faithTrack.advance(toStore.flush(Resource.FAITHPOINT));
+        this.player.send(MessageParser.message("update","faith:config",this.faithTrack.getConfig()));
+
         int white = toStore.flush(Resource.VOID);
         this.storage.warehouse.add(toStore);
+
         return white;
     }
 

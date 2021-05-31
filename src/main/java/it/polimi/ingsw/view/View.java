@@ -3,6 +3,7 @@ package it.polimi.ingsw.view;
 import com.google.gson.Gson;
 import it.polimi.ingsw.cards.LeaderCard;
 import it.polimi.ingsw.cards.StockPower;
+import it.polimi.ingsw.faith.FaithView;
 import it.polimi.ingsw.supply.NonConsumablePackException;
 import it.polimi.ingsw.supply.Resource;
 import it.polimi.ingsw.supply.ResourcePack;
@@ -19,6 +20,7 @@ public class View {
     public static FactoryView factory = new FactoryView();
     public static WarehouseView warehouse = new WarehouseView();
     public static ResourcePack strongbox = new ResourcePack();
+    private static final FaithView faithTrack = new FaithView();
     public static PlayerBoardView playerBoard = new PlayerBoardView();
 
     // METODI DI INTERFACCIA
@@ -51,6 +53,25 @@ public class View {
             if(Pattern.matches("(?:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})[ ]*[0-9]{1,5})|esc",selection))
                 return selection;
             else Screen.printError("Invalid expression.. please try again!");
+        }
+    }
+
+    public static String selectGame()
+    {
+        Scanner input = new Scanner(System.in);
+
+        while(true)
+        {
+            System.out.print(">> ");
+
+            String msg = input.nextLine();
+
+            if(msg.equals("esc"))
+            {
+                System.out.println(">> Ciao e a presto! :)");
+                return msg;
+            }
+            else if(msg.equals("new") || msg.equals("join")) return msg;
         }
     }
 
@@ -100,12 +121,19 @@ public class View {
             if(!selection.next().equals("keep") || !selection.hasNext())
                 Screen.printError("Please, use \"keep\" followed by the indexes of the leaders you want to keep!");
             else {
-                int[] selected = Arrays.stream(selection.next().split(","))
-                        .mapToInt(Integer::parseInt).distinct().filter(n -> (n > 0 && n <= 4)).toArray();
 
-                if(selected.length != 2)
-                    Screen.printError("You can keep only two Leaders; Their indexes must be between one and four.");
-                else return selected;
+                try {
+
+                    int[] selected = Arrays.stream(selection.next().split(","))
+                            .mapToInt(Integer::parseInt).distinct().filter(n -> (n > 0 && n <= 4)).toArray();
+
+                    if(selected.length != 2)
+                        Screen.printError("You can keep only two Leaders; Their indexes must be between one and four.");
+                    else return selected;
+
+                } catch(NumberFormatException e) {
+                    Screen.printError("Please, use \"keep\" followed by the indexes of the leaders you want to keep!");
+                }
             }
         }
     }
@@ -129,17 +157,17 @@ public class View {
     {
         Scanner input = new Scanner(System.in);
 
+        System.out.println("\n>> It is your turn! Please choose one of the following actions: ");
+        System.out.println("\tR) Take resources from the market;");
+        System.out.println("\tB) Buy a Development Card;");
+        System.out.println("\tP) Activate Production;");
+        System.out.println("\tL) Play or Discard a LeaderCard.");
+        System.out.println("You can also use \"show\"\n");
+
         while(true) {
 
-            System.out.println("\n>> It is your turn! Please choose one of the following actions: ");
-            System.out.println("\tR) Take resources from the market;");
-            System.out.println("\tB) Buy a Development Card;");
-            System.out.println("\tP) Activate Production;");
-            System.out.println("\tL) Play or Discard a LeaderCard.");
-            System.out.println("You can also use \"show\"\n");
-
             System.out.print("playing >> ");
-            Scanner selection = new Scanner(input.nextLine());
+            Scanner selection = new Scanner(input.nextLine().toLowerCase());
             String order = selection.next();
 
             if(order.equals("show")) {
@@ -157,17 +185,19 @@ public class View {
 
                         case "market:resource":
                             View.market.printResourceMarket();
+                            System.out.print("\n");
                             break;
 
                         case "market:card":
                             View.market.printCardMarket();
+                            System.out.print("\n");
                             break;
 
                         case "market":
                             System.out.println("\t>> Please use \"market:resource\" or \"market:card\"!");
                             break;
 
-                        case "devCard":
+                        case "devcard":
                             View.devCardStack.print();
                             break;
 
@@ -175,24 +205,33 @@ public class View {
                             View.leaderStack.printActive();
                             View.leaderStack.printInactive();
                             break;
+
+                        case "faith":
+                            View.faithTrack.print();
+                            System.out.print("\n");
+                            break;
+
+                        default:
+                            Screen.printError("Ops... I cannot understand what you want to see!");
+                            break;
                     }
 
                 } else Screen.printError("Please, specify what you want to see!");
             }
-            else if(order.matches("[RBPL]")) {
+            else if(order.matches("[rbpl]")) {
 
                 switch(order.charAt(0)) {
 
-                    case 'R':
+                    case 'r':
                         return "takeResources";
 
-                    case 'B':
+                    case 'b':
                         return "buyDevCard";
 
-                    case 'P':
+                    case 'p':
                         return "activateProduction";
 
-                    case 'L':
+                    case 'l':
                         return "leader";
                 }
 
@@ -743,6 +782,14 @@ public class View {
 
             case "devCards":
                 View.devCardStack.update(state);
+                break;
+
+            case "faith:track":
+                View.faithTrack.setTrack(state);
+                break;
+
+            case "faith:config":
+                View.faithTrack.setConfig(state);
                 break;
         }
     }

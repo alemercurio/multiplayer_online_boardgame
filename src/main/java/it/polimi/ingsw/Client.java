@@ -55,12 +55,11 @@ public class Client {
             System.out.println(">> Unable to be welcomed..");
         else System.out.println(">> Successfully connected..");
 
-        Scanner input = new Scanner(System.in);
-        String msg = "";
+        String msg;
 
-        while(!msg.equals("esc")) {
-            System.out.print(">> ");
-            msg = input.nextLine();
+        do {
+
+            msg = View.selectGame();
 
             switch(msg) {
                 case "new":
@@ -70,7 +69,8 @@ public class Client {
                     client.joinGame();
                     break;
             }
-        }
+
+        } while(!msg.equals("esc"));
 
         try {
             client.message.close();

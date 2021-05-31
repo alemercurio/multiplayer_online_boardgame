@@ -537,8 +537,10 @@ public class Player implements Runnable {
                 if(this.playerBoard.storage.warehouse.update(parser.getStringParameter(0)))
                 {
                     int wasted = this.playerBoard.storage.warehouse.done();
-                    if(wasted != 0)
+                    if(wasted != 0) {
+                        this.send(MessageParser.message("update","faith:config",this.playerBoard.faithTrack.getConfig()));
                         this.send(MessageParser.message("wasted",wasted));
+                    }
                     else this.send("Complete");
                     return;
                 }

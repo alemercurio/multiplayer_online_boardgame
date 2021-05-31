@@ -16,6 +16,12 @@ public class Screen {
         System.out.print("\u001B[38;5;" + color + "m");
     }
 
+    private static final char[] exponentNum = {'\u2070','\u00b9','\u00b2','\u00b3','\u2074','\u2075','\u2076','\u2077','\u2078','\u2079'};
+
+    public static void printExponentNumber(int n) {
+        if(n < 10) System.out.print(exponentNum[n]);
+    }
+
     public static void reset()
     {
         System.out.print("\u001B[0m");

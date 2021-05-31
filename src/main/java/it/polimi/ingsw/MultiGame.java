@@ -157,10 +157,10 @@ public class MultiGame extends Game {
         String otherPlayer = this.round.stream().map(Player::getNickname).collect(Collectors.toList()).toString();
         this.broadCast(MessageParser.message("update","player",otherPlayer));
 
-        this.broadCast("GameStart");
-
         this.broadCast(MessageParser.message("update","market:res",this.market.resourceMarket));
         this.broadCast(MessageParser.message("update","market:card",this.market.cardMarket));
+
+        this.broadCast("GameStart");
 
         this.readyPlayers.set(0);
         for(Player player : this.round) player.setActive();
