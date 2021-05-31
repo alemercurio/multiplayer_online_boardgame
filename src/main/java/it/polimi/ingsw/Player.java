@@ -6,6 +6,7 @@ import it.polimi.ingsw.cards.*;
 import it.polimi.ingsw.supply.*;
 import it.polimi.ingsw.faith.*;
 import it.polimi.ingsw.util.MessageParser;
+import it.polimi.ingsw.view.PlayerView;
 import it.polimi.ingsw.view.Screen;
 
 import java.io.IOException;
@@ -140,6 +141,14 @@ public class Player implements Runnable {
     }
 
     // Round Management
+
+    public PlayerView getPlayerStat()
+    {
+        return new PlayerView(this.ID,this.nickname,
+                this.playerBoard.storage.getAllResource(),
+                this.playerBoard.faithTrack.getFaithMarker(),
+                this.playerBoard.countPoints());
+    }
 
     public synchronized void setActive() {
         this.isActive = true;
@@ -536,7 +545,7 @@ public class Player implements Runnable {
             {
                 if(this.playerBoard.storage.warehouse.update(parser.getStringParameter(0)))
                 {
-                    int wasted = this.playerBoard.storage.warehouse.done();
+                    int wasted = this.playerBoard.done();
                     if(wasted != 0) {
                         this.send(MessageParser.message("update","faith:config",this.playerBoard.faithTrack.getConfig()));
                         this.send(MessageParser.message("wasted",wasted));

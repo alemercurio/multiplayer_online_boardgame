@@ -65,12 +65,14 @@ public class PlayerBoard
 
             // Consumes resources required to activate productions.
             this.storage.autoConsume(required);
+            this.player.send(MessageParser.message("update","WHConfig",this.storage.warehouse.getConfig()));
 
             // Collects the products.
             ResourcePack products = this.factory.productionChain();
             int white = products.flush(Resource.VOID);
 
             this.faithTrack.advance(products.flush(Resource.FAITHPOINT));
+            this.player.send(MessageParser.message("update","faith:config",this.faithTrack.getConfig()));
 
             this.storage.stockStrongbox(products);
             this.player.send(MessageParser.message("update","strongbox",this.storage.strongbox));
@@ -97,13 +99,14 @@ public class PlayerBoard
 
             // Consumes resources required to activate productions.
             this.storage.autoConsume(required);
-            this.player.send(MessageParser.message("update","WH",this.storage.strongbox));
+            this.player.send(MessageParser.message("update","WHConfig",this.storage.warehouse.getConfig()));
 
             // Collects the products.
             ResourcePack products = this.factory.productionChain();
             int white = products.flush(Resource.VOID);
 
             this.faithTrack.advance(products.flush(Resource.FAITHPOINT));
+            this.player.send(MessageParser.message("update","faith:config",this.faithTrack.getConfig()));
 
             this.storage.stockStrongbox(products);
             this.player.send(MessageParser.message("update","strongbox",this.storage.strongbox));
@@ -169,6 +172,7 @@ public class PlayerBoard
 
         int white = toStore.flush(Resource.VOID);
         this.storage.warehouse.add(toStore);
+        this.player.send(MessageParser.message("update","WHConfig",this.storage.warehouse.getConfig()));
 
         return white;
     }
@@ -191,9 +195,17 @@ public class PlayerBoard
         if(ableToConvert == amount)
         {
             this.storage.warehouse.add(desired);
+            this.player.send(MessageParser.message("update","WHConfig",this.storage.warehouse.getConfig()));
             return true;
         }
         else return false;
+    }
+
+    public int done()
+    {
+        int wasted = this.storage.warehouse.done();
+        this.faithTrack.wastedResources(wasted);
+        return wasted;
     }
 
     public boolean playLeaderCard(int leader) {

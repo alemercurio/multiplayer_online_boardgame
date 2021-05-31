@@ -210,9 +210,8 @@ public class Vatican {
      * Constructs a FaithTrack associated with the current Vatican.
      * @return a FaithTrack.
      */
-    public FaithTrack getFaithTrack() {
-        int ID = this.faithTracks.size();
-        FaithTrack ft = new FaithTrack(ID,this,List.of(this.track),List.of(this.reportSections));
+    public FaithTrack getFaithTrack(int playerID) {
+        FaithTrack ft = new FaithTrack(playerID,this,List.of(this.track),List.of(this.reportSections));
         this.faithTracks.add(ft);
         return ft;
     }

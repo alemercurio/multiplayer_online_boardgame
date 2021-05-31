@@ -13,9 +13,9 @@ public class FaithTrackTest {
     @Before
     public void setUpFaithTracks() {
         vatican = new Vatican(new MultiGame(2),filePath);
-        our = vatican.getFaithTrack();
-        other = vatican.getFaithTrack();
-        another = vatican.getFaithTrack();
+        our = vatican.getFaithTrack(0);
+        other = vatican.getFaithTrack(1);
+        another = vatican.getFaithTrack(2);
     }
 
     @Test

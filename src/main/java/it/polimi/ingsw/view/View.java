@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 public class View {
 
-    public static String[] otherPlayers;
+    public static PlayerView[] otherPlayers;
     public static MarketView market = new MarketView();
     public static LeaderView leaderStack = new LeaderView();
     public static DevelopmentCardView devCardStack = new DevelopmentCardView();
@@ -98,7 +98,8 @@ public class View {
     {
         System.out.println(">> Game starts!");
         if(View.otherPlayers.length != 0)
-            System.out.println("\tPlayers: " + Arrays.toString(View.otherPlayers));
+            System.out.print("\tPlayers: ");
+        for(PlayerView player : View.otherPlayers) System.out.print(player.getNickname() + " ");
     }
 
     public static int[] selectLeader(List<LeaderCard> leaders)
@@ -207,7 +208,17 @@ public class View {
                             break;
 
                         case "faith":
+                            System.out.print("\n");
                             View.faithTrack.print();
+                            System.out.print("\n\n");
+                            break;
+
+                        case "players":
+                            System.out.println("\n>> You are playing against:");
+                            for(PlayerView player : View.otherPlayers)
+                            {
+                                player.print();
+                            }
                             System.out.print("\n");
                             break;
 
@@ -749,7 +760,7 @@ public class View {
 
             case "player":
                 Gson parser = new Gson();
-                View.otherPlayers = parser.fromJson(state,String[].class);
+                View.otherPlayers = parser.fromJson(state,PlayerView[].class);
                 break;
 
             case "white":

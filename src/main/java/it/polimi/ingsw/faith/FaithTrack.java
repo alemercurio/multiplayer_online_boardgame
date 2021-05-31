@@ -61,7 +61,7 @@ public class FaithTrack {
      * Makes the Faith Marker advance of one single space.
      * If the new current space is a PopeSpace, reports to Vatican.
      */
-    public void advance() {
+    private void advance() {
         if(!end) {
             this.faithMarker++;
         }
