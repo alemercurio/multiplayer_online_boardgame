@@ -413,7 +413,7 @@ public class Player implements Runnable {
         Color cardColor = null;
         boolean cardSelected = false;
 
-        this.send(MessageParser.message("update","market:card",this.game.market.cardMarket));
+        this.game.market.updateCardMarket();
         this.send("OK");
 
         do {
@@ -462,7 +462,7 @@ public class Player implements Runnable {
 
         MessageParser parser = new MessageParser();
 
-        this.send(MessageParser.message("update","market:res",this.game.market.resourceMarket));
+        this.game.market.updateResourceMarket();
 
         this.send("OK");
         String msg = this.receive();
@@ -474,15 +474,14 @@ public class Player implements Runnable {
             if (parser.getOrder().equals("TakeRow")) {
 
                 int row = parser.getIntParameter(0) - 1;
-                ResourcePack gatheredResources = game.market.takeRow(row);
-                this.game.broadCastFull(MessageParser.message("update","market:res",this.game.market.resourceMarket));
+                ResourcePack gatheredResources = this.game.market.takeRow(row);
                 sendResources(gatheredResources);
                 return true;
 
             } else if (parser.getOrder().equals("TakeColumn")) {
 
                 int column = parser.getIntParameter(0) - 1;
-                ResourcePack gatheredResources = game.market.takeColumn(column);
+                ResourcePack gatheredResources = this.game.market.takeColumn(column);
                 sendResources(gatheredResources);
                 return true;
             }

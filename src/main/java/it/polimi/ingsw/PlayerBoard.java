@@ -145,10 +145,9 @@ public class PlayerBoard
     public void buyDevCard(int level,Color color,int position) throws NonConsumablePackException, NoSuchDevelopmentCardException, NonPositionableCardException {
 
         if(!this.canBeStored(level,position)) throw new NonPositionableCardException();
-        DevelopmentCard devCard = this.market.getDevelopmentCard(level,color);
-        if(!this.storage.isConsumable(devCard.getCost())) throw new NonConsumablePackException();
+        if(!this.storage.isConsumable(this.market.getCost(level,color))) throw new NonConsumablePackException();
 
-        devCard = this.market.buyDevelopmentCard(level,color);
+        DevelopmentCard devCard = this.market.buyDevelopmentCard(level,color);
 
         this.storage.autoConsume(devCard.getCost());
 
