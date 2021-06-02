@@ -314,4 +314,23 @@ public class WarehouseView extends Warehouse{
         Screen.print(this.pendingResources);
         System.out.print("\n");
     }
+
+    public void printWithoutPending()
+    {
+        System.out.print("\n1:     ");
+        this.stock.get(0).print();
+        System.out.print("\n2:   ");
+        this.stock.get(1).print();
+        System.out.print("\n3: ");
+        this.stock.get(2).print();
+        System.out.print("\n");
+
+        for (int i = 3; i < this.stock.size(); i++) {
+            System.out.print((i + 1) + ": " + this.stock.get(i).resource + " ");
+            this.stock.get(i).print();
+            System.out.print("\n");
+        }
+
+        System.out.print("\n");
+    }
 }

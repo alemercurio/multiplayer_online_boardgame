@@ -100,6 +100,7 @@ public class View {
         if(View.otherPlayers.length != 0)
             System.out.print("\tPlayers: ");
         for(PlayerView player : View.otherPlayers) System.out.print(player.getNickname() + " ");
+        System.out.print("\n");
     }
 
     public static int[] selectLeader(List<LeaderCard> leaders)
@@ -178,10 +179,10 @@ public class View {
                     switch(selection.next()) {
 
                         case "resources":
-                            View.warehouse.print();
+                            View.warehouse.printWithoutPending();
                             System.out.print("Strongbox: ");
                             Screen.print(View.strongbox);
-                            System.out.print("\n");
+                            System.out.print("\n\n");
                             break;
 
                         case "market:resource":
