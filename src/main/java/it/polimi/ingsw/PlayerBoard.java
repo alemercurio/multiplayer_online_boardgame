@@ -142,6 +142,23 @@ public class PlayerBoard
         return this.devCards.canBeStored(level,position);
     }
 
+    public void buyDevCard(int level,Color color,int position) throws NonConsumablePackException, NoSuchDevelopmentCardException, NonPositionableCardException {
+
+        if(!this.canBeStored(level,position)) throw new NonPositionableCardException();
+        DevelopmentCard devCard = this.market.getDevelopmentCard(level,color);
+        if(!this.storage.isConsumable(devCard.getCost())) throw new NonConsumablePackException();
+
+        devCard = this.market.buyDevelopmentCard(level,color);
+
+        this.storage.autoConsume(devCard.getCost());
+
+        this.player.send(MessageParser.message("update","WHConfig",this.storage.warehouse.getConfig()));
+        this.player.send(MessageParser.message("update","strongbox",this.storage.strongbox));
+
+        this.storeDevelopmentCard(devCard,position);
+
+    }
+
     /**
      * Stores the given DevelopmentCard in the current PlayerBoard's DevelopmentCardStack.
      * the production granted by the card is added to the current Factory.
@@ -161,6 +178,9 @@ public class PlayerBoard
 
         // Add the Production offered by the new DevelopmentCard.
         this.factory.addProductionPower(devCard.getProduction());
+
+        this.player.send(MessageParser.message("update","devCards",this.devCards));
+        this.player.send(MessageParser.message("update","fact",this.factory));
     }
 
     public int storeResources(ResourcePack loot)

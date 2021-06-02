@@ -445,15 +445,11 @@ public class Player implements Runnable {
                 if(this.playerBoard.canBeStored(cardLevel,cmd.getIntParameter(0)))
                 {
                     try {
-                        DevelopmentCard devCard = this.game.market.buyDevelopmentCard(cardLevel,cardColor);
-                        this.playerBoard.storeDevelopmentCard(devCard,cmd.getIntParameter(0));
-                    } catch (NonPositionableCardException | NoSuchDevelopmentCardException ignored) {
+                        this.playerBoard.buyDevCard(cardLevel,cardColor,cmd.getIntParameter(0));
+                    } catch (NonPositionableCardException | NoSuchDevelopmentCardException | NonConsumablePackException ignored) {
                         /* this should never happen */
                     }
-
-                    this.send(MessageParser.message("update","devCards",this.playerBoard.devCards));
                     this.send("OK");
-
                     return true;
                 }
                 else this.send("KO");
