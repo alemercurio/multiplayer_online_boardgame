@@ -94,14 +94,5 @@ public class FactoryView {
             Screen.print(this.productions.get(i));
             System.out.print("\n");
         }
-
-        System.out.print("\n\tTotal Cost: ");
-        Screen.print(this.productionRequirements());
-        System.out.print("\n\tAvailable: ");
-        Screen.print(View.strongbox.getCopy().add(View.warehouse.getResources()));
-        System.out.print("\n\tProduct: ");
-        Screen.print(this.productionResult());
-
-        System.out.print("\n");
     }
 }
