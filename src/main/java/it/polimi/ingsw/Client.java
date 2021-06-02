@@ -15,14 +15,56 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 
-public class Client {
+public class Client implements Runnable {
 
-    private final View view = CliView.getCliView();
+    private View view;
     private MessageManager message;
+
+    public void setMessageManager(String ip, int port, View view) throws IOException {
+        this.message = new MessageManager(ip, port, view);
+    }
+
+    public void setView(View view) {
+        this.view = view;
+    }
+
+    public void run() {
+
+        this.message.start();
+
+        if(!this.message.receive().equals("welcome"))
+            System.out.println(">> Unable to be welcomed..");
+        else System.out.println(">> Successfully connected..");
+
+        String msg;
+
+        do {
+
+            msg = this.view.selectGame();
+            System.out.println(msg);
+
+            switch(msg) {
+                case "new":
+                    this.newGame();
+                    break;
+                case "join":
+                    this.joinGame();
+                    break;
+            }
+
+        } while(!msg.equals("esc"));
+
+        try {
+            this.message.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void main(String[] args) {
 
         Client client = new Client();
+        client.setView(CliView.getCliView());
 
         if(args.length != 2) {
 
@@ -46,37 +88,7 @@ public class Client {
                 return;
             }
         }
-
-
-
-        client.message.start();
-
-        if(!client.message.receive().equals("welcome"))
-            System.out.println(">> Unable to be welcomed..");
-        else System.out.println(">> Successfully connected..");
-
-        String msg;
-
-        do {
-
-            msg = client.view.selectGame();
-
-            switch(msg) {
-                case "new":
-                    client.newGame();
-                    break;
-                case "join":
-                    client.joinGame();
-                    break;
-            }
-
-        } while(!msg.equals("esc"));
-
-        try {
-            client.message.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        client.run();
     }
 
     public void newGame() {
