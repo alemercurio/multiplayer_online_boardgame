@@ -2,9 +2,9 @@ package it.polimi.ingsw.view.gui;
 
 import it.polimi.ingsw.cards.LeaderCard;
 import it.polimi.ingsw.supply.ResourcePack;
-import it.polimi.ingsw.view.CliView;
 import it.polimi.ingsw.view.Error;
 import it.polimi.ingsw.view.View;
+import it.polimi.ingsw.view.ViewEvent;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,14 +14,14 @@ public class GuiView implements View {
 
     private static GuiView guiView;
 
-    private Map<String,String> eventHandler = new HashMap<>();
+    private final Map<ViewEvent,Object> eventHandler = new HashMap<>();
 
     public static GuiView getGuiView() {
         if(guiView == null) guiView = new GuiView();
         return guiView;
     }
 
-    public synchronized void event(String eventType, String parameter) {
+    public synchronized void event(ViewEvent eventType, Object parameter) {
         eventHandler.put(eventType, parameter);
         notifyAll();
     }
@@ -39,16 +39,19 @@ public class GuiView implements View {
     @Override
     public String selectConnection() {
         return "127.0.0.1 2703";
+
+        /*try {
+            while (!eventHandler.containsKey(ViewEvent.CONNECTION_INFO)) wait();
+        } catch (InterruptedException ignored) { /* Should not happen */ /*}
+        return (String) eventHandler.remove(ViewEvent.CONNECTION_INFO);*/
     }
 
     @Override
     public synchronized String selectGame() {
         try {
-            while (!eventHandler.containsKey("gameMode")) {
-                wait();
-            }
-        } catch (InterruptedException ignored) {}
-        return eventHandler.remove("gameMode");
+            while (!eventHandler.containsKey(ViewEvent.GAMEMODE)) wait();
+        } catch (InterruptedException ignored) { /* Should not happen */ }
+        return (String) eventHandler.remove(ViewEvent.GAMEMODE);
     }
 
     @Override
@@ -58,12 +61,18 @@ public class GuiView implements View {
 
     @Override
     public String selectNickname() {
-        return null;
+        try {
+            while (!eventHandler.containsKey(ViewEvent.NICKNAME)) wait();
+        } catch (InterruptedException ignored) { /* Should not happen */ }
+        return (String) eventHandler.remove(ViewEvent.NICKNAME);
     }
 
     @Override
     public int selectNumberOfPlayer() {
-        return 0;
+        try {
+            while (!eventHandler.containsKey(ViewEvent.NUMBER_OF_PLAYERS)) wait();
+        } catch (InterruptedException ignored) { /* Should not happen */ }
+        return (int) eventHandler.remove(ViewEvent.NUMBER_OF_PLAYERS);
     }
 
     @Override
@@ -73,7 +82,10 @@ public class GuiView implements View {
 
     @Override
     public int[] selectLeader(List<LeaderCard> leaders) {
-        return new int[0];
+        try {
+            while (!eventHandler.containsKey(ViewEvent.KEEP_LEADERS)) wait();
+        } catch (InterruptedException ignored) { /* Should not happen */ }
+        return (int[]) eventHandler.remove(ViewEvent.KEEP_LEADERS);
     }
 
     @Override
@@ -88,27 +100,42 @@ public class GuiView implements View {
 
     @Override
     public String selectAction() {
-        return null;
+        try {
+            while (!eventHandler.containsKey(ViewEvent.ACTION)) wait();
+        } catch (InterruptedException ignored) { /* Should not happen */ }
+        return (String) eventHandler.remove(ViewEvent.ACTION);
     }
 
     @Override
     public String selectLeaderAction() {
-        return null;
+        try {
+            while (!eventHandler.containsKey(ViewEvent.LEADER_ACTION)) wait();
+        } catch (InterruptedException ignored) { /* Should not happen */ }
+        return (String) eventHandler.remove(ViewEvent.LEADER_ACTION);
     }
 
     @Override
     public String selectDevCard() {
-        return null;
+        try {
+            while (!eventHandler.containsKey(ViewEvent.DEVCARD)) wait();
+        } catch (InterruptedException ignored) { /* Should not happen */ }
+        return (String) eventHandler.remove(ViewEvent.DEVCARD);
     }
 
     @Override
     public String selectDevCardPosition() {
-        return null;
+        try {
+            while (!eventHandler.containsKey(ViewEvent.DEVCARD_POSITION)) wait();
+        } catch (InterruptedException ignored) { /* Should not happen */ }
+        return (String) eventHandler.remove(ViewEvent.DEVCARD_POSITION);
     }
 
     @Override
     public String selectMarbles() {
-        return null;
+        try {
+            while (!eventHandler.containsKey(ViewEvent.MARBLES)) wait();
+        } catch (InterruptedException ignored) { /* Should not happen */ }
+        return (String) eventHandler.remove(ViewEvent.MARBLES);
     }
 
     @Override
@@ -118,17 +145,26 @@ public class GuiView implements View {
 
     @Override
     public ResourcePack selectWhite(int amount) {
-        return null;
+        try {
+            while (!eventHandler.containsKey(ViewEvent.CONVERT_WHITE)) wait();
+        } catch (InterruptedException ignored) { /* Should not happen */ }
+        return (ResourcePack) eventHandler.remove(ViewEvent.CONVERT_WHITE);
     }
 
     @Override
     public String selectWarehouse() {
-        return null;
+        try {
+            while (!eventHandler.containsKey(ViewEvent.WAREHOUSE_CONFIG)) wait();
+        } catch (InterruptedException ignored) { /* Should not happen */ }
+        return (String) eventHandler.remove(ViewEvent.WAREHOUSE_CONFIG);
     }
 
     @Override
     public String selectProduction() {
-        return null;
+        try {
+            while (!eventHandler.containsKey(ViewEvent.PRODUCTION)) wait();
+        } catch (InterruptedException ignored) { /* Should not happen */ }
+        return (String) eventHandler.remove(ViewEvent.PRODUCTION);
     }
 
     @Override
@@ -143,12 +179,18 @@ public class GuiView implements View {
 
     @Override
     public ResourcePack selectResources(int amount) {
-        return null;
+        try {
+            while (!eventHandler.containsKey(ViewEvent.CHOOSE_RESOURCES)) wait();
+        } catch (InterruptedException ignored) { /* Should not happen */ }
+        return (ResourcePack) eventHandler.remove(ViewEvent.CHOOSE_RESOURCES);
     }
 
     @Override
     public ResourcePack selectFreeRequirement(int amount) {
-        return null;
+        try {
+            while (!eventHandler.containsKey(ViewEvent.FREE_REQUIREMENT)) wait();
+        } catch (InterruptedException ignored) { /* Should not happen */ }
+        return (ResourcePack) eventHandler.remove(ViewEvent.FREE_REQUIREMENT);
     }
 
     @Override

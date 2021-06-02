@@ -58,5 +58,4 @@ public interface View {
     void gameEnd();
 
     void update(String target,String state);
-
 }

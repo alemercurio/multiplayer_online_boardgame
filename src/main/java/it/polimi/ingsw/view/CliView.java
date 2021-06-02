@@ -30,8 +30,6 @@ public class CliView implements View {
         return cliView;
     }
 
-    // METODI DI INTERFACCIA
-
     @Override
     public void tell(String message) {
         System.out.println("\t" + message);
