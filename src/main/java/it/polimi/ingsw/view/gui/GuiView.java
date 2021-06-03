@@ -12,6 +12,8 @@ import java.util.Map;
 
 public class GuiView implements View {
 
+    private int playerID;
+
     private static GuiView guiView;
 
     private final Map<ViewEvent,Object> eventHandler = new HashMap<>();
@@ -44,6 +46,16 @@ public class GuiView implements View {
             while (!eventHandler.containsKey(ViewEvent.CONNECTION_INFO)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ /*}
         return (String) eventHandler.remove(ViewEvent.CONNECTION_INFO);*/
+    }
+
+    @Override
+    public int getID() {
+        return this.playerID;
+    }
+
+    @Override
+    public void setID(int playerID) {
+        this.playerID = playerID;
     }
 
     @Override

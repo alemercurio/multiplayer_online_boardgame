@@ -51,7 +51,7 @@ public class Player implements Runnable {
     @Override
     public void run() {
         String msg;
-        this.send("welcome");
+        this.send(MessageParser.message("welcome",this.ID));
         do {
             msg = receive();
             switch(msg) {

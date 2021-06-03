@@ -32,11 +32,16 @@ public class Client implements Runnable {
 
         this.message.start();
 
-        if(!this.message.receive().equals("welcome"))
-            System.out.println(">> Unable to be welcomed..");
-        else System.out.println(">> Successfully connected..");
-
         String msg;
+        MessageParser mp = new MessageParser();
+
+        mp.parse(this.message.receive());
+        if(!mp.getOrder().equals("welcome"))
+            System.out.println(">> Unable to be welcomed..");
+        else {
+            this.view.setID(mp.getIntParameter(0));
+            System.out.println(">> Successfully connected..");
+        }
 
         do {
 
@@ -88,6 +93,7 @@ public class Client implements Runnable {
                 return;
             }
         }
+
         client.run();
     }
 
@@ -435,6 +441,7 @@ public class Client implements Runnable {
 
             if(cmd.equals("back")) {
                 this.message.send("esc");
+                this.view.clearFactory();
                 return false;
             }
 

@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 public class CliView implements View {
 
+    private int playerID;
     public PlayerView[] otherPlayers;
     public MarketView market = new MarketView();
     public LeaderView leaderStack = new LeaderView();
@@ -61,6 +62,16 @@ public class CliView implements View {
             else Screen.printError("Invalid expression.. please try again!");
 
         }
+    }
+
+    @Override
+    public int getID() {
+        return this.playerID;
+    }
+
+    @Override
+    public void setID(int playerID) {
+        this.playerID = playerID;
     }
 
     @Override
