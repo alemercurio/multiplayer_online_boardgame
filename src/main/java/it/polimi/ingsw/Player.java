@@ -573,10 +573,12 @@ public class Player implements Runnable {
             else if(mp.getOrder().equals("active")) {
                 this.playerBoard.factory.setActiveProduction(mp.getObjectParameter(0,int[].class));
 
-                if(!this.playerBoard.storage.isConsumable(this.playerBoard.factory.productionRequirements()))
+                if(!this.playerBoard.storage.isConsumable(this.playerBoard.factory.productionRequirements())) {
                     this.send("NotEnoughResources");
+                    toRepeat = true;
 
-                else {
+                } else {
+
                     whiteToConvert = this.playerBoard.factory.productionRequirements().get(Resource.VOID);
 
                     if(whiteToConvert != 0)
