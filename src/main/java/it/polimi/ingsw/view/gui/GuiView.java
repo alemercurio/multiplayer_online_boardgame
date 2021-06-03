@@ -2,7 +2,7 @@ package it.polimi.ingsw.view.gui;
 
 import it.polimi.ingsw.cards.LeaderCard;
 import it.polimi.ingsw.supply.ResourcePack;
-import it.polimi.ingsw.view.CliView;
+import it.polimi.ingsw.view.DevelopmentCardView;
 import it.polimi.ingsw.view.Error;
 import it.polimi.ingsw.view.View;
 
@@ -13,6 +13,7 @@ import java.util.Map;
 public class GuiView implements View {
 
     private static GuiView guiView;
+    public DevelopmentCardView devCardStack = new DevelopmentCardView();
 
     private Map<String,String> eventHandler = new HashMap<>();
 

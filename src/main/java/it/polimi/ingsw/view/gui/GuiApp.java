@@ -5,6 +5,7 @@ import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -24,6 +25,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.Pair;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,7 +41,7 @@ public class GuiApp extends Application {
     private static String nickname;
 
     private static final int WIDTH = 1280;
-    private static final int HEIGHT = 720;
+    private static final int HEIGHT = 650;
 
     @Override
     public void start(Stage primaryStage) {
@@ -66,6 +68,7 @@ public class GuiApp extends Application {
 
     private List<Pair<String, Runnable>> mainMenuFields = Arrays.asList(
             new Pair<String, Runnable>("New Game", () -> {
+                gameChoice = "new";
                 GuiView.getGuiView().event("gameMode", "new");
                 setMenu(mainMenuBox, nicknameChoice);
                 showNicknameField();
@@ -221,9 +224,8 @@ public class GuiApp extends Application {
         answer.setFont(Font.font("Copperplate Gothic Bold", 14));
         answer.setStyle("-fx-background-color: transparent");
         answer.setOnKeyPressed(event -> {
-            if( event.getCode() == KeyCode.ENTER ) {
+            if(event.getCode() == KeyCode.ENTER) {
                 nickname = answer.getText();
-                System.out.println(nickname);
                 if(gameChoice.equals("join")) {
                     removeFromRoot(nicknameField);
                     showWaitingScreen();
@@ -249,6 +251,14 @@ public class GuiApp extends Application {
     }
 
     private void showWaitingScreen() {
+        try {
+            GuiView.getGuiView().devCardStack.test();
+            Parent playerBoard = FXMLLoader.load(getClass().getResource("/FXML/playerboard.fxml"));
+            Scene scene = new Scene(playerBoard);
+            window.setScene(scene);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
