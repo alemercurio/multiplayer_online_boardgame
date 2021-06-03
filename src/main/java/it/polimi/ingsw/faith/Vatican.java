@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import it.polimi.ingsw.Game;
+import it.polimi.ingsw.util.MessageParser;
 
 import java.io.File;
 import java.io.FileReader;
@@ -214,6 +215,13 @@ public class Vatican {
         FaithTrack ft = new FaithTrack(playerID,this,List.of(this.track),List.of(this.reportSections));
         this.faithTracks.add(ft);
         return ft;
+    }
+
+    /**
+     * Sends the update for given FaithTrack.
+     */
+    protected void update(FaithTrack faithTrack) {
+        this.game.broadCastFull(MessageParser.message("update","faith:config",faithTrack.getConfig()));
     }
 
     /**

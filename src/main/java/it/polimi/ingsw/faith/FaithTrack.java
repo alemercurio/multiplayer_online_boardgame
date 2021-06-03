@@ -87,6 +87,7 @@ public class FaithTrack {
     public void advance(int steps) {
         for(int i = 0; i < steps; i++)
             this.advance();
+        this.vatican.update(this);
     }
 
     /**
@@ -110,6 +111,8 @@ public class FaithTrack {
         if(this.faithMarker >= rs.getFirstSpace())
             rs.setState(Vatican.State.GOT);
         else rs.setState(Vatican.State.LOST);
+
+        this.vatican.update(this);
     }
 
     /**
@@ -141,6 +144,7 @@ public class FaithTrack {
     public String getConfig() {
 
         JsonObject faithData = new JsonObject();
+        faithData.addProperty("ID",this.faithTrackID);
         faithData.addProperty("faithMarker",this.faithMarker);
         faithData.add("popeFavours", new Gson().toJsonTree(
                 this.reportSections.stream().map(Vatican.ReportSection::getState).toArray(),

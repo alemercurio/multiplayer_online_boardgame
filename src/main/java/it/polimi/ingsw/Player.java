@@ -542,7 +542,6 @@ public class Player implements Runnable {
                 {
                     int wasted = this.playerBoard.done();
                     if(wasted != 0) {
-                        this.send(MessageParser.message("update","faith:config",this.playerBoard.faithTrack.getConfig()));
                         this.send(MessageParser.message("wasted",wasted));
                     }
                     else this.send("Complete");

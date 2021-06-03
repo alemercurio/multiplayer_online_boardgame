@@ -72,7 +72,6 @@ public class PlayerBoard
             int white = products.flush(Resource.VOID);
 
             this.faithTrack.advance(products.flush(Resource.FAITHPOINT));
-            this.player.send(MessageParser.message("update","faith:config",this.faithTrack.getConfig()));
 
             this.storage.stockStrongbox(products);
             this.player.send(MessageParser.message("update","strongbox",this.storage.strongbox));
@@ -106,7 +105,6 @@ public class PlayerBoard
             int white = products.flush(Resource.VOID);
 
             this.faithTrack.advance(products.flush(Resource.FAITHPOINT));
-            this.player.send(MessageParser.message("update","faith:config",this.faithTrack.getConfig()));
 
             this.storage.stockStrongbox(products);
             this.player.send(MessageParser.message("update","strongbox",this.storage.strongbox));
@@ -187,7 +185,6 @@ public class PlayerBoard
         ResourcePack toStore = loot.getCopy();
 
         this.faithTrack.advance(toStore.flush(Resource.FAITHPOINT));
-        this.player.send(MessageParser.message("update","faith:config",this.faithTrack.getConfig()));
 
         int white = toStore.flush(Resource.VOID);
         this.storage.warehouse.add(toStore);
