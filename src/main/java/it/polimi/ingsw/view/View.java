@@ -13,8 +13,6 @@ public interface View {
 
     String selectConnection();
 
-    int getID();
-
     void setID(int playerID);
 
     String selectGame();

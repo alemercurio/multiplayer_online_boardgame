@@ -13,15 +13,14 @@ import java.util.regex.Pattern;
 
 public class CliView implements View {
 
-    private int playerID;
-    public PlayerView[] otherPlayers;
+    private final GameView players = new GameView();
     public MarketView market = new MarketView();
     public LeaderView leaderStack = new LeaderView();
     public DevelopmentCardView devCardStack = new DevelopmentCardView();
     public FactoryView factory = new FactoryView();
     public WarehouseView warehouse = new WarehouseView();
     public ResourcePack strongbox = new ResourcePack();
-    private final FaithView faithTrack = new FaithView();
+    private final FaithView faithTrack = new FaithView(this.players);
     public PlayerBoardView playerBoard = new PlayerBoardView();
 
     private static View cliView;
@@ -65,13 +64,8 @@ public class CliView implements View {
     }
 
     @Override
-    public int getID() {
-        return this.playerID;
-    }
-
-    @Override
     public void setID(int playerID) {
-        this.playerID = playerID;
+        this.players.setCurrentPlayerID(playerID);
     }
 
     @Override
@@ -115,9 +109,7 @@ public class CliView implements View {
     @Override
     public void gameStart() {
         System.out.println(">> Game starts!");
-        if(this.otherPlayers.length != 0)
-            System.out.print("\tPlayers: ");
-        for(PlayerView player : this.otherPlayers) System.out.print(player.getNickname() + " ");
+        this.players.printPlayers();
         System.out.print("\n");
     }
 
@@ -234,12 +226,17 @@ public class CliView implements View {
                             break;
 
                         case "players":
-                            System.out.println("\n>> You are playing against:");
-                            for(PlayerView player : this.otherPlayers)
-                            {
-                                player.print();
-                            }
-                            System.out.print("\n");
+                            this.players.printRank();
+                            break;
+
+                        case "option":
+                            System.out.println("\n>> You can show any of the following:");
+                            System.out.println("\t~ players");
+                            System.out.println("\t~ resources");
+                            System.out.println("\t~ market:(resource|card)");
+                            System.out.println("\t~ devCard");
+                            System.out.println("\t~ leaders");
+                            System.out.println("\t~ faith\n");
                             break;
 
                         default:
@@ -249,7 +246,7 @@ public class CliView implements View {
 
                 } else Screen.printError("Please, specify what you want to see!");
             }
-            else if(order.matches("[rbpl]")) {
+            else if(order.matches("[rbplh]")) {
 
                 switch(order.charAt(0)) {
 
@@ -264,6 +261,15 @@ public class CliView implements View {
 
                     case 'l':
                         return "leader";
+
+                    case 'h':
+                        System.out.println("\n>> You can do one of the following action!");
+                        System.out.println("\tR) Take resources from the market;");
+                        System.out.println("\tB) Buy a Development Card;");
+                        System.out.println("\tP) Activate Production;");
+                        System.out.println("\tL) Play or Discard a LeaderCard.");
+                        System.out.println("You can also use \"show\"\n");
+                        break;
                 }
 
             } else Screen.printError("It seems that you have choose an invalid option... please try again!");
@@ -783,6 +789,8 @@ public class CliView implements View {
     @Override
     public void gameEnd() {
         System.out.println(">> Game has ended!");
+        this.players.printRank();
+        System.out.println(">> Thank you for playing!\n");
     }
 
     @Override
@@ -797,8 +805,7 @@ public class CliView implements View {
                 break;
 
             case "player":
-                Gson parser = new Gson();
-                this.otherPlayers = parser.fromJson(state,PlayerView[].class);
+                this.players.update(state);
                 break;
 
             case "white":
@@ -838,7 +845,7 @@ public class CliView implements View {
                 break;
 
             case "faith:config":
-                this.faithTrack.setConfig(state);
+                this.faithTrack.update(state);
                 break;
         }
     }

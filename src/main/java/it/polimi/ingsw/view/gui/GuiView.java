@@ -49,11 +49,6 @@ public class GuiView implements View {
     }
 
     @Override
-    public int getID() {
-        return this.playerID;
-    }
-
-    @Override
     public void setID(int playerID) {
         this.playerID = playerID;
     }
