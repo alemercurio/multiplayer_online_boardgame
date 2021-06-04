@@ -40,7 +40,7 @@ public class FaithTrackTest {
     public void countPointsTest(){
         our.advance(30);
 
-        assertEquals(our.getTotalPoints(),79);
-        assertEquals(other.getTotalPoints(),0);
+        assertEquals(79,our.getTotalPoints());
+        assertEquals(0,other.getTotalPoints());
     }
 }

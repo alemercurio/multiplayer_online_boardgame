@@ -3,6 +3,7 @@ package it.polimi.ingsw.view.gui;
 import it.polimi.ingsw.cards.LeaderCard;
 import it.polimi.ingsw.supply.ResourcePack;
 import it.polimi.ingsw.view.Error;
+import it.polimi.ingsw.view.GameEvent;
 import it.polimi.ingsw.view.View;
 import it.polimi.ingsw.view.ViewEvent;
 
@@ -26,6 +27,11 @@ public class GuiView implements View {
     public synchronized void event(ViewEvent eventType, Object parameter) {
         eventHandler.put(eventType, parameter);
         notifyAll();
+    }
+
+    @Override
+    public void throwEvent(GameEvent event) {
+
     }
 
     @Override

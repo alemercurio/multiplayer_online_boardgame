@@ -31,6 +31,23 @@ public class CliView implements View {
     }
 
     @Override
+    public void throwEvent(GameEvent event) {
+        switch(event) {
+            case POPE_FAVOUR:
+                Screen.setColor(105);
+                System.out.println("\n>> REPORT SECTION REACHED!");
+                Screen.reset();
+                this.faithTrack.print();
+                System.out.print("\n\n");
+                break;
+
+            case GAME_START:
+                this.gameStart();
+                break;
+        }
+    }
+
+    @Override
     public void tell(String message) {
         System.out.println("\t" + message);
     }

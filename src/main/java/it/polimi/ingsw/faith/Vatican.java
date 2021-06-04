@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import it.polimi.ingsw.Game;
 import it.polimi.ingsw.util.MessageParser;
+import it.polimi.ingsw.view.GameEvent;
 
 import java.io.File;
 import java.io.FileReader;
@@ -204,6 +205,9 @@ public class Vatican {
         }
 
         reportSections = gotReportSections;
+        for(ReportSection popeSpace : this.reportSections)
+            popeSpace.state = State.AVAILABLE;
+
         this.track = gotTrack;
     }
 
@@ -246,9 +250,12 @@ public class Vatican {
      * @param popeSpace the PopeSpace that has been activated.
      */
     public void vaticanReport(int popeSpace) {
+        if(!this.reportSections[popeSpace].toReport()) return;
         for(FaithTrack faithTrack : faithTracks) {
             faithTrack.PopeFavour(popeSpace);
         }
+        this.reportSections[popeSpace].setReported();
+        this.game.broadCastFull(MessageParser.message("event", GameEvent.POPE_FAVOUR));
     }
 
     /**
