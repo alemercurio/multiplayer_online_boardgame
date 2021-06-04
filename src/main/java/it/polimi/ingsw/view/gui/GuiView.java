@@ -1,10 +1,10 @@
 package it.polimi.ingsw.view.gui;
 
-import it.polimi.ingsw.cards.LeaderCard;
-import it.polimi.ingsw.supply.ResourcePack;
-import it.polimi.ingsw.view.DevelopmentCardView;
-import it.polimi.ingsw.view.Error;
-import it.polimi.ingsw.view.GameEvent;
+import it.polimi.ingsw.model.cards.LeaderCard;
+import it.polimi.ingsw.model.resources.ResourcePack;
+import it.polimi.ingsw.view.lightmodel.DevelopmentCardView;
+import it.polimi.ingsw.controller.Error;
+import it.polimi.ingsw.controller.GameEvent;
 import it.polimi.ingsw.view.View;
 import it.polimi.ingsw.view.ViewEvent;
 

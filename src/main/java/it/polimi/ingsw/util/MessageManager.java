@@ -1,6 +1,6 @@
 package it.polimi.ingsw.util;
 
-import it.polimi.ingsw.view.GameEvent;
+import it.polimi.ingsw.controller.GameEvent;
 import it.polimi.ingsw.view.View;
 
 import java.io.IOException;

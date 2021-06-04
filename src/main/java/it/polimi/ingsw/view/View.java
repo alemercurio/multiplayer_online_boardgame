@@ -1,7 +1,9 @@
 package it.polimi.ingsw.view;
 
-import it.polimi.ingsw.cards.LeaderCard;
-import it.polimi.ingsw.supply.ResourcePack;
+import it.polimi.ingsw.controller.Error;
+import it.polimi.ingsw.controller.GameEvent;
+import it.polimi.ingsw.model.cards.LeaderCard;
+import it.polimi.ingsw.model.resources.ResourcePack;
 
 import java.util.List;
 

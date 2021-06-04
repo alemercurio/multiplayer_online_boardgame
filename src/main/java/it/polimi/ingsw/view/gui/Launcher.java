@@ -1,9 +1,7 @@
 package it.polimi.ingsw.view.gui;
 
-import it.polimi.ingsw.Client;
-import it.polimi.ingsw.util.MessageManager;
-import it.polimi.ingsw.view.CliView;
-import it.polimi.ingsw.view.Screen;
+import it.polimi.ingsw.network.Client;
+import it.polimi.ingsw.util.Screen;
 
 import java.io.IOException;
 import java.util.Scanner;
