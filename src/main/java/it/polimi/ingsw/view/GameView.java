@@ -1,17 +1,20 @@
 package it.polimi.ingsw.view;
 
 import com.google.gson.Gson;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class GameView {
+public class GameView implements Observable {
 
     private final static int[] color = {202,191,81,147};
     private int currentPlayerID;
     private PlayerView[] players;
+    private final List<InvalidationListener> observers = new ArrayList<>();
 
     public GameView() {
         this.currentPlayerID = 0;
@@ -24,6 +27,9 @@ public class GameView {
 
     public void update(String state) {
         this.players = new Gson().fromJson(state,PlayerView[].class);
+
+        for(InvalidationListener observer : this.observers)
+            observer.invalidated(this);
     }
 
     public int getCurrentPlayerID() {
@@ -57,6 +63,9 @@ public class GameView {
                 player.setFaithMarker(faithMarker);
                 return;
             }
+
+        for(InvalidationListener observer : this.observers)
+            observer.invalidated(this);
     }
 
     public void printPlayers() {
@@ -96,5 +105,15 @@ public class GameView {
             else player.print();
         }
         System.out.print("\n");
+    }
+
+    @Override
+    public void addListener(InvalidationListener invalidationListener) {
+        this.observers.add(invalidationListener);
+    }
+
+    @Override
+    public void removeListener(InvalidationListener invalidationListener) {
+        this.observers.remove(invalidationListener);
     }
 }

@@ -6,12 +6,18 @@ import com.google.gson.JsonObject;
 import it.polimi.ingsw.view.GameView;
 import it.polimi.ingsw.view.PlayerView;
 import it.polimi.ingsw.view.Screen;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 
-public class FaithView {
+import java.util.ArrayList;
+import java.util.List;
+
+public class FaithView implements Observable {
 
     private Vatican.Space[] spaces = new Vatican.Space[0];
     private Vatican.ReportSection[] popeSpaces = new Vatican.ReportSection[0];
     private final GameView players;
+    private final List<InvalidationListener> observers = new ArrayList<>();
 
     public FaithView(GameView players) {
         this.players = players;
@@ -22,12 +28,18 @@ public class FaithView {
         JsonObject vaticanData = parser.fromJson(trackData, JsonElement.class).getAsJsonObject();
         this.spaces = parser.fromJson(vaticanData.get("track"),Vatican.Space[].class);
         this.popeSpaces = parser.fromJson(vaticanData.get("reportSections"),Vatican.ReportSection[].class);
+
+        for(InvalidationListener observer : this.observers)
+            observer.invalidated(this);
     }
 
-    public void setConfig(JsonObject configData) {
+    private void setConfig(JsonObject configData) {
         Gson parser = new Gson();
         Vatican.State[] states = parser.fromJson(configData.get("popeFavours"),Vatican.State[].class);
         for(int i = 0; i < states.length; i++) this.popeSpaces[i].setState(states[i]);
+
+        for(InvalidationListener observer : this.observers)
+            observer.invalidated(this);
     }
 
     public void update(String state) {
@@ -114,5 +126,15 @@ public class FaithView {
 
         System.out.print("\b\b");
         Screen.reset();
+    }
+
+    @Override
+    public void addListener(InvalidationListener invalidationListener) {
+        this.observers.add(invalidationListener);
+    }
+
+    @Override
+    public void removeListener(InvalidationListener invalidationListener) {
+        this.observers.remove(invalidationListener);
     }
 }

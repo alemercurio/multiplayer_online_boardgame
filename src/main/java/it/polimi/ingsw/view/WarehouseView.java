@@ -9,13 +9,15 @@ import it.polimi.ingsw.supply.NonConsumablePackException;
 import it.polimi.ingsw.supply.Resource;
 import it.polimi.ingsw.supply.ResourcePack;
 import it.polimi.ingsw.supply.Warehouse;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class WarehouseView extends Warehouse{
+public class WarehouseView extends Warehouse implements Observable {
 
     protected static class LimitedStock {
 
@@ -113,6 +115,7 @@ public class WarehouseView extends Warehouse{
 
     protected final List<LimitedStock> stock;
     protected final ResourcePack pendingResources;
+    private final List<InvalidationListener> observers = new ArrayList<>();
 
     public WarehouseView() {
         this.stock = new ArrayList<>();
@@ -133,6 +136,9 @@ public class WarehouseView extends Warehouse{
 
     public void addStockPower(StockPower power) {
         this.stock.add(new LimitedStock(power.getType(),power.getLimit()));
+
+        for(InvalidationListener observer : this.observers)
+            observer.invalidated(this);
     }
 
     public List<StockPower> getStockPower() {
@@ -241,7 +247,6 @@ public class WarehouseView extends Warehouse{
         return resources;
     }
 
-
     public String getConfig() {
 
         ArrayList<Resource> resources = new ArrayList<>();
@@ -291,6 +296,9 @@ public class WarehouseView extends Warehouse{
         this.pendingResources.flush();
         this.pendingResources.add(pending);
 
+        for(InvalidationListener observer : this.observers)
+            observer.invalidated(this);
+
         return true;
     }
 
@@ -315,8 +323,8 @@ public class WarehouseView extends Warehouse{
         System.out.print("\n");
     }
 
-    public void printWithoutPending()
-    {
+    public void printWithoutPending() {
+
         System.out.print("\n1:     ");
         this.stock.get(0).print();
         System.out.print("\n2:   ");
@@ -332,5 +340,15 @@ public class WarehouseView extends Warehouse{
         }
 
         System.out.print("\n");
+    }
+
+    @Override
+    public void addListener(InvalidationListener invalidationListener) {
+        this.observers.add(invalidationListener);
+    }
+
+    @Override
+    public void removeListener(InvalidationListener invalidationListener) {
+        this.observers.remove(invalidationListener);
     }
 }
