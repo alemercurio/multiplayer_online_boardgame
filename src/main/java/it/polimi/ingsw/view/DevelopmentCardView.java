@@ -5,12 +5,18 @@ import it.polimi.ingsw.cards.*;
 import it.polimi.ingsw.supply.MarketBoard;
 import it.polimi.ingsw.supply.NoSuchDevelopmentCardException;
 import javafx.scene.image.Image;
+import it.polimi.ingsw.cards.DevelopmentCard;
+import it.polimi.ingsw.cards.DevelopmentCardStack;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class DevelopmentCardView {
+public class DevelopmentCardView implements Observable {
 
     private DevelopmentCardStack developmentCards;
+    private final List<InvalidationListener> observers = new ArrayList<>();
 
     public DevelopmentCardView() {
         this.developmentCards = new DevelopmentCardStack();
@@ -33,6 +39,9 @@ public class DevelopmentCardView {
 
     public void update(String state) {
         this.developmentCards = new Gson().fromJson(state,DevelopmentCardStack.class);
+
+        for(InvalidationListener observer : this.observers)
+            observer.invalidated(this);
     }
 
     public Image getImageForCard(DevelopmentCard card) {
@@ -56,5 +65,15 @@ public class DevelopmentCardView {
         }
         System.out.print("\n");
 
+    }
+
+    @Override
+    public void addListener(InvalidationListener invalidationListener) {
+        this.observers.add(invalidationListener);
+    }
+
+    @Override
+    public void removeListener(InvalidationListener invalidationListener) {
+        this.observers.remove(invalidationListener);
     }
 }

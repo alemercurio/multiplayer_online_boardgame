@@ -7,11 +7,15 @@ import java.util.List;
 
 public interface View {
 
+    void throwEvent(GameEvent event);
+
     void tell(String message);
 
     void fancyTell(String message);
 
     String selectConnection();
+
+    void setID(int playerID);
 
     String selectGame();
 
@@ -58,5 +62,4 @@ public interface View {
     void gameEnd();
 
     void update(String target,String state);
-
 }

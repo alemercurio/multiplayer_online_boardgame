@@ -157,8 +157,7 @@ public class MultiGame extends Game {
         Collections.shuffle(this.round);
         this.broadCast(MessageParser.message("update","player",this.getPlayerInfo()));
 
-        this.broadCast(MessageParser.message("update","market:res",this.market.resourceMarket));
-        this.broadCast(MessageParser.message("update","market:card",this.market.cardMarket));
+        this.market.update();
 
         this.broadCast("GameStart");
 

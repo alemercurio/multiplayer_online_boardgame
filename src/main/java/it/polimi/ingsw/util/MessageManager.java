@@ -1,5 +1,6 @@
 package it.polimi.ingsw.util;
 
+import it.polimi.ingsw.view.GameEvent;
 import it.polimi.ingsw.view.View;
 
 import java.io.IOException;
@@ -62,6 +63,8 @@ public class MessageManager extends Thread {
 
                 if(mp.getOrder().equals("update"))
                     this.view.update(mp.getStringParameter(0),mp.getStringParameter(1));
+                else if(mp.getOrder().equals("event"))
+                    this.view.throwEvent(GameEvent.valueOf(mp.getStringParameter(0)));
                 else this.report(message);
             }
         }

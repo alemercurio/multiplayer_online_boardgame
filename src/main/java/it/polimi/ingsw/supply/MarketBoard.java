@@ -1,8 +1,10 @@
 package it.polimi.ingsw.supply;
 
 import com.google.gson.Gson;
+import it.polimi.ingsw.Game;
 import it.polimi.ingsw.cards.Color;
 import it.polimi.ingsw.cards.DevelopmentCard;
+import it.polimi.ingsw.util.MessageParser;
 
 import java.util.*;
 
@@ -11,8 +13,10 @@ import java.util.*;
  * It offers methods for gathering Resources as Market Marbles and to buy a Development Card.
  */
 public class MarketBoard {
-    public final ResourceMarket resourceMarket;
-    public final CardMarket cardMarket;
+
+    private final Game game;
+    private final ResourceMarket resourceMarket;
+    private final CardMarket cardMarket;
 
     /**
      * Represents the Market Tray with the Market Marbles, represented by the corresponding Resource.
@@ -236,9 +240,21 @@ public class MarketBoard {
     }
 
     /**
-     * Constructs a MarketBoard with all the necessary resources and DevelopmentCards.
+     * Constructs a MarketBoard with all the necessary resources and DevelopmentCards;
+     * since no game is provided, players will not be notified when a change occurs.
      */
     public MarketBoard() {
+        this.game = null;
+        this.resourceMarket = new ResourceMarket();
+        this.cardMarket = new CardMarket();
+    }
+
+    /**
+     * Constructs a MarketBoard with all the necessary resources and DevelopmentCards.
+     * @param game the game associated with the current MarketBoard.
+     */
+    public MarketBoard(Game game) {
+        this.game = game;
         this.resourceMarket = new ResourceMarket();
         this.cardMarket = new CardMarket();
     }
@@ -250,7 +266,9 @@ public class MarketBoard {
      * @return the ResourcePack of gathered resources.
      */
     public ResourcePack takeRow(int row) {
-        return this.resourceMarket.getRow(row);
+        ResourcePack loot = this.resourceMarket.getRow(row);
+        this.updateResourceMarket();
+        return loot;
     }
 
     /**
@@ -260,7 +278,9 @@ public class MarketBoard {
      * @return the ResourcePack of gathered resources.
      */
     public ResourcePack takeColumn(int column) {
-        return this.resourceMarket.getColumn(column);
+        ResourcePack loot = this.resourceMarket.getColumn(column);
+        this.updateResourceMarket();
+        return loot;
     }
 
     /**
@@ -299,7 +319,9 @@ public class MarketBoard {
      * @throws NoSuchDevelopmentCardException if no card matches the requirement.
      */
     public DevelopmentCard buyDevelopmentCard(int level, Color color) throws NoSuchDevelopmentCardException {
-        return this.cardMarket.buyDevelopmentCard(level,color);
+        DevelopmentCard devCard = this.cardMarket.buyDevelopmentCard(level,color);
+        this.updateCardMarket();
+        return devCard;
     }
 
     /**
@@ -312,8 +334,37 @@ public class MarketBoard {
      * @return false if there are not any DevelopmentCard of the specified color left, true otherwise.
      */
     public boolean discard(Color color, int amount) {
-        return this.cardMarket.discard(color, amount);
+        boolean allDiscarded = this.cardMarket.discard(color, amount);
+        this.updateCardMarket();
+        return allDiscarded;
     }
+
+    /**
+     * Updates the ResourceMarket.
+     */
+    public void updateResourceMarket() {
+        if(this.game != null)
+            this.game.broadCastFull(MessageParser.message("update","market:res",this.resourceMarket));
+    }
+
+    /**
+     * Updates the CardMarket.
+     */
+    public void updateCardMarket() {
+        if(this.game != null)
+            this.game.broadCastFull(MessageParser.message("update","market:card",this.cardMarket));
+    }
+
+    /**
+     * Updates of the whole market.
+     */
+    public void update() {
+        if(this.game == null) return;
+        this.game.broadCastFull(MessageParser.message("update","market:res",this.resourceMarket));
+        this.game.broadCastFull(MessageParser.message("update","market:card",this.cardMarket));
+    }
+
+    // TODO: eliminare i seguenti metodi!
 
     public String getResourceMarketView() {
         return this.resourceMarket.toString();

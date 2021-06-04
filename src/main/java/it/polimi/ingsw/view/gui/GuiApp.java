@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.gui;
 
 import it.polimi.ingsw.Client;
+import it.polimi.ingsw.view.ViewEvent;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
@@ -69,7 +70,8 @@ public class GuiApp extends Application {
     private List<Pair<String, Runnable>> mainMenuFields = Arrays.asList(
             new Pair<String, Runnable>("New Game", () -> {
                 gameChoice = "new";
-                GuiView.getGuiView().event("gameMode", "new");
+                GuiView.getGuiView().event(ViewEvent.GAMEMODE, "new");
+
                 setMenu(mainMenuBox, nicknameChoice);
                 showNicknameField();
             }),
