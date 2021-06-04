@@ -1,6 +1,10 @@
 package it.polimi.ingsw.view;
 
 import com.google.gson.Gson;
+import it.polimi.ingsw.cards.*;
+import it.polimi.ingsw.supply.MarketBoard;
+import it.polimi.ingsw.supply.NoSuchDevelopmentCardException;
+import javafx.scene.image.Image;
 import it.polimi.ingsw.cards.DevelopmentCard;
 import it.polimi.ingsw.cards.DevelopmentCardStack;
 import javafx.beans.InvalidationListener;
@@ -14,9 +18,23 @@ public class DevelopmentCardView implements Observable {
     private DevelopmentCardStack developmentCards;
     private final List<InvalidationListener> observers = new ArrayList<>();
 
-    public DevelopmentCardView()
-    {
+    public DevelopmentCardView() {
         this.developmentCards = new DevelopmentCardStack();
+    }
+
+    public void test() {
+        MarketBoard.CardMarket market = new MarketBoard.CardMarket();
+        try {
+            developmentCards.storeDevCard(market.getDevelopmentCard(1, Color.YELLOW), 1);
+            developmentCards.storeDevCard(market.getDevelopmentCard(1, Color.GREEN), 2);
+            developmentCards.storeDevCard(market.getDevelopmentCard(1, Color.PURPLE), 3);
+        } catch (NoSuchDevelopmentCardException | NonPositionableCardException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public DevelopmentCard getCard(int index) {
+        return developmentCards.getDevCard(index);
     }
 
     public void update(String state) {
@@ -24,6 +42,11 @@ public class DevelopmentCardView implements Observable {
 
         for(InvalidationListener observer : this.observers)
             observer.invalidated(this);
+    }
+
+    public Image getImageForCard(DevelopmentCard card) {
+        String url = String.format("/PNG/cardfront/DevCardFront%s%d.png", card.getColor().getAlias(), card.getPoints());
+        return new Image(url);
     }
 
     public void print() {
