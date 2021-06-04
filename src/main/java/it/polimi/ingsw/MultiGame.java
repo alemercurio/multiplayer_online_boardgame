@@ -1,13 +1,15 @@
 package it.polimi.ingsw;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import it.polimi.ingsw.cards.LeaderCard;
 import it.polimi.ingsw.supply.ResourcePack;
 import it.polimi.ingsw.util.MessageParser;
+import it.polimi.ingsw.view.PlayerView;
 
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of a multiplayer Game.
@@ -24,7 +26,7 @@ public class MultiGame extends Game {
     private List<LeaderCard> leaders;
     private boolean endGame;
 
-    private static ResourcePack[] initialAdvantages = { new ResourcePack(),
+    private static final ResourcePack[] initialAdvantages = { new ResourcePack(),
             new ResourcePack(0,0,0,0,0,1),
             new ResourcePack(0,0,0,0,1,1),
             new ResourcePack(0,0,0,0,1,2) };
@@ -90,11 +92,10 @@ public class MultiGame extends Game {
 
     public synchronized void addPlayer(Player player) {
         this.round.add(player);
-        player.setForGame(this.vatican.getFaithTrack(),this.market);
+        player.setForGame(this.vatican.getFaithTrack(player.getID()),this.market);
         if(this.round.size() == this.numPlayer) Game.newGames.remove(this);
 
-        String otherPlayer = new Gson().toJson(this.nameTable.values().toArray());
-        player.send(MessageParser.message("update","player",otherPlayer));
+        player.send(MessageParser.message("update","player",this.getPlayerInfo()));
     }
 
     public List<LeaderCard> getLeaders()
@@ -154,13 +155,11 @@ public class MultiGame extends Game {
         }
 
         Collections.shuffle(this.round);
-        String otherPlayer = this.round.stream().map(Player::getNickname).collect(Collectors.toList()).toString();
-        this.broadCast(MessageParser.message("update","player",otherPlayer));
+        this.broadCast(MessageParser.message("update","player",this.getPlayerInfo()));
+
+        this.market.update();
 
         this.broadCast("GameStart");
-
-        this.broadCast(MessageParser.message("update","market:res",this.market.resourceMarket));
-        this.broadCast(MessageParser.message("update","market:card",this.market.cardMarket));
 
         this.readyPlayers.set(0);
         for(Player player : this.round) player.setActive();
@@ -174,6 +173,9 @@ public class MultiGame extends Game {
     @Override
     public void nextPlayer(Player player) {
         this.round.add(player);
+
+        this.broadCast(MessageParser.message("update","player",this.getPlayerInfo()));
+
         Player next = this.round.peek();
 
         if(this.endGame && this.playerWithInkwell == next) {
@@ -189,6 +191,17 @@ public class MultiGame extends Game {
             System.out.println("(GAME) >> Turno di " + this.nameTable.get(next));
             next.setActive();
         }
+    }
+
+    public String getPlayerInfo()
+    {
+        Gson parser = new Gson();
+        Type listOfPlayerInfo = new TypeToken<List<PlayerView>>() {}.getType();
+
+        List<PlayerView> players = new ArrayList<>();
+        for(Player player : this.round) players.add(player.getPlayerStat());
+
+        return parser.toJson(players,listOfPlayerInfo);
     }
 
     public synchronized void endGame() {

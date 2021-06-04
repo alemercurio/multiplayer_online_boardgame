@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import it.polimi.ingsw.Game;
+import it.polimi.ingsw.util.MessageParser;
+import it.polimi.ingsw.view.GameEvent;
 
 import java.io.File;
 import java.io.FileReader;
@@ -74,6 +76,10 @@ public class Vatican {
         }
     }
 
+    enum State {
+        AVAILABLE,GOT,LOST
+    }
+
     /**
      * Represents a vatican report section.
      * Each PopeSpace can assign a specific amount of victory points
@@ -84,7 +90,7 @@ public class Vatican {
         private final int lastSpace;
         private final int points;
 
-        private transient boolean toReport;
+        private transient State state;
 
         /**
          * Constructs a PopeSpace that assigns the given amount of victory points
@@ -98,7 +104,7 @@ public class Vatican {
             this.lastSpace = lastSpace;
             this.points = points;
 
-            this.toReport = true;
+            this.state = State.AVAILABLE;
         }
 
         /**
@@ -106,14 +112,14 @@ public class Vatican {
          * @return false if the current PopeSpace has been activated, true otherwise.
          */
         protected synchronized boolean toReport() {
-            return this.toReport;
+            return (this.state == State.AVAILABLE);
         }
 
         /**
          * Sets the current PopeSpace as reported (so it will not be activated again).
          */
         private synchronized void setReported() {
-            this.toReport = false;
+            this.state = State.GOT;
         }
 
         /**
@@ -138,6 +144,31 @@ public class Vatican {
          */
         protected int getLastSpace() {
             return this.lastSpace;
+        }
+
+
+        /**
+         * Sets the state of the current ReportSection to the one given.
+         * @param state the new state for the current ReportSection.
+         */
+        protected void setState(State state) {
+            this.state = state;
+        }
+
+        /**
+         * Returns the state of the current ReportSection.
+         * @return the Vatican.State of the current ReportSection.
+         */
+        protected State getState() {
+            return this.state;
+        }
+
+        /**
+         * Returns a copy of the current ReportSection initialized as AVAILABLE.
+         * @return a copy of the current ReportSection.
+         */
+        protected ReportSection getCopy() {
+            return new ReportSection(this.firstSpace,this.lastSpace,this.points);
         }
     }
 
@@ -174,6 +205,9 @@ public class Vatican {
         }
 
         reportSections = gotReportSections;
+        for(ReportSection popeSpace : this.reportSections)
+            popeSpace.state = State.AVAILABLE;
+
         this.track = gotTrack;
     }
 
@@ -181,11 +215,17 @@ public class Vatican {
      * Constructs a FaithTrack associated with the current Vatican.
      * @return a FaithTrack.
      */
-    public FaithTrack getFaithTrack() {
-        int ID = this.faithTracks.size();
-        FaithTrack ft = new FaithTrack(ID,this,List.of(this.track),List.of(this.reportSections));
+    public FaithTrack getFaithTrack(int playerID) {
+        FaithTrack ft = new FaithTrack(playerID,this,List.of(this.track),List.of(this.reportSections));
         this.faithTracks.add(ft);
         return ft;
+    }
+
+    /**
+     * Sends the update for given FaithTrack.
+     */
+    protected void update(FaithTrack faithTrack) {
+        this.game.broadCastFull(MessageParser.message("update","faith:config",faithTrack.getConfig()));
     }
 
     /**
@@ -210,9 +250,12 @@ public class Vatican {
      * @param popeSpace the PopeSpace that has been activated.
      */
     public void vaticanReport(int popeSpace) {
+        if(!this.reportSections[popeSpace].toReport()) return;
         for(FaithTrack faithTrack : faithTracks) {
-            faithTrack.PopeFavour(this.reportSections[popeSpace]);
+            faithTrack.PopeFavour(popeSpace);
         }
+        this.reportSections[popeSpace].setReported();
+        this.game.broadCastFull(MessageParser.message("event", GameEvent.POPE_FAVOUR));
     }
 
     /**

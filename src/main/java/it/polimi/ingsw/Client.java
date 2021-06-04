@@ -7,8 +7,7 @@ import it.polimi.ingsw.cards.*;
 import it.polimi.ingsw.supply.*;
 import it.polimi.ingsw.util.MessageManager;
 import it.polimi.ingsw.util.MessageParser;
-import it.polimi.ingsw.view.Screen;
-import it.polimi.ingsw.view.View;
+import it.polimi.ingsw.view.*;
 import it.polimi.ingsw.view.Error;
 
 import java.io.IOException;
@@ -16,23 +15,71 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 
-public class Client {
+public class Client implements Runnable {
 
+    private View view;
     private MessageManager message;
+
+    public void setMessageManager(String ip, int port, View view) throws IOException {
+        this.message = new MessageManager(ip, port, view);
+    }
+
+    public void setView(View view) {
+        this.view = view;
+    }
+
+    public void run() {
+
+        this.message.start();
+
+        String msg;
+        MessageParser mp = new MessageParser();
+
+        mp.parse(this.message.receive());
+        if(!mp.getOrder().equals("welcome"))
+            System.out.println(">> Unable to be welcomed..");
+        else {
+            this.view.setID(mp.getIntParameter(0));
+            System.out.println(">> Successfully connected..");
+        }
+
+        do {
+
+            msg = this.view.selectGame();
+            System.out.println(msg);
+
+            switch(msg) {
+                case "new":
+                    this.newGame();
+                    break;
+                case "join":
+                    this.joinGame();
+                    break;
+            }
+
+        } while(!msg.equals("esc"));
+
+        try {
+            this.message.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void main(String[] args) {
 
         Client client = new Client();
+        client.setView(CliView.getCliView());
 
         if(args.length != 2) {
 
-            String selection = View.selectConnection();
+            String selection = client.view.selectConnection();
 
             if(selection.equals("esc")) return;
 
             Scanner connectionInfo = new Scanner(selection);
             try {
-                client.message = new MessageManager(connectionInfo.next(),connectionInfo.nextInt());
+                client.message = new MessageManager(connectionInfo.next(),connectionInfo.nextInt(),client.view);
             } catch (IOException e) {
                 Screen.printError("Server unavailable...");
                 return;
@@ -40,43 +87,14 @@ public class Client {
         }
         else {
             try {
-                client.message = new MessageManager(args[0],Integer.parseInt(args[1]));
+                client.message = new MessageManager(args[0],Integer.parseInt(args[1]),client.view);
             } catch (IOException e) {
                 Screen.printError("Server unavailable...");
                 return;
             }
         }
 
-
-
-        client.message.start();
-
-        if(!client.message.receive().equals("welcome"))
-            System.out.println(">> Unable to be welcomed..");
-        else System.out.println(">> Successfully connected..");
-
-        Scanner input = new Scanner(System.in);
-        String msg = "";
-
-        while(!msg.equals("esc")) {
-            System.out.print(">> ");
-            msg = input.nextLine();
-
-            switch(msg) {
-                case "new":
-                    client.newGame();
-                    break;
-                case "join":
-                    client.joinGame();
-                    break;
-            }
-        }
-
-        try {
-            client.message.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        client.run();
     }
 
     public void newGame() {
@@ -84,25 +102,25 @@ public class Client {
 
         this.message.send("NewGame");
         if(!this.message.receive().equals("OK")) {
-            View.showError(Error.UNABLE_TO_START_A_NEW_GAME);
+            this.view.showError(Error.UNABLE_TO_START_A_NEW_GAME);
             return;
         }
 
-        this.message.send(MessageParser.message("setNickname",View.selectNickname()));
+        this.message.send(MessageParser.message("setNickname",this.view.selectNickname()));
         if(!this.message.receive().equals("OK")) {
-            View.showError(Error.INVALID_NICKNAME);
+            this.view.showError(Error.INVALID_NICKNAME);
             return;
         }
 
-        this.message.send(MessageParser.message("setNumPlayer",View.selectNumberOfPlayer()));
+        this.message.send(MessageParser.message("setNumPlayer",this.view.selectNumberOfPlayer()));
 
         answer = this.message.receive();
         while(answer.equals("invalidNumPlayer")) {
-            View.showError(Error.INVALID_NUMBER_OF_PLAYER);
-            this.message.send(MessageParser.message("setNumPlayer",View.selectNumberOfPlayer()));
+            this.view.showError(Error.INVALID_NUMBER_OF_PLAYER);
+            this.message.send(MessageParser.message("setNumPlayer",this.view.selectNumberOfPlayer()));
         }
 
-        if(!answer.equals("WAIT")) View.showError(Error.UNKNOWN_ERROR);
+        if(!answer.equals("WAIT")) this.view.showError(Error.UNKNOWN_ERROR);
 
         this.playGame();
     }
@@ -112,15 +130,15 @@ public class Client {
         this.message.send("JoinGame");
 
         if(!this.message.receive().equals("OK")) {
-            View.tell("No game available!");
+            this.view.tell("No game available!");
             return;
         }
 
-        this.message.send(MessageParser.message("setNickname",View.selectNickname()));
+        this.message.send(MessageParser.message("setNickname",this.view.selectNickname()));
 
         while(!this.message.receive().equals("WAIT")) {
-            View.showError(Error.NICKNAME_TAKEN);
-            this.message.send(MessageParser.message("setNickname",View.selectNickname()));
+            this.view.showError(Error.NICKNAME_TAKEN);
+            this.message.send(MessageParser.message("setNickname",this.view.selectNickname()));
         }
 
         this.playGame();
@@ -135,7 +153,7 @@ public class Client {
 
         if(!mp.getOrder().equals("selectLeader"))
         {
-            View.showError(Error.UNKNOWN_ERROR);
+            this.view.showError(Error.UNKNOWN_ERROR);
             return;
         }
 
@@ -150,11 +168,11 @@ public class Client {
 
         while(true) {
 
-            int[] selection = View.selectLeader(leaders);
+            int[] selection = this.view.selectLeader(leaders);
             this.message.send(MessageParser.message("keepLeaders",Arrays.toString(selection)));
 
             answer = this.message.receive();
-            if(!answer.equals("OK")) View.showError(Error.INVALID_SELECTION);
+            if(!answer.equals("OK")) this.view.showError(Error.INVALID_SELECTION);
             else return;
 
         }
@@ -167,18 +185,18 @@ public class Client {
 
         mp.parse(this.message.receive());
 
-        if(mp.getOrder().equals("advantage")) View.showInitialAdvantage(mp.getObjectParameter(0,ResourcePack.class));
+        if(mp.getOrder().equals("advantage")) this.view.showInitialAdvantage(mp.getObjectParameter(0,ResourcePack.class));
 
         mp.parse(this.message.receive());
 
         if(mp.getOrder().equals("convert"))
         {
             do {
-                this.message.send(MessageParser.message("selected",View.selectResources(mp.getIntParameter(0))));
+                this.message.send(MessageParser.message("selected",this.view.selectResources(mp.getIntParameter(0))));
 
                 answer = this.message.receive();
                 if(!answer.equals("OK"))
-                    View.showError(Error.UNKNOWN_ERROR);
+                    this.view.showError(Error.UNKNOWN_ERROR);
 
             }while(!answer.equals("OK"));
 
@@ -187,7 +205,7 @@ public class Client {
 
                 do {
 
-                    String newConfig = View.selectWarehouse();
+                    String newConfig = this.view.selectWarehouse();
                     this.message.send(MessageParser.message("config",newConfig));
                     answer = this.message.receive();
 
@@ -199,11 +217,10 @@ public class Client {
     public void playGame() {
 
         String answer;
-        MessageParser mp = new MessageParser();
 
-        View.fancyTell("Waiting for other players!");
+        this.view.fancyTell("Waiting for other players!");
         do { answer = this.message.receive(); } while(!answer.equals("GameStart"));
-        View.gameStart();
+        this.view.gameStart();
 
         this.selectLeader();
         this.initialAdvantage();
@@ -214,14 +231,14 @@ public class Client {
             do {
                 answer = this.message.receive();
                 if(answer.equals("GameEnd")) active = false;
-                else if(!answer.equals("PLAY")) View.showAction(answer);
+                else if(!answer.equals("PLAY")) this.view.showAction(answer);
             } while(!answer.equals("PLAY") && active);
 
             if(answer.equals("PLAY")) {
 
                 boolean endRound = true;
                 do {
-                    switch(View.selectAction()) {
+                    switch(this.view.selectAction()) {
 
                         case "buyDevCard":
                             this.message.send("buyDevCard");
@@ -255,7 +272,7 @@ public class Client {
             }
         }
 
-        View.gameEnd();
+        this.view.gameEnd();
     }
 
     public boolean buyDevelopmentCard() {
@@ -269,12 +286,12 @@ public class Client {
 
         answer = this.message.receive();
         if (!answer.equals("OK")) {
-            View.showError(Error.UNABLE_TO_PLAY_ACTION);
+            this.view.showError(Error.UNABLE_TO_PLAY_ACTION);
             return false;
         }
 
         do {
-            selection = View.selectDevCard();
+            selection = this.view.selectDevCard();
             if(selection.equals("back"))
             {
                 this.message.send("esc");
@@ -288,7 +305,7 @@ public class Client {
 
             // if the server doesn't allows the card to be bought
             if (answer.equals("KO")) {
-                View.showError(Error.INVALID_CARD_SELECTION);
+                this.view.showError(Error.INVALID_CARD_SELECTION);
             }
 
         } while(!answer.equals("OK"));
@@ -296,7 +313,7 @@ public class Client {
         //the card to buy exists
 
         do {
-            selection = View.selectDevCardPosition();
+            selection = this.view.selectDevCardPosition();
             if (selection.equals("back")) {
                 this.message.send("esc");
                 return false;
@@ -306,12 +323,12 @@ public class Client {
             answer = this.message.receive();
 
             if (answer.equals("KO")) {
-                View.showError(Error.INVALID_POSITION);
+                this.view.showError(Error.INVALID_POSITION);
             }
 
         } while(!answer.equals("OK"));
 
-        View.tell("Card successfully bought!");
+        this.view.tell("Card successfully bought!");
         // TODO: mostrare il DevCardStack
 
         return true;
@@ -323,11 +340,11 @@ public class Client {
 
         answer = this.message.receive();
         if(!answer.equals("OK")) {
-            View.showError(Error.UNABLE_TO_PLAY_ACTION);
+            this.view.showError(Error.UNABLE_TO_PLAY_ACTION);
             return false;
         }
 
-        Scanner selection = new Scanner(View.selectMarbles());
+        Scanner selection = new Scanner(this.view.selectMarbles());
 
         switch(selection.next())
         {
@@ -357,33 +374,33 @@ public class Client {
         parser.parse(answer);
 
         if(!parser.getOrder().equals("Taken")) {
-            View.showError(Error.FAIL_TO_GET_RESOURCES);
+            this.view.showError(Error.FAIL_TO_GET_RESOURCES);
             return;
         }
 
         ResourcePack pendingResources = parser.getObjectParameter(0,ResourcePack.class);
-        View.showGatheredResources(pendingResources);
+        this.view.showGatheredResources(pendingResources);
 
         parser.parse(this.message.receive());
 
         if(parser.getOrder().equals("convert"))
         {
             do {
-                ResourcePack selected = View.selectWhite(parser.getIntParameter(0));
+                ResourcePack selected = this.view.selectWhite(parser.getIntParameter(0));
                 this.message.send(MessageParser.message("ExchangeWhitesWith",selected));
 
                 answer = this.message.receive();
-                if(!answer.equals("OK")) View.showError(Error.CANNOT_CONVERT_WHITE);
+                if(!answer.equals("OK")) this.view.showError(Error.CANNOT_CONVERT_WHITE);
 
             } while(!answer.equals("OK"));
         }
         else if(!parser.getOrder().equals("OK"))
-            View.showError(Error.UNKNOWN_ERROR);
+            this.view.showError(Error.UNKNOWN_ERROR);
 
         // Place resources into the Warehouse.
         while(true)
         {
-            String newConfig = View.selectWarehouse();
+            String newConfig = this.view.selectWarehouse();
             this.message.send(MessageParser.message("configWarehouse",newConfig));
 
             parser.parse(this.message.receive());
@@ -391,15 +408,15 @@ public class Client {
             switch (parser.getOrder()) {
 
                 case "Complete":
-                    View.tell("Resources taken successfully!");
+                    this.view.tell("Resources taken successfully!");
                     return;
 
                 case "wasted":
-                    View.tell("You have wasted " + parser.getIntParameter(0) + " resources...");
+                    this.view.tell("You have wasted " + parser.getIntParameter(0) + " resources...");
                     return;
 
                 case "InvalidConfiguration":
-                    View.showError(Error.WRONG_CONFIGURATION);
+                    this.view.showError(Error.WRONG_CONFIGURATION);
                     break;
             }
         }
@@ -408,7 +425,7 @@ public class Client {
     public boolean activateProduction() {
 
         if(!this.message.receive().equals("OK")) {
-            View.showError(Error.UNABLE_TO_PLAY_ACTION);
+            this.view.showError(Error.UNABLE_TO_PLAY_ACTION);
             return false;
         }
 
@@ -420,14 +437,15 @@ public class Client {
         do {
             toRepeat = false;
 
-            cmd = View.selectProduction();
+            cmd = this.view.selectProduction();
 
             if(cmd.equals("back")) {
                 this.message.send("esc");
+                this.view.clearFactory();
                 return false;
             }
 
-            this.message.send(MessageParser.message("active",View.factory.getActive()));
+            this.message.send(MessageParser.message("active",this.view.getActiveProductions()));
 
             mp.parse(this.message.receive());
             answer = mp.getOrder();
@@ -435,11 +453,11 @@ public class Client {
             if(answer.equals("convert")) {
 
                 do {
-                    ResourcePack selected = View.selectFreeRequirement(mp.getIntParameter(0));
+                    ResourcePack selected = this.view.selectFreeRequirement(mp.getIntParameter(0));
                     this.message.send(MessageParser.message("selected",selected));
 
                     if(this.message.receive().equals("SelectionNotValid")) {
-                        View.showError(Error.INVALID_SELECTION);
+                        this.view.showError(Error.INVALID_SELECTION);
                         toRepeat = true;
                     }
                     else toRepeat = false;
@@ -450,11 +468,11 @@ public class Client {
             }
 
             if(answer.equals("NotEnoughResources")) {
-                View.showError(Error.NOT_ENOUGH_RESOURCES);
+                this.view.showError(Error.NOT_ENOUGH_RESOURCES);
                 toRepeat = true;
             }
             else if(!answer.equals("OK")) {
-                View.showError(Error.UNKNOWN_ERROR);
+                this.view.showError(Error.UNKNOWN_ERROR);
                 toRepeat = true;
             }
 
@@ -464,14 +482,12 @@ public class Client {
         mp.parse(answer);
 
         if(mp.getOrder().equals("convert")) {
-
              do {
-
-                ResourcePack selected = View.selectResources(mp.getIntParameter(0));
+                ResourcePack selected = this.view.selectResources(mp.getIntParameter(0));
                 this.message.send(MessageParser.message("selected",selected));
 
                 if(this.message.receive().equals("SelectionNotValid")) {
-                    View.showError(Error.INVALID_SELECTION);
+                    this.view.showError(Error.INVALID_SELECTION);
                     toRepeat = true;
                 }
                 else toRepeat = false;
@@ -482,10 +498,10 @@ public class Client {
             mp.parse(answer);
         }
 
-        View.factory.clear();
+        this.view.clearFactory();
 
         if(answer.equals("COMPLETE"))
-            View.tell("Successfully activated production!");
+            this.view.tell("Successfully activated production!");
 
         return true;
     }
@@ -494,12 +510,12 @@ public class Client {
         String answer = this.message.receive();
 
         if(!answer.equals("OK")) {
-            View.showError(Error.UNKNOWN_ERROR);
+            this.view.showError(Error.UNKNOWN_ERROR);
         }
 
         while(true) {
 
-            String selection = View.selectLeaderAction();
+            String selection = this.view.selectLeaderAction();
 
             if(selection.equals("back")) {
                 this.message.send("esc");
@@ -512,15 +528,15 @@ public class Client {
             answer = this.message.receive();
             switch(answer) {
                 case "OK":
-                    View.tell("Done!");
+                    this.view.tell("Done!");
                     return;
 
                 case "Error":
-                    View.showError(Error.UNKNOWN_ERROR);
+                    this.view.showError(Error.UNKNOWN_ERROR);
                     break;
 
                 case "UnableToPlay":
-                    View.showError(Error.UNABLE_TO_PLAY_LEADER);
+                    this.view.showError(Error.UNABLE_TO_PLAY_LEADER);
                     break;
             }
         }

@@ -6,6 +6,7 @@ import it.polimi.ingsw.cards.*;
 import it.polimi.ingsw.supply.*;
 import it.polimi.ingsw.faith.*;
 import it.polimi.ingsw.util.MessageParser;
+import it.polimi.ingsw.view.PlayerView;
 import it.polimi.ingsw.view.Screen;
 
 import java.io.IOException;
@@ -50,7 +51,7 @@ public class Player implements Runnable {
     @Override
     public void run() {
         String msg;
-        this.send("welcome");
+        this.send(MessageParser.message("welcome",this.ID));
         do {
             msg = receive();
             switch(msg) {
@@ -140,6 +141,14 @@ public class Player implements Runnable {
     }
 
     // Round Management
+
+    public PlayerView getPlayerStat()
+    {
+        return new PlayerView(this.ID,this.nickname,
+                this.playerBoard.storage.getAllResource(),
+                this.playerBoard.faithTrack.getFaithMarker(),
+                this.playerBoard.countPoints());
+    }
 
     public synchronized void setActive() {
         this.isActive = true;
@@ -404,7 +413,7 @@ public class Player implements Runnable {
         Color cardColor = null;
         boolean cardSelected = false;
 
-        this.send(MessageParser.message("update","market:card",this.game.market.cardMarket));
+        this.game.market.updateCardMarket();
         this.send("OK");
 
         do {
@@ -436,15 +445,11 @@ public class Player implements Runnable {
                 if(this.playerBoard.canBeStored(cardLevel,cmd.getIntParameter(0)))
                 {
                     try {
-                        DevelopmentCard devCard = this.game.market.buyDevelopmentCard(cardLevel,cardColor);
-                        this.playerBoard.storeDevelopmentCard(devCard,cmd.getIntParameter(0));
-                    } catch (NonPositionableCardException | NoSuchDevelopmentCardException ignored) {
+                        this.playerBoard.buyDevCard(cardLevel,cardColor,cmd.getIntParameter(0));
+                    } catch (NonPositionableCardException | NoSuchDevelopmentCardException | NonConsumablePackException ignored) {
                         /* this should never happen */
                     }
-
-                    this.send(MessageParser.message("update","devCards",this.playerBoard.devCards));
                     this.send("OK");
-
                     return true;
                 }
                 else this.send("KO");
@@ -457,7 +462,7 @@ public class Player implements Runnable {
 
         MessageParser parser = new MessageParser();
 
-        this.send(MessageParser.message("update","market:res",this.game.market.resourceMarket));
+        this.game.market.updateResourceMarket();
 
         this.send("OK");
         String msg = this.receive();
@@ -469,15 +474,14 @@ public class Player implements Runnable {
             if (parser.getOrder().equals("TakeRow")) {
 
                 int row = parser.getIntParameter(0) - 1;
-                ResourcePack gatheredResources = game.market.takeRow(row);
-                this.game.broadCastFull(MessageParser.message("update","market:res",this.game.market.resourceMarket));
+                ResourcePack gatheredResources = this.game.market.takeRow(row);
                 sendResources(gatheredResources);
                 return true;
 
             } else if (parser.getOrder().equals("TakeColumn")) {
 
                 int column = parser.getIntParameter(0) - 1;
-                ResourcePack gatheredResources = game.market.takeColumn(column);
+                ResourcePack gatheredResources = this.game.market.takeColumn(column);
                 sendResources(gatheredResources);
                 return true;
             }
@@ -536,9 +540,10 @@ public class Player implements Runnable {
             {
                 if(this.playerBoard.storage.warehouse.update(parser.getStringParameter(0)))
                 {
-                    int wasted = this.playerBoard.storage.warehouse.done();
-                    if(wasted != 0)
+                    int wasted = this.playerBoard.done();
+                    if(wasted != 0) {
                         this.send(MessageParser.message("wasted",wasted));
+                    }
                     else this.send("Complete");
                     return;
                 }
@@ -567,10 +572,12 @@ public class Player implements Runnable {
             else if(mp.getOrder().equals("active")) {
                 this.playerBoard.factory.setActiveProduction(mp.getObjectParameter(0,int[].class));
 
-                if(!this.playerBoard.storage.isConsumable(this.playerBoard.factory.productionRequirements()))
+                if(!this.playerBoard.storage.isConsumable(this.playerBoard.factory.productionRequirements())) {
                     this.send("NotEnoughResources");
+                    toRepeat = true;
 
-                else {
+                } else {
+
                     whiteToConvert = this.playerBoard.factory.productionRequirements().get(Resource.VOID);
 
                     if(whiteToConvert != 0)

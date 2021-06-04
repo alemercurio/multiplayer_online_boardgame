@@ -13,9 +13,9 @@ public class FaithTrackTest {
     @Before
     public void setUpFaithTracks() {
         vatican = new Vatican(new MultiGame(2),filePath);
-        our = vatican.getFaithTrack();
-        other = vatican.getFaithTrack();
-        another = vatican.getFaithTrack();
+        our = vatican.getFaithTrack(0);
+        other = vatican.getFaithTrack(1);
+        another = vatican.getFaithTrack(2);
     }
 
     @Test
@@ -40,7 +40,7 @@ public class FaithTrackTest {
     public void countPointsTest(){
         our.advance(30);
 
-        assertEquals(our.getTotalPoints(),79);
-        assertEquals(other.getTotalPoints(),0);
+        assertEquals(79,our.getTotalPoints());
+        assertEquals(0,other.getTotalPoints());
     }
 }

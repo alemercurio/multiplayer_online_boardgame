@@ -7,13 +7,16 @@ import com.google.gson.reflect.TypeToken;
 import it.polimi.ingsw.cards.Color;
 import it.polimi.ingsw.cards.DevelopmentCard;
 import it.polimi.ingsw.supply.Resource;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MarketView {
+public class MarketView implements Observable {
 
     // Resource Market
     private Resource[][] marketTray;
@@ -21,6 +24,9 @@ public class MarketView {
 
     // Card Market
     private Map<Color,List<DevelopmentCard>> decksMap;
+
+    // Util
+    private final List<InvalidationListener> observers = new ArrayList<>();
 
     public MarketView() {
 
@@ -41,11 +47,17 @@ public class MarketView {
 
         this.marketTray = parser.fromJson(jsonObj.get("marketTray"),Resource[][].class);
         this.remaining = parser.fromJson(jsonObj.get("remaining"),Resource.class);
+
+        for(InvalidationListener observer : this.observers)
+            observer.invalidated(this);
     }
 
     public void updateCardMarket(String state) {
         Type decksMapType = new TypeToken<Map<Color,List<DevelopmentCard>>>() {}.getType();
         this.decksMap = new Gson().fromJson(state,decksMapType);
+
+        for(InvalidationListener observer : this.observers)
+            observer.invalidated(this);
     }
 
     public void printResourceMarket() {
@@ -91,5 +103,15 @@ public class MarketView {
             }
         }
 
+    }
+
+    @Override
+    public void addListener(InvalidationListener invalidationListener) {
+        this.observers.add(invalidationListener);
+    }
+
+    @Override
+    public void removeListener(InvalidationListener invalidationListener) {
+        this.observers.remove(invalidationListener);
     }
 }

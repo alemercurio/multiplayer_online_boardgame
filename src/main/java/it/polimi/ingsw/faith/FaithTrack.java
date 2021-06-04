@@ -1,5 +1,8 @@
 package it.polimi.ingsw.faith;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 import java.util.*;
 
 /**
@@ -8,13 +11,13 @@ import java.util.*;
  * @author Patrick Niantcho
  */
 public class FaithTrack {
-    private final int faithTrackID;
-    private int faithMarker;
-    private final Vatican vatican;
+    private transient final int faithTrackID;
+    private transient int faithMarker;
+    private transient final Vatican vatican;
     private final ArrayList<Vatican.Space> track;
-    private final Map<Vatican.ReportSection,Integer> reportSections;
+    private final ArrayList<Vatican.ReportSection> reportSections;
 
-    private boolean end;
+    private transient boolean end;
 
     /**
      * Constructs a FaithTrack.
@@ -29,9 +32,9 @@ public class FaithTrack {
         this.vatican = vatican;
 
         this.track = new ArrayList<>(track);
-        this.reportSections = new HashMap<>();
+        this.reportSections = new ArrayList<>();
         for(Vatican.ReportSection ps : reportSections) {
-            this.reportSections.put(ps,0);
+            this.reportSections.add(ps.getCopy());
         }
 
         this.end = (this.track.size() == 1);
@@ -58,7 +61,7 @@ public class FaithTrack {
      * Makes the Faith Marker advance of one single space.
      * If the new current space is a PopeSpace, reports to Vatican.
      */
-    public void advance() {
+    private void advance() {
         if(!end) {
             this.faithMarker++;
         }
@@ -84,6 +87,7 @@ public class FaithTrack {
     public void advance(int steps) {
         for(int i = 0; i < steps; i++)
             this.advance();
+        this.vatican.update(this);
     }
 
     /**
@@ -98,12 +102,17 @@ public class FaithTrack {
     /**
      * Assigns a Pope Favor to the Player if its FaithMarker is within or beyond
      * the associated section in the FaithTrack. If not, the section is marked as lost.
-     * @param ps the Pope Favour assignable to the Player.
+     * @param index the index of the Pope Favour assignable to the Player.
      */
-    public void PopeFavour(Vatican.ReportSection ps) {
-        if(this.faithMarker >= ps.getFirstSpace())
-            this.reportSections.put(ps,1);
-        else this.reportSections.put(ps,-1);
+    public void PopeFavour(int index) {
+
+        Vatican.ReportSection rs = this.reportSections.get(index);
+
+        if(this.faithMarker >= rs.getFirstSpace())
+            rs.setState(Vatican.State.GOT);
+        else rs.setState(Vatican.State.LOST);
+
+        this.vatican.update(this);
     }
 
     /**
@@ -111,8 +120,8 @@ public class FaithTrack {
      * @return the total points gained from Pope Favours.
      */
     public int countFavors() {
-        return this.reportSections.entrySet().stream()
-                .filter(e -> e.getValue() > 0).map(pf -> pf.getKey().getPoints())
+        return this.reportSections.stream()
+                .filter(e -> e.getState().equals(Vatican.State.GOT)).mapToInt(Vatican.ReportSection::getPoints)
                 .reduce(Integer::sum).orElse(0);
     }
 
@@ -126,5 +135,21 @@ public class FaithTrack {
             points = points + this.track.get(index).getPoints();
         }
         return points;
+    }
+
+    public String toString() {
+        return new Gson().toJson(this);
+    }
+
+    public String getConfig() {
+
+        JsonObject faithData = new JsonObject();
+        faithData.addProperty("ID",this.faithTrackID);
+        faithData.addProperty("faithMarker",this.faithMarker);
+        faithData.add("popeFavours", new Gson().toJsonTree(
+                this.reportSections.stream().map(Vatican.ReportSection::getState).toArray(),
+                Vatican.State[].class));
+
+        return faithData.toString();
     }
 }

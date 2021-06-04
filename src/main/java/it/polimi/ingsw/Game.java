@@ -22,7 +22,7 @@ public abstract class Game {
 
     public Game() {
         this.vatican = new Vatican(this,"src/main/resources/JSON/Vatican.json");
-        this.market = new MarketBoard();
+        this.market = new MarketBoard(this);
     }
 
     // Static methods

@@ -25,11 +25,11 @@ public class SoloGame extends Game {
         super();
 
         this.player = player;
-        this.player.setForGame(this.vatican.getFaithTrack(),this.market);
+        this.player.setForGame(this.vatican.getFaithTrack(this.player.getID()),this.market);
         this.name = name;
 
         SoloActionDeck soloDeck = new SoloActionDeck(SoloAction.getSoloActionDeck("src/main/resources/JSON/SoloAction.json"));
-        this.lorenzo = new LorenzoIlMagnifico(this,this.vatican.getFaithTrack(),this.market,soloDeck);
+        this.lorenzo = new LorenzoIlMagnifico(this,this.vatican.getFaithTrack(-1),this.market,soloDeck);
         this.endGame = false;
     }
 

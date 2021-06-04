@@ -17,7 +17,7 @@ public class PlayerBoard
     public final LeaderStack leaders;
     public final DevelopmentCardStack devCards;
     public final Factory factory;
-    private final FaithTrack faithTrack;
+    public final FaithTrack faithTrack;
 
     private final ResourcePack marketDiscounts;
     private final List<Resource> whiteExchange;
@@ -33,9 +33,13 @@ public class PlayerBoard
         this.storage = new Storage();
         this.leaders = new LeaderStack();
         this.devCards = new DevelopmentCardStack();
+
         this.factory = new Factory();
         this.factory.addProductionPower(baseProduction);
+
         this.faithTrack = faithTrack;
+        this.player.send(MessageParser.message("update","faith:track",this.faithTrack));
+        this.player.send(MessageParser.message("update","faith:config",this.faithTrack.getConfig()));
 
         this.marketDiscounts = new ResourcePack();
         this.whiteExchange = new ArrayList<>();
@@ -61,6 +65,7 @@ public class PlayerBoard
 
             // Consumes resources required to activate productions.
             this.storage.autoConsume(required);
+            this.player.send(MessageParser.message("update","WHConfig",this.storage.warehouse.getConfig()));
 
             // Collects the products.
             ResourcePack products = this.factory.productionChain();
@@ -93,7 +98,7 @@ public class PlayerBoard
 
             // Consumes resources required to activate productions.
             this.storage.autoConsume(required);
-            this.player.send(MessageParser.message("update","WH",this.storage.strongbox));
+            this.player.send(MessageParser.message("update","WHConfig",this.storage.warehouse.getConfig()));
 
             // Collects the products.
             ResourcePack products = this.factory.productionChain();
@@ -135,6 +140,22 @@ public class PlayerBoard
         return this.devCards.canBeStored(level,position);
     }
 
+    public void buyDevCard(int level,Color color,int position) throws NonConsumablePackException, NoSuchDevelopmentCardException, NonPositionableCardException {
+
+        if(!this.canBeStored(level,position)) throw new NonPositionableCardException();
+        if(!this.storage.isConsumable(this.market.getCost(level,color))) throw new NonConsumablePackException();
+
+        DevelopmentCard devCard = this.market.buyDevelopmentCard(level,color);
+
+        this.storage.autoConsume(devCard.getCost());
+
+        this.player.send(MessageParser.message("update","WHConfig",this.storage.warehouse.getConfig()));
+        this.player.send(MessageParser.message("update","strongbox",this.storage.strongbox));
+
+        this.storeDevelopmentCard(devCard,position);
+
+    }
+
     /**
      * Stores the given DevelopmentCard in the current PlayerBoard's DevelopmentCardStack.
      * the production granted by the card is added to the current Factory.
@@ -154,14 +175,21 @@ public class PlayerBoard
 
         // Add the Production offered by the new DevelopmentCard.
         this.factory.addProductionPower(devCard.getProduction());
+
+        this.player.send(MessageParser.message("update","devCards",this.devCards));
+        this.player.send(MessageParser.message("update","fact",this.factory));
     }
 
     public int storeResources(ResourcePack loot)
     {
         ResourcePack toStore = loot.getCopy();
+
         this.faithTrack.advance(toStore.flush(Resource.FAITHPOINT));
+
         int white = toStore.flush(Resource.VOID);
         this.storage.warehouse.add(toStore);
+        this.player.send(MessageParser.message("update","WHConfig",this.storage.warehouse.getConfig()));
+
         return white;
     }
 
@@ -183,9 +211,17 @@ public class PlayerBoard
         if(ableToConvert == amount)
         {
             this.storage.warehouse.add(desired);
+            this.player.send(MessageParser.message("update","WHConfig",this.storage.warehouse.getConfig()));
             return true;
         }
         else return false;
+    }
+
+    public int done()
+    {
+        int wasted = this.storage.warehouse.done();
+        this.faithTrack.wastedResources(wasted);
+        return wasted;
     }
 
     public boolean playLeaderCard(int leader) {

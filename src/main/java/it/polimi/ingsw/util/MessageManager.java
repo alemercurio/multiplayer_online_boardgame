@@ -1,5 +1,6 @@
 package it.polimi.ingsw.util;
 
+import it.polimi.ingsw.view.GameEvent;
 import it.polimi.ingsw.view.View;
 
 import java.io.IOException;
@@ -14,12 +15,14 @@ public class MessageManager extends Thread {
     private final Socket socket;
     private final Scanner messageIn;
     private final PrintWriter messageOut;
-    private final LinkedList<String> answer = new LinkedList<String>();
+    private final View view;
+    private final LinkedList<String> answer = new LinkedList<>();
 
-    public MessageManager(String ipAddress,int port) throws IOException {
+    public MessageManager(String ipAddress, int port, View view) throws IOException {
         this.socket = new Socket(ipAddress,port);
         this.messageIn = new Scanner(this.socket.getInputStream());
         this.messageOut = new PrintWriter(this.socket.getOutputStream());
+        this.view = view;
     }
 
     public synchronized void report(String message) {
@@ -59,7 +62,9 @@ public class MessageManager extends Thread {
                 mp.parse(message);
 
                 if(mp.getOrder().equals("update"))
-                    View.update(mp.getStringParameter(0),mp.getStringParameter(1));
+                    this.view.update(mp.getStringParameter(0),mp.getStringParameter(1));
+                else if(mp.getOrder().equals("event"))
+                    this.view.throwEvent(GameEvent.valueOf(mp.getStringParameter(0)));
                 else this.report(message);
             }
         }
