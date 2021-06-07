@@ -33,7 +33,7 @@ public class GuiView implements View {
     }
 
     @Override
-    public void throwEvent(GameEvent event) {
+    public void throwEvent(GameEvent event,String eventData) {
 
     }
 
@@ -110,7 +110,7 @@ public class GuiView implements View {
     }
 
     @Override
-    public void showAction(Action action, String actionData) {
+    public void showAction(String...actionData) {
 
     }
 

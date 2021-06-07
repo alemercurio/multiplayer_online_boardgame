@@ -67,10 +67,10 @@ public class MessageManager extends Thread {
                         this.view.update(mp.getStringParameter(0), mp.getStringParameter(1));
                         break;
                     case "event":
-                        this.view.throwEvent(GameEvent.valueOf(mp.getStringParameter(0)));
+                        this.view.throwEvent(GameEvent.valueOf(mp.getStringParameter(0)),mp.getStringParameter(1));
                         break;
                     case "action":
-                        this.view.showAction(Action.valueOf(mp.getStringParameter(0)),mp.getStringParameter(1));
+                        this.view.showAction(mp.getStringParameter());
                         break;
                     default:
                         this.report(message);

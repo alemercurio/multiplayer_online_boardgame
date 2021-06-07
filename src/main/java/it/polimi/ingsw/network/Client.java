@@ -330,9 +330,6 @@ public class Client implements Runnable {
 
         } while(!answer.equals("OK"));
 
-        this.view.tell("Card successfully bought!");
-        // TODO: mostrare il DevCardStack
-
         return true;
     }
 
@@ -410,7 +407,6 @@ public class Client implements Runnable {
             switch (parser.getOrder()) {
 
                 case "Complete":
-                    this.view.tell("Resources taken successfully!");
                     return;
 
                 case "wasted":
@@ -502,8 +498,7 @@ public class Client implements Runnable {
 
         this.view.clearFactory();
 
-        if(answer.equals("COMPLETE"))
-            this.view.tell("Successfully activated production!");
+        if(!answer.equals("COMPLETE")) this.view.showError(Error.UNKNOWN_ERROR);
 
         return true;
     }

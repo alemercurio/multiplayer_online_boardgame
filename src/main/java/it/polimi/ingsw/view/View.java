@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface View {
 
-    void throwEvent(GameEvent event);
+    void throwEvent(GameEvent event,String eventData);
 
     void tell(String message);
 
@@ -34,7 +34,7 @@ public interface View {
 
     void showInitialAdvantage(ResourcePack advantage);
 
-    void showAction(Action action, String actionData);
+    void showAction(String...actionData);
 
     String selectAction();
 

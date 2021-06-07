@@ -2,7 +2,9 @@ package it.polimi.ingsw.network;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import it.polimi.ingsw.controller.Action;
 import it.polimi.ingsw.controller.Game;
+import it.polimi.ingsw.controller.GameEvent;
 import it.polimi.ingsw.controller.PlayerBoard;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.resources.*;
@@ -310,6 +312,9 @@ public class Player implements Runnable {
     public void playRound() {
         String cmd;
 
+        if(!this.game.isSinglePlayer())
+            this.game.broadCast(MessageParser.message("event",GameEvent.ROUND,this.nickname));
+
         this.send("PLAY");
 
         boolean endRound = true;
@@ -319,26 +324,18 @@ public class Player implements Runnable {
             switch(cmd) {
 
                 case "buyDevCard":
-                    if(this.buyDevelopmentCard()) {
-                        endRound = true;
-                        if(!this.game.isSinglePlayer())
-                            this.game.broadCast(this.game.getNickname(this) + " bought a DevCard...");
-                    } else endRound = false;
+                    endRound = this.buyDevelopmentCard();
                     break;
 
                 case "takeResources":
-                    if(this.takeResources()) {
-                        endRound = true;
-                        if(!this.game.isSinglePlayer())
-                            this.game.broadCast(this.game.getNickname(this) + " has gathered resources...");
-                    } else endRound = false;
+                    endRound = this.takeResources();
                     break;
 
                 case "activateProduction":
                     if(this.activateProduction()) {
                         endRound = true;
                         if(!this.game.isSinglePlayer())
-                            this.game.broadCast(this.nickname + " has activated production...");
+                            this.game.broadCast(MessageParser.message("action",Action.ACTIVATE_PRODUCTION,this.nickname));
                     } else endRound = false;
                     break;
 
@@ -388,6 +385,8 @@ public class Player implements Runnable {
                     if (this.playerBoard.playLeaderCard(mp.getIntParameter(0) - 1)) {
                         this.send(MessageParser.message("update", "leaders", parser.toJson(this.playerBoard.leaders)));
                         this.send("OK");
+                        if(!this.game.isSinglePlayer())
+                            this.game.broadCast(MessageParser.message("action",Action.PLAY_LEADER,this.nickname));
                         return;
                     } else this.send("UnableToPlay");
                     break;
@@ -396,6 +395,8 @@ public class Player implements Runnable {
                     if (this.playerBoard.discardLeader(mp.getIntParameter(0) - 1)) {
                         this.send(MessageParser.message("update", "leaders", parser.toJson(this.playerBoard.leaders)));
                         this.send("OK");
+                        if(!this.game.isSinglePlayer())
+                            this.game.broadCast(MessageParser.message("action",Action.DISCARD_LEADER,this.nickname));
                         return;
                     } else this.send("Error");
                     break;
@@ -447,6 +448,8 @@ public class Player implements Runnable {
                 {
                     try {
                         this.playerBoard.buyDevCard(cardLevel,cardColor,cmd.getIntParameter(0));
+                        if(!this.game.isSinglePlayer())
+                            this.game.broadCast(MessageParser.message("action",Action.BUY_DEVELOPMENT_CARD,this.nickname,cardColor,cardLevel));
                     } catch (NonPositionableCardException | NoSuchDevelopmentCardException | NonConsumablePackException ignored) {
                         /* this should never happen */
                     }
@@ -496,6 +499,10 @@ public class Player implements Runnable {
         MessageParser parser = new MessageParser();
 
         this.send(MessageParser.message("Taken",gatheredResources));
+
+        if(!this.game.isSinglePlayer())
+            this.game.broadCast(MessageParser.message("action",Action.TAKE_RESOURCES,this.nickname,gatheredResources));
+
         int numVoid = this.playerBoard.storeResources(gatheredResources);
 
         if(numVoid != 0 && this.playerBoard.hasWhitePower())
@@ -541,11 +548,13 @@ public class Player implements Runnable {
             {
                 if(this.playerBoard.storage.warehouse.update(parser.getStringParameter(0)))
                 {
-                    int wasted = this.playerBoard.done();
+                    int wasted = this.playerBoard.pendingResources();
                     if(wasted != 0) {
                         this.send(MessageParser.message("wasted",wasted));
-                    }
-                    else this.send("Complete");
+                        if(!this.game.isSinglePlayer())
+                            this.game.broadCast(MessageParser.message("action",Action.WASTED_RESOURCES,this.nickname,wasted));
+                    } else this.send("Complete");
+                    this.playerBoard.done();
                     return;
                 }
                 else this.send("InvalidConfiguration");
