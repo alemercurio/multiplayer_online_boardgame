@@ -78,6 +78,7 @@ public class MultiGame extends Game {
     public boolean setNickname(Player player, String name) {
         synchronized(this.nameTable) {
             if (this.nameAvailable(name)) {
+                this.broadCastFull(MessageParser.message("event",GameEvent.PLAYER_JOIN,name));
                 this.nameTable.put(player, name);
                 this.nameTable.notifyAll();
                 return true;
@@ -92,11 +93,12 @@ public class MultiGame extends Game {
     }
 
     public synchronized void addPlayer(Player player) {
+        player.send(MessageParser.message("update","player",this.getPlayerInfo()));
+        player.send(MessageParser.message("event",GameEvent.JOINED_GAME));
+
         this.round.add(player);
         player.setForGame(this.vatican.getFaithTrack(player.getID()),this.market);
         if(this.round.size() == this.numPlayer) Game.newGames.remove(this);
-
-        player.send(MessageParser.message("update","player",this.getPlayerInfo()));
     }
 
     public List<LeaderCard> getLeaders()

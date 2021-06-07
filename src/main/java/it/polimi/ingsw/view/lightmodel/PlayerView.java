@@ -25,9 +25,9 @@ public class PlayerView {
         return this.id;
     }
 
-    public String getNickname()
-    {
-        return this.nickname;
+    public String getNickname() {
+        if(this.nickname == null) return "...";
+        else return this.nickname;
     }
 
     public int getFaithMarker()

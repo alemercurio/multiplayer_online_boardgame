@@ -70,9 +70,12 @@ public class GameView implements Observable {
     }
 
     public void printPlayers() {
-        System.out.print(">> The players are ~ ");
-        for(PlayerView player : this.players) System.out.print(player.getNickname() + ", ");
-        System.out.println("\b\b ~");
+        if(this.players.length == 0) System.out.println("\n>> wait for other player!");
+        else {
+            System.out.print(">> The players are ~ ");
+            for(PlayerView player : this.players) System.out.print(player.getNickname() + ", ");
+            System.out.println("\b\b ~");
+        }
     }
 
     public void print() {

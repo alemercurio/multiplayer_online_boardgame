@@ -38,6 +38,21 @@ public class GuiView implements View {
     }
 
     @Override
+    public void disableGameEvent() {
+
+    }
+
+    @Override
+    public void enableGameEvent() {
+
+    }
+
+    @Override
+    public void flushGameEvent() {
+
+    }
+
+    @Override
     public void tell(String message) {
 
     }
@@ -207,6 +222,11 @@ public class GuiView implements View {
             while (!eventHandler.containsKey(ViewEvent.FREE_REQUIREMENT)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
         return (ResourcePack) eventHandler.remove(ViewEvent.FREE_REQUIREMENT);
+    }
+
+    @Override
+    public boolean playLeaderAction() {
+        return false;
     }
 
     @Override

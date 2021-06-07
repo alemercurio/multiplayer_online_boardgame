@@ -34,6 +34,8 @@ public class CliView implements View {
     public PlayerBoardView playerBoard = new PlayerBoardView();
 
     private static View cliView;
+    private boolean gameEvent = true;
+    private final Map<GameEvent,String> gameEventCache = new HashMap<>();
 
     public static View getCliView() {
         if(cliView == null) cliView = new CliView();
@@ -42,7 +44,24 @@ public class CliView implements View {
 
     @Override
     public void throwEvent(GameEvent event,String eventData) {
+        if(!this.gameEvent) {
+            synchronized(this.gameEventCache) {
+                this.gameEventCache.put(event,eventData);
+            }
+        }
+        else this.showEvent(event,eventData);
+    }
+
+    private void showEvent(GameEvent event,String eventData) {
         switch(event) {
+            case PLAYER_JOIN:
+                System.out.println("\t>> " + eventData + " joins the game.");
+                break;
+
+            case JOINED_GAME:
+                this.players.printPlayers();
+                break;
+
             case POPE_FAVOUR:
                 Screen.setColor(105);
                 System.out.println("\n>> REPORT SECTION REACHED!");
@@ -62,8 +81,29 @@ public class CliView implements View {
     }
 
     @Override
+    public void disableGameEvent() {
+        this.gameEvent = false;
+    }
+
+    @Override
+    public void enableGameEvent() {
+        this.flushGameEvent();
+        this.gameEvent = true;
+    }
+
+    @Override
+    public void flushGameEvent() {
+        synchronized(this.gameEventCache) {
+            for(Map.Entry<GameEvent,String> event : this.gameEventCache.entrySet()) {
+                this.showEvent(event.getKey(),event.getValue());
+            }
+            this.gameEventCache.clear();
+        }
+    }
+
+    @Override
     public void tell(String message) {
-        System.out.println("\t" + message);
+        System.out.println(">> " + message);
     }
 
     @Override
@@ -139,9 +179,8 @@ public class CliView implements View {
 
     @Override
     public void gameStart() {
-        System.out.println(">> Game starts!");
+        System.out.println("\n>> Game starts!");
         this.players.printPlayers();
-        System.out.print("\n");
     }
 
     @Override
@@ -187,7 +226,7 @@ public class CliView implements View {
         else {
             System.out.print(">> You received: ");
             Screen.print(advantage);
-            System.out.println(" as your initial advantage!");
+            System.out.println(" as your initial advantage!\n");
         }
     }
 
@@ -209,7 +248,7 @@ public class CliView implements View {
                     this.showError(Error.UNKNOWN_ERROR);
                     return;
                 }
-                System.out.print(">> Lorenzo il Magnifico: ");
+                System.out.print("\n>> Lorenzo il Magnifico: ");
                 JsonObject data = parser.fromJson(actionData[1],JsonElement.class).getAsJsonObject();
                 if(data.get("type").getAsString().equals("SoloCross"))
                     Screen.print(parser.fromJson(data.get("description"),SoloCross.class));
@@ -893,6 +932,18 @@ public class CliView implements View {
             }
 
         } while(true);
+    }
+
+    @Override
+    public boolean playLeaderAction() {
+        Scanner input = new Scanner(System.in);
+        while(true) {
+            System.out.print("\nDo you want to play a Leader action? (Y|N) <<  ");
+            String answer = input.nextLine().toUpperCase();
+            if(answer.matches("[ ]*Y[ ]*")) return true;
+            else if(answer.matches("[ ]*N[ ]*")) return false;
+            else this.showError(Error.INVALID_SELECTION);
+        }
     }
 
     @Override

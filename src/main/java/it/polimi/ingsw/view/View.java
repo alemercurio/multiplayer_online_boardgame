@@ -12,6 +12,12 @@ public interface View {
 
     void throwEvent(GameEvent event,String eventData);
 
+    void disableGameEvent();
+
+    void enableGameEvent();
+
+    void flushGameEvent();
+
     void tell(String message);
 
     void fancyTell(String message);
@@ -61,6 +67,8 @@ public interface View {
     ResourcePack selectResources(int amount);
 
     ResourcePack selectFreeRequirement(int amount);
+
+    boolean playLeaderAction();
 
     void gameEnd();
 
