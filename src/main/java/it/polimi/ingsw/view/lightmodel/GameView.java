@@ -101,7 +101,8 @@ public class GameView implements Observable {
 
         // Print other players.
         for(PlayerView player : sortedPlayers) {
-            System.out.print("~ ");
+            if(player.getID() < 0) System.out.print("\u269C ");
+            else System.out.print("~ ");
             if(player.getID() == this.currentPlayerID) player.print(153);
             else player.print();
         }

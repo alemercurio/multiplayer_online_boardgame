@@ -1,12 +1,17 @@
 package it.polimi.ingsw.view.cli;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import it.polimi.ingsw.controller.Action;
 import it.polimi.ingsw.controller.GameEvent;
 import it.polimi.ingsw.model.cards.LeaderCard;
 import it.polimi.ingsw.model.cards.StockPower;
 import it.polimi.ingsw.model.resources.NonConsumablePackException;
 import it.polimi.ingsw.model.resources.Resource;
 import it.polimi.ingsw.model.resources.ResourcePack;
+import it.polimi.ingsw.model.singleplayer.SoloCross;
+import it.polimi.ingsw.model.singleplayer.SoloDiscard;
 import it.polimi.ingsw.util.Screen;
 import it.polimi.ingsw.view.*;
 import it.polimi.ingsw.controller.Error;
@@ -182,8 +187,20 @@ public class CliView implements View {
     }
 
     @Override
-    public void showAction(String action) {
-        System.out.println(">> " + action);
+    public void showAction(Action action, String actionData) {
+
+        Gson parser = new Gson();
+
+        switch(action) {
+            case SOLO_ACTION:
+                System.out.print(">> Lorenzo il Magnifico: ");
+                JsonObject data = parser.fromJson(actionData,JsonElement.class).getAsJsonObject();
+                if(data.get("type").getAsString().equals("SoloCross"))
+                    Screen.print(parser.fromJson(data.get("description"),SoloCross.class));
+                else Screen.print(parser.fromJson(data.get("description"),SoloDiscard.class));
+                System.out.print("\n");
+                break;
+        }
     }
 
     @Override

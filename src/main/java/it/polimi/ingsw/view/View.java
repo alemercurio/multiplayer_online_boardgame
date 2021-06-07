@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view;
 
+import it.polimi.ingsw.controller.Action;
 import it.polimi.ingsw.controller.Error;
 import it.polimi.ingsw.controller.GameEvent;
 import it.polimi.ingsw.model.cards.LeaderCard;
@@ -33,7 +34,7 @@ public interface View {
 
     void showInitialAdvantage(ResourcePack advantage);
 
-    void showAction(String action);
+    void showAction(Action action, String actionData);
 
     String selectAction();
 

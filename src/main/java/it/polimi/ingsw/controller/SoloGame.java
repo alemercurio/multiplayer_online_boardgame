@@ -1,12 +1,17 @@
 package it.polimi.ingsw.controller;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import it.polimi.ingsw.model.resources.ResourcePack;
 import it.polimi.ingsw.network.Player;
 import it.polimi.ingsw.model.cards.LeaderCard;
 import it.polimi.ingsw.model.singleplayer.LorenzoIlMagnifico;
 import it.polimi.ingsw.model.singleplayer.SoloAction;
 import it.polimi.ingsw.model.singleplayer.SoloActionDeck;
 import it.polimi.ingsw.util.MessageParser;
+import it.polimi.ingsw.view.lightmodel.PlayerView;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -45,13 +50,20 @@ public class SoloGame extends Game {
     }
 
     @Override
+    public void broadCastFull(String message) {
+        this.player.send(message);
+    }
+
+    @Override
     public boolean nameAvailable(String name) {
         return !name.equals("Lorenzo");
     }
 
     @Override
     public boolean setNickname(Player player, String name) {
-        this.name = name; return true;
+        if(name.equals("Lorenzo")) return false;
+        this.name = name;
+        return true;
     }
 
     @Override
@@ -61,7 +73,8 @@ public class SoloGame extends Game {
 
     @Override
     public void start() {
-        this.player.send(MessageParser.message("update","player","[]"));
+        this.player.send(MessageParser.message("update","player",this.getPlayerInfo()));
+        this.market.update();
         this.player.send("GameStart");
     }
 
@@ -78,7 +91,7 @@ public class SoloGame extends Game {
 
     public void playSolo() {
         SoloAction action = this.lorenzo.playSoloAction();
-        this.broadCast(action.toString());
+        this.broadCast(MessageParser.message("action",Action.SOLO_ACTION,action));
     }
 
     @Override
@@ -98,5 +111,20 @@ public class SoloGame extends Game {
         }
 
         return drawn;
+    }
+
+    public String getPlayerInfo()
+    {
+        Gson parser = new Gson();
+        Type listOfPlayerInfo = new TypeToken<List<PlayerView>>() {}.getType();
+
+        List<PlayerView> players = new ArrayList<>();
+        players.add(this.player.getPlayerStat());
+        players.add(new PlayerView(-1,"Lorenzo il Magnifico",
+                new ResourcePack(),
+                this.lorenzo.getFaithMarker(),
+                -1));
+
+        return parser.toJson(players,listOfPlayerInfo);
     }
 }

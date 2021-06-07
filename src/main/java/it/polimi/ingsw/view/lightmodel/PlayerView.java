@@ -44,12 +44,14 @@ public class PlayerView {
     }
 
     public void print() {
-        System.out.print(this.nickname + ": resources: ");
-        Screen.print(this.resources);
-
-        Screen.setColor(214);
-        System.out.println(" PV: " + this.victoryPoints + " ");
-        Screen.reset();
+        if(this.id < 0) System.out.println(this.nickname);
+        else {
+            System.out.print(this.nickname + ": resources: ");
+            Screen.print(this.resources);
+            Screen.setColor(214);
+            System.out.println(" PV: " + this.victoryPoints + " ");
+            Screen.reset();
+        }
     }
 
     public void print(int color) {
@@ -58,11 +60,14 @@ public class PlayerView {
         System.out.print(this.nickname);
         Screen.reset();
 
-        System.out.print(": resources: ");
-        Screen.print(this.resources);
+        if(this.id < 0) System.out.print("\n");
+        else {
+            System.out.print(": resources: ");
+            Screen.print(this.resources);
 
-        Screen.setColor(214);
-        System.out.println(" PV: " + this.victoryPoints + " ");
-        Screen.reset();
+            Screen.setColor(214);
+            System.out.println(" PV: " + this.victoryPoints + " ");
+            Screen.reset();
+        }
     }
 }

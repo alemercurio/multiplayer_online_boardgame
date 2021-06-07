@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view.gui;
 
+import it.polimi.ingsw.controller.Action;
 import it.polimi.ingsw.model.cards.LeaderCard;
 import it.polimi.ingsw.model.resources.ResourcePack;
 import it.polimi.ingsw.view.lightmodel.DevelopmentCardView;
@@ -109,7 +110,7 @@ public class GuiView implements View {
     }
 
     @Override
-    public void showAction(String action) {
+    public void showAction(Action action, String actionData) {
 
     }
 

@@ -70,4 +70,12 @@ public class LorenzoIlMagnifico {
     public void shuffleDeck() {
         deck.shuffle();
     }
+
+    /**
+     * Returns the current position of the faith marker of LorenzoilMagnifico.
+     * @return the faithMarker of Lorenzo il Magnifico
+     */
+    public int getFaithMarker() {
+        return this.faithTrack.getFaithMarker();
+    }
 }

@@ -233,7 +233,7 @@ public class Client implements Runnable {
             do {
                 answer = this.message.receive();
                 if(answer.equals("GameEnd")) active = false;
-                else if(!answer.equals("PLAY")) this.view.showAction(answer);
+                else if(!answer.equals("PLAY")) this.view.showError(Error.UNKNOWN_ERROR);
             } while(!answer.equals("PLAY") && active);
 
             if(answer.equals("PLAY")) {
