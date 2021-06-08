@@ -152,7 +152,7 @@ public class CliView implements View {
 
         while(true) {
 
-            System.out.print(">> ");
+            System.out.print("(new|join) >> ");
 
             String msg = input.nextLine();
 

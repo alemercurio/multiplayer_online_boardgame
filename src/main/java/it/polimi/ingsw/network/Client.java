@@ -69,12 +69,16 @@ public class Client implements Runnable {
         MessageParser mp = new MessageParser();
 
         mp.parse(this.message.receive());
-        if(!mp.getOrder().equals("welcome"))
+        if(!mp.getOrder().equals("welcome")) {
             System.out.println(">> Unable to be welcomed..");
+            return;
+        }
         else {
             this.view.setID(mp.getIntParameter(0));
             System.out.println(">> Successfully connected..");
         }
+
+        this.login();
 
         do {
 
@@ -98,18 +102,30 @@ public class Client implements Runnable {
         }
     }
 
+    public void login() {
+        while(true) {
+            this.message.send(MessageParser.message("login",this.view.selectNickname()));
+            String answer = this.message.receive();
+
+            switch(answer) {
+                case "InvalidOption":
+                    this.view.showError(Error.UNKNOWN_ERROR);
+                    break;
+                case "nameAlreadyTaken":
+                    this.view.showError(Error.NICKNAME_TAKEN);
+                    break;
+                case "OK":
+                    return;
+            }
+        }
+    }
+
     public void newGame() {
         String answer;
 
         this.message.send("NewGame");
         if(!this.message.receive().equals("OK")) {
             this.view.showError(Error.UNABLE_TO_START_A_NEW_GAME);
-            return;
-        }
-
-        this.message.send(MessageParser.message("setNickname",this.view.selectNickname()));
-        if(!this.message.receive().equals("OK")) {
-            this.view.showError(Error.INVALID_NICKNAME);
             return;
         }
 
@@ -127,22 +143,11 @@ public class Client implements Runnable {
     }
 
     public void joinGame() {
-
         this.message.send("JoinGame");
 
         if(!this.message.receive().equals("OK")) {
             this.view.tell("No game available!");
-            return;
-        }
-
-        this.message.send(MessageParser.message("setNickname",this.view.selectNickname()));
-
-        while(!this.message.receive().equals("WAIT")) {
-            this.view.showError(Error.NICKNAME_TAKEN);
-            this.message.send(MessageParser.message("setNickname",this.view.selectNickname()));
-        }
-
-        this.playGame();
+        } else this.playGame();
     }
 
     public void selectLeader() {
@@ -152,8 +157,7 @@ public class Client implements Runnable {
 
         mp.parse(this.message.receive());
 
-        if(!mp.getOrder().equals("selectLeader"))
-        {
+        if(!mp.getOrder().equals("selectLeader")) {
             this.view.showError(Error.UNKNOWN_ERROR);
             return;
         }

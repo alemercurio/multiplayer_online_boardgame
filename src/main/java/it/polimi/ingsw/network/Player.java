@@ -2,10 +2,7 @@ package it.polimi.ingsw.network;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import it.polimi.ingsw.controller.Action;
-import it.polimi.ingsw.controller.Game;
-import it.polimi.ingsw.controller.GameEvent;
-import it.polimi.ingsw.controller.PlayerBoard;
+import it.polimi.ingsw.controller.*;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.resources.*;
 import it.polimi.ingsw.model.vatican.*;
@@ -24,7 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Player implements Runnable {
-    private final int ID;
+    private int ID;
     private String nickname;
     private final Socket socket;
     private final Scanner messageIn;
@@ -58,6 +55,9 @@ public class Player implements Runnable {
     public void run() {
         String msg;
         this.send(MessageParser.message("welcome",this.ID));
+
+        this.login();
+
         do {
             msg = receive();
             switch(msg) {
@@ -103,21 +103,26 @@ public class Player implements Runnable {
         }
     }
 
+    public void login() {
+        String msg;
+        MessageParser mp = new MessageParser();
+        PlayerController pc = PlayerController.getPlayerController();
+
+        do {
+            mp.parse(this.receive());
+            if(mp.getOrder().equals("login") && mp.getNumberOfParameters() == 1) {
+                if(pc.registerNickname(mp.getStringParameter(0))) {
+                    this.nickname = mp.getStringParameter(0);
+                    this.send("OK");
+                } else this.send("nameAlreadyTaken");
+            } else this.send("InvalidOption");
+        } while(this.nickname == null);
+    }
+
     private void newGame() {
         String msg;
         MessageParser mp = new MessageParser();
 
-        this.send("OK");
-
-        // Set Player Name
-        msg = this.receive();
-        mp.parse(msg);
-        while(!mp.getOrder().equals("setNickname") || mp.getNumberOfParameters() != 1) {
-            this.send("InvalidOption");
-            msg = this.receive();
-            mp.parse(msg);
-        }
-        this.nickname = mp.getStringParameter(0);
         this.send("OK");
 
         // Set Number of Players
@@ -131,29 +136,12 @@ public class Player implements Runnable {
 
         this.game = Game.newGame(this,this.nickname,mp.getIntParameter(0));
         this.send("WAIT");
-
-        this.game.start();
     }
 
     private boolean joinGame() {
         if(Game.hasNewGame()) {
-            String msg;
-            MessageParser mp = new MessageParser();
-
             this.game = Game.join(this);
             this.send("OK");
-
-            msg = this.receive();
-            mp.parse(msg);
-            while(!mp.getOrder().equals("setNickname") || mp.getNumberOfParameters() != 1 || !this.game.nameAvailable(mp.getStringParameter(0))) {
-                this.send("InvalidNickname");
-                msg = this.receive();
-                mp.parse(msg);
-            }
-            this.nickname = mp.getStringParameter(0);
-            this.game.setNickname(this,this.nickname);
-            this.send("WAIT");
-
             return true;
         }
         else {
@@ -181,6 +169,8 @@ public class Player implements Runnable {
     }
 
     public void playSoloGame() {
+
+        ((SoloGame) this.game).start();
 
         this.selectLeader(this.game.getLeaders());
         this.initialAdvantage();
@@ -702,5 +692,14 @@ public class Player implements Runnable {
             }
         } catch(DisconnectedPlayerException disconnected) { this.game.nextPlayer(); }
 
+    }
+
+    public void resume(Player oldPlayer) {
+        if(this.nickname.equals(oldPlayer.nickname)) {
+            this.ID = oldPlayer.ID;
+            this.game = oldPlayer.game;
+            this.playerBoard = oldPlayer.playerBoard;
+            this.isActive.set(false);
+        }
     }
 }

@@ -11,7 +11,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class to represent the game feature of the Vatican, meaning the set of Faith Tracks,
@@ -177,6 +179,8 @@ public class Vatican {
     private final ReportSection[] reportSections;
     private transient final List<FaithTrack> faithTracks;
 
+    private final transient Map<Integer,FaithTrack> removedFaithTrack = new HashMap<>();
+
     /**
      * Constructs the Vatican with all of its attributes.
      * @param game the Game that the Vatican is associated with.
@@ -266,6 +270,9 @@ public class Vatican {
         this.game.endGame();
     }
 
+
+    // NEW
+
     /**
      * Removes the FaithTrack with the given ID from the current Vatican.
      * @param faithTrackID the ID of the FaithTrack to remove.
@@ -274,7 +281,16 @@ public class Vatican {
         for(FaithTrack faithTrack : this.faithTracks)
             if(faithTrack.getID() == faithTrackID) {
                 this.faithTracks.remove(faithTrack);
+                this.removedFaithTrack.put(faithTrackID,faithTrack);
                 return;
             }
+    }
+
+    public void retrieveFaithTrack(int faithTrackID) {
+        FaithTrack faithTrack = this.removedFaithTrack.remove(faithTrackID);
+        if(faithTrack != null) {
+            this.faithTracks.add(faithTrack);
+            this.update(faithTrack);
+        }
     }
 }

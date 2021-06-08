@@ -23,7 +23,6 @@ import java.util.List;
  */
 public class SoloGame extends Game {
     private final Player player;
-    private String name;
     private final LorenzoIlMagnifico lorenzo;
     private boolean endGame;
 
@@ -32,7 +31,6 @@ public class SoloGame extends Game {
 
         this.player = player;
         this.player.setForGame(this.vatican.getFaithTrack(this.player.getID()),this.market);
-        this.name = name;
 
         SoloActionDeck soloDeck = new SoloActionDeck(SoloAction.getSoloActionDeck("src/main/resources/JSON/SoloAction.json"));
         this.lorenzo = new LorenzoIlMagnifico(this,this.vatican.getFaithTrack(-1),this.market,soloDeck);
@@ -54,24 +52,6 @@ public class SoloGame extends Game {
         this.player.send(message);
     }
 
-    @Override
-    public boolean nameAvailable(String name) {
-        return !name.equals("Lorenzo");
-    }
-
-    @Override
-    public boolean setNickname(Player player, String name) {
-        if(name.equals("Lorenzo")) return false;
-        this.name = name;
-        return true;
-    }
-
-    @Override
-    public String getNickname(Player player) {
-        return this.name;
-    }
-
-    @Override
     public void start() {
         this.player.send(MessageParser.message("update","player",this.getPlayerInfo()));
         this.market.update();
