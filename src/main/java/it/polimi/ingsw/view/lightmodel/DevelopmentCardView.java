@@ -46,8 +46,11 @@ public class DevelopmentCardView implements Observable {
     }
 
     public Image getImageForCard(DevelopmentCard card) {
-        String url = String.format("/PNG/cardfront/DevCardFront%s%d.png", card.getColor().getAlias(), card.getPoints());
-        return new Image(url);
+        if(card!=null) {
+            String url = String.format("/PNG/cardfront/DevCardFront%s%d.png", card.getColor().getAlias(), card.getPoints());
+            return new Image(url);
+        }
+        else return null;
     }
 
     public void print() {

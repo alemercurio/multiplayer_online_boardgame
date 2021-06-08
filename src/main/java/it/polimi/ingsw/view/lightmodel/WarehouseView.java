@@ -20,7 +20,7 @@ import java.util.List;
 
 public class WarehouseView extends Warehouse implements Observable {
 
-    protected static class LimitedStock {
+    public static class LimitedStock {
 
         protected Resource resource;
         protected final int size;
@@ -114,8 +114,8 @@ public class WarehouseView extends Warehouse implements Observable {
         }
     }
 
-    protected final List<LimitedStock> stock;
-    protected final ResourcePack pendingResources;
+    public final List<LimitedStock> stock;
+    public final ResourcePack pendingResources;
     private final List<InvalidationListener> observers = new ArrayList<>();
 
     public WarehouseView() {

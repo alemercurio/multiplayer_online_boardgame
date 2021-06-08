@@ -2,11 +2,12 @@ package it.polimi.ingsw.view.gui;
 
 import it.polimi.ingsw.model.cards.LeaderCard;
 import it.polimi.ingsw.model.resources.ResourcePack;
-import it.polimi.ingsw.view.lightmodel.DevelopmentCardView;
+import it.polimi.ingsw.view.lightmodel.*;
 import it.polimi.ingsw.controller.Error;
 import it.polimi.ingsw.controller.GameEvent;
 import it.polimi.ingsw.view.View;
 import it.polimi.ingsw.view.ViewEvent;
+import javafx.application.Platform;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,15 +16,32 @@ import java.util.Map;
 public class GuiView implements View {
 
     private int playerID;
+    private GuiApp guiApp;
 
     private static GuiView guiView;
+
+    private final GameView players = new GameView();
+    public MarketView market = new MarketView();
+    public LeaderView leaderStack = new LeaderView();
     public DevelopmentCardView devCardStack = new DevelopmentCardView();
+    public FactoryView factory = new FactoryView();
+    public WarehouseView warehouse = new WarehouseView();
+    public ResourcePack strongbox = new ResourcePack();
+    private final FaithView faithTrack = new FaithView(this.players);
+    public PlayerBoardView playerBoard = new PlayerBoardView();
+
+    public AdvantageSceneController advantageSetter;
+    public PlayerBoardSceneController playerboard;
 
     private final Map<ViewEvent,Object> eventHandler = new HashMap<>();
 
     public static GuiView getGuiView() {
         if(guiView == null) guiView = new GuiView();
         return guiView;
+    }
+
+    public void setGuiApp(GuiApp app) {
+        guiApp = app;
     }
 
     public synchronized void event(ViewEvent eventType, Object parameter) {
@@ -75,7 +93,7 @@ public class GuiView implements View {
     }
 
     @Override
-    public String selectNickname() {
+    public synchronized String selectNickname() {
         try {
             while (!eventHandler.containsKey(ViewEvent.NICKNAME)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
@@ -83,7 +101,7 @@ public class GuiView implements View {
     }
 
     @Override
-    public int selectNumberOfPlayer() {
+    public synchronized int selectNumberOfPlayer() {
         try {
             while (!eventHandler.containsKey(ViewEvent.NUMBER_OF_PLAYERS)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
@@ -92,11 +110,12 @@ public class GuiView implements View {
 
     @Override
     public void gameStart() {
-
+        Platform.runLater(() -> guiApp.showScene("/FXML/gamestart.fxml"));
     }
 
     @Override
-    public int[] selectLeader(List<LeaderCard> leaders) {
+    public synchronized int[] selectLeader(List<LeaderCard> leaders) {
+        Platform.runLater(() -> leaderStack.showChoices(leaders));
         try {
             while (!eventHandler.containsKey(ViewEvent.KEEP_LEADERS)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
@@ -104,8 +123,11 @@ public class GuiView implements View {
     }
 
     @Override
-    public void showInitialAdvantage(ResourcePack advantage) {
-
+    public synchronized void showInitialAdvantage(ResourcePack advantage) {
+        Platform.runLater(() -> {
+            guiApp.showScene("/FXML/advantage.fxml");
+            advantageSetter.setAdvantage(advantage);
+        });
     }
 
     @Override
@@ -115,6 +137,10 @@ public class GuiView implements View {
 
     @Override
     public String selectAction() {
+        Platform.runLater(() -> {
+            guiApp.showScene("/FXML/playerboard.fxml");
+            playerboard.invalidated(this.warehouse);
+        });
         try {
             while (!eventHandler.containsKey(ViewEvent.ACTION)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
@@ -167,7 +193,10 @@ public class GuiView implements View {
     }
 
     @Override
-    public String selectWarehouse() {
+    public synchronized String selectWarehouse() {
+        Platform.runLater(() -> {
+            guiApp.showScene("/FXML/playerboard.fxml");
+        });
         try {
             while (!eventHandler.containsKey(ViewEvent.WAREHOUSE_CONFIG)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
@@ -193,7 +222,7 @@ public class GuiView implements View {
     }
 
     @Override
-    public ResourcePack selectResources(int amount) {
+    public synchronized ResourcePack selectResources(int amount) {
         try {
             while (!eventHandler.containsKey(ViewEvent.CHOOSE_RESOURCES)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
