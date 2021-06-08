@@ -246,7 +246,7 @@ public class Client implements Runnable {
                             this.message.send("buyDevCard");
                             endRound = this.buyDevelopmentCard();
                             this.view.flushGameEvent();
-                            if(this.view.playLeaderAction()) {
+                            if(endRound && this.view.playLeaderAction()) {
                                 this.message.send("leader");
                                 this.leaderAction();
                             } else this.message.send("pass");
@@ -256,7 +256,7 @@ public class Client implements Runnable {
                             this.message.send("takeResources");
                             endRound = this.takeResources();
                             this.view.flushGameEvent();
-                            if(this.view.playLeaderAction()) {
+                            if(endRound &&this.view.playLeaderAction()) {
                                 this.message.send("leader");
                                 this.leaderAction();
                             } else this.message.send("pass");
@@ -266,7 +266,7 @@ public class Client implements Runnable {
                             this.message.send("activateProduction");
                             endRound = this.activateProduction();
                             this.view.flushGameEvent();
-                            if(this.view.playLeaderAction()) {
+                            if(endRound && this.view.playLeaderAction()) {
                                 this.message.send("leader");
                                 this.leaderAction();
                             } else this.message.send("pass");

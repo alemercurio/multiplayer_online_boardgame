@@ -325,12 +325,12 @@ public class Player implements Runnable {
 
                 case "buyDevCard":
                     endRound = this.buyDevelopmentCard();
-                    if(this.receive().equals("leader")) this.leaderAction();
+                    if(endRound && this.receive().equals("leader")) this.leaderAction();
                     break;
 
                 case "takeResources":
                     endRound = this.takeResources();
-                    if(this.receive().equals("leader")) this.leaderAction();
+                    if(endRound && this.receive().equals("leader")) this.leaderAction();
                     break;
 
                 case "activateProduction":
@@ -339,7 +339,7 @@ public class Player implements Runnable {
                         if(!this.game.isSinglePlayer())
                             this.game.broadCast(MessageParser.message("action",Action.ACTIVATE_PRODUCTION,this.nickname));
                     } else endRound = false;
-                    if(this.receive().equals("leader")) this.leaderAction();
+                    if(endRound && this.receive().equals("leader")) this.leaderAction();
                     break;
 
                 case "leader":
