@@ -79,7 +79,7 @@ public class SoloGame extends Game {
     }
 
     @Override
-    public void nextPlayer(Player player) {
+    public void nextPlayer() {
         if(!this.endGame) this.playSolo();
     }
 

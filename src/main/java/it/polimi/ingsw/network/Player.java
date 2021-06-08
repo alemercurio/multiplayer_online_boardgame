@@ -82,15 +82,19 @@ public class Player implements Runnable {
     }
 
     public void send(String message) {
-        this.messageOut.println(message);
-        this.messageOut.flush();
+        try {
+            this.messageOut.println(message);
+            this.messageOut.flush();
+        } catch(Exception e) {
+            throw new DisconnectedPlayerException(this);
+        }
     }
 
     public String receive() {
         while(true) {
             String received;
             try { received = this.messageIn.nextLine(); }
-            catch(Exception e) { return "disconnected"; }
+            catch(Exception e) { throw new DisconnectedPlayerException(this); }
             if(received.equals("alive")) {
                 this.disconnectCounter.set(3);
                 this.game.isAlive(this);
@@ -183,7 +187,7 @@ public class Player implements Runnable {
 
         while(!this.hasEnded) {
             this.playRound();
-            if(!this.hasEnded) this.game.nextPlayer(this);
+            if(!this.hasEnded) this.game.nextPlayer();
         }
         this.send("GameEnd");
     }
@@ -641,9 +645,21 @@ public class Player implements Runnable {
 
     private final AtomicInteger disconnectCounter = new AtomicInteger(3);
 
+    public boolean isDisconnected() {
+        return (this.disconnectCounter.get() < 0);
+    }
+
     public void reduceDisconnectCounter() {
         if(disconnectCounter.get() == 0) {
-            System.out.println(">> " + this.nickname +  " si è disconnesso...");
+
+            this.game.hasDisconnected(this);
+
+            try {
+                this.messageIn.close();
+                this.messageOut.close();
+                this.socket.close();
+            } catch (IOException ignored) { }
+
             disconnectCounter.set(-1);
         }
         else if(disconnectCounter.get() > 0) this.disconnectCounter.decrementAndGet();
@@ -651,7 +667,10 @@ public class Player implements Runnable {
 
     private void idle() {
         while(!this.isActive.get()) {
-            String received = this.messageIn.nextLine();
+            String received;
+            try { received = this.messageIn.nextLine(); }
+            catch(Exception e) { throw new DisconnectedPlayerException(this); }
+
             if(received.equals("alive")) {
                 this.disconnectCounter.set(3);
                 this.game.isAlive(this);
@@ -661,24 +680,27 @@ public class Player implements Runnable {
 
     public void playGame() {
 
-        this.idle();
-
-        this.selectLeader(this.game.getLeaders());
-        this.initialAdvantage();
-
-        this.isActive.set(false);
-
-        this.game.waitForOtherPlayer();
-        this.idle();
-
-        while(!this.hasEnded) {
+        try {
             this.idle();
 
-            if(!this.hasEnded) {
-                this.playRound();
-                this.isActive.set(false);
-                this.game.nextPlayer(this);
+            this.selectLeader(this.game.getLeaders());
+            this.initialAdvantage();
+
+            this.isActive.set(false);
+
+            this.game.waitForOtherPlayer();
+            this.idle();
+
+            while(!this.hasEnded) {
+                this.idle();
+
+                if(!this.hasEnded) {
+                    this.playRound();
+                    this.isActive.set(false);
+                    this.game.nextPlayer();
+                }
             }
-        }
+        } catch(DisconnectedPlayerException disconnected) { this.game.nextPlayer(); }
+
     }
 }

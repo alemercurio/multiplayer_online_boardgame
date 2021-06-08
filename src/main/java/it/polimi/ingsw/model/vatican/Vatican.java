@@ -265,4 +265,16 @@ public class Vatican {
     public void endGame() {
         this.game.endGame();
     }
+
+    /**
+     * Removes the FaithTrack with the given ID from the current Vatican.
+     * @param faithTrackID the ID of the FaithTrack to remove.
+     */
+    public void removeFaithTrack(int faithTrackID) {
+        for(FaithTrack faithTrack : this.faithTracks)
+            if(faithTrack.getID() == faithTrackID) {
+                this.faithTracks.remove(faithTrack);
+                return;
+            }
+    }
 }

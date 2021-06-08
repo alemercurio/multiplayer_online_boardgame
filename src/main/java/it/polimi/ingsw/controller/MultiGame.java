@@ -2,6 +2,7 @@ package it.polimi.ingsw.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import it.polimi.ingsw.network.DisconnectedPlayerException;
 import it.polimi.ingsw.network.Player;
 import it.polimi.ingsw.model.cards.LeaderCard;
 import it.polimi.ingsw.model.resources.ResourcePack;
@@ -58,13 +59,15 @@ public class MultiGame extends Game implements Runnable{
     @Override
     public void broadCast(String message) {
         for(Player player : this.round) {
-            player.send(message);
+            try { player.send(message); }
+            catch(DisconnectedPlayerException ignored) { }
         }
     }
 
     public void broadCastFull(String message) {
         for(Player player : this.nameTable.keySet()) {
-            player.send(message);
+            try { player.send(message); }
+            catch(DisconnectedPlayerException ignored) { }
         }
     }
 
@@ -274,9 +277,10 @@ public class MultiGame extends Game implements Runnable{
                         catch (InterruptedException ignored) { }
                     }
                 }
+
+                if(!next.isDisconnected()) this.round.add(next);
             }
 
-            this.round.add(next);
             this.broadCast(MessageParser.message("update","player",this.getPlayerInfo()));
 
             next = this.round.pollFirst();
@@ -301,10 +305,17 @@ public class MultiGame extends Game implements Runnable{
     }
 
     @Override
-    public void nextPlayer(Player player) {
+    public void nextPlayer() {
         synchronized(this.nextRound) {
             this.nextRound.set(true);
             this.nextRound.notifyAll();
         }
+    }
+
+    @Override
+    public void hasDisconnected(Player player) {
+        this.round.remove(player);
+        this.broadCastFull(MessageParser.message("event",GameEvent.PLAYER_DISCONNECT,player.getNickname()));
+        this.vatican.removeFaithTrack(player.getID());
     }
 }

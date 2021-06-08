@@ -74,7 +74,7 @@ public abstract class Game {
 
     public abstract void start();
 
-    public abstract void nextPlayer(Player player);
+    public abstract void nextPlayer();
 
     public abstract void endGame();
 
@@ -86,4 +86,5 @@ public abstract class Game {
     public ResourcePack getAdvantage(Player player) { return new ResourcePack(); }
 
     public void isAlive(Player player) { }
+    public void hasDisconnected(Player player) { }
 }

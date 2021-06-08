@@ -47,7 +47,7 @@ public class VaticanTest {
         }
 
         @Override
-        public void nextPlayer(Player player) {
+        public void nextPlayer() {
         }
 
         @Override

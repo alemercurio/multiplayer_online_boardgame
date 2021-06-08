@@ -62,6 +62,12 @@ public class CliView implements View {
                 this.players.printPlayers();
                 break;
 
+            case PLAYER_DISCONNECT:
+                Screen.setColor(197);
+                System.out.println(">> " + eventData + " has disconnected.");
+                Screen.reset();
+                break;
+
             case POPE_FAVOUR:
                 Screen.setColor(105);
                 System.out.println("\n>> REPORT SECTION REACHED!");
