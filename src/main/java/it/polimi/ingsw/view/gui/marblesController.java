@@ -306,7 +306,7 @@ public class marblesController implements Initializable {
         TranslateTransition transitionPending1  = new TranslateTransition();
         transitionPending1.setNode(pendingMarble);
         transitionPending1.setByY(166);
-        transitionPending1.setDuration(Duration.millis(2000));
+        transitionPending1.setDuration(Duration.millis(1000));
 
         TranslateTransition t00 = new TranslateTransition();
         t00.setNode(marketTray[0][0]);
@@ -339,7 +339,7 @@ public class marblesController implements Initializable {
         TranslateTransition lastTransition1 = new TranslateTransition();
         lastTransition1.setNode(marketTray[0][0]);
         lastTransition1.setByY(-166);
-        lastTransition1.setDuration(Duration.millis(2000));
+        lastTransition1.setDuration(Duration.millis(1000));
 
         TranslateTransition lastTransition2 = new TranslateTransition();
         lastTransition2.setNode(marketTray[0][0]);

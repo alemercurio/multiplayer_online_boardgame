@@ -1,4 +1,4 @@
-package it.polimi.ingsw.view.gui.marketGui;
+package it.polimi.ingsw.view.gui;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

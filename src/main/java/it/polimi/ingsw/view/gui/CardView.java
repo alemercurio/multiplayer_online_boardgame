@@ -1,4 +1,4 @@
-package it.polimi.ingsw.view.gui.marketGui;
+package it.polimi.ingsw.view.gui;
 
 public class CardView {
     private String imgSrc;

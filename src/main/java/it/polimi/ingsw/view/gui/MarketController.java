@@ -1,4 +1,4 @@
-package it.polimi.ingsw.view.gui.marketGui;
+package it.polimi.ingsw.view.gui;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
