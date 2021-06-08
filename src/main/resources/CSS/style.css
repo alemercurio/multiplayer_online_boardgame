@@ -55,16 +55,42 @@
     -fx-background-repeat: stretch;
     -fx-background-size: 100% 100%;
     -fx-background-position: center center;
-    -fx-effect: dropshadow(three-pass-box, black, 30, 0.5, 0, 0);
+    -fx-effect: dropshadow(three-pass-box, black, 40, 0.5, 0, 0);
 }
 
-.ColorBackGround{
-    -fx-background-color: linear-gradient(to left bottom, #D7CB97, #7A5E24);
+.ColorBackGroundWithGradient{
+    -fx-background-color: linear-gradient(to left, #D7CB97, #7A5E24);
 }
-.ColorBackGroundVbox{
+.ColorStandard{
     -fx-background-color: #D7CB97;
 }
 
 .ColorBackGroundCard{
     -fx-background-color: #524C30;
+}
+
+.paneBackGround{
+    -fx-background-color: black;
+}
+
+.backGroundFlorence{
+    -fx-background-image: url("/PNG/board/florence.png");
+    /*-fx-background-repeat: stretch;
+    -fx-background-size: 100% 100%;
+    -fx-background-position: center center;
+    -fx-effect: dropshadow(three-pass-box, black, 30, 0.5, 0, 0);*/
+}
+
+.backGroundMarbles{
+    -fx-background-color: #F4E9D2;
+
+}
+
+.marblesButton{
+    -fx-background-color: black;
+    -fx-background-radius: 30;
+}
+
+.invisibleButton{
+    -fx-opacity: 0;
 }
