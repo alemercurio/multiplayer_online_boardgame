@@ -168,46 +168,13 @@ public class Player implements Runnable {
                 this.playerBoard.countPoints());
     }
 
-    public synchronized void setActive() {
-        //this.isActive = true;
+    public void setActive() {
         this.isActive.set(true);
-        notifyAll();
-    }
-
-    public synchronized void waitForActive() {
-        while(!this.isActive.get()) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public synchronized void setHasEnded() {
         this.hasEnded = true;
     }
-
-    /*public void playGame() {
-
-        this.waitForActive();
-
-        this.selectLeader(this.game.getLeaders());
-        this.initialAdvantage();
-
-        this.isActive = false;
-        this.game.waitForOtherPlayer();
-
-        while(!this.hasEnded) {
-            this.waitForActive();
-
-            if(!this.hasEnded) {
-                this.playRound();
-                this.isActive = false;
-                this.game.nextPlayer(this);
-            }
-        }
-    }*/
 
     public void playSoloGame() {
 
@@ -325,14 +292,11 @@ public class Player implements Runnable {
     }
 
     public void playRound() {
+
         String cmd;
-
-        if(!this.game.isSinglePlayer())
-            this.game.broadCast(MessageParser.message("event",GameEvent.ROUND,this.nickname));
-
         this.send("PLAY");
-
         boolean endRound = true;
+
         do {
 
             cmd = this.receive();

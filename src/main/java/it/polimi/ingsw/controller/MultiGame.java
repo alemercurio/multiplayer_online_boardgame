@@ -10,6 +10,7 @@ import it.polimi.ingsw.view.lightmodel.PlayerView;
 
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -17,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @see Game
  * @author Francesco Tosini
  */
-public class MultiGame extends Game {
+public class MultiGame extends Game implements Runnable{
 
     private final int numPlayer;
     private final Map<Player,String> nameTable;
@@ -157,8 +158,6 @@ public class MultiGame extends Game {
             }
         }
 
-        this.run();
-
         Collections.shuffle(this.round);
         this.broadCast(MessageParser.message("update","player",this.getPlayerInfo()));
 
@@ -168,6 +167,8 @@ public class MultiGame extends Game {
 
         this.readyPlayers.set(0);
         for(Player player : this.round) player.setActive();
+
+        new Thread(this).start();
     }
 
     public ResourcePack getAdvantage(Player player) {
@@ -175,7 +176,7 @@ public class MultiGame extends Game {
         return MultiGame.initialAdvantages[index];
     }
 
-    @Override
+    /*@Override
     public void nextPlayer(Player player) {
         this.round.add(player);
 
@@ -196,7 +197,7 @@ public class MultiGame extends Game {
             System.out.println("(GAME) >> Turno di " + this.nameTable.get(next));
             next.setActive();
         }
-    }
+    }*/
 
     public String getPlayerInfo()
     {
@@ -216,6 +217,7 @@ public class MultiGame extends Game {
     // NEW
 
     private final List<Player> disconnected = new ArrayList<>();
+    private final AtomicBoolean nextRound = new AtomicBoolean();
 
     public void isAlive(Player player) {
         synchronized(this.disconnected) {
@@ -242,14 +244,67 @@ public class MultiGame extends Game {
         };
 
         Timer t = new Timer(true);
-        t.scheduleAtFixedRate(controlConnnection,1000,2000);
+        t.scheduleAtFixedRate(controlConnnection,1000,1000);
+
+        // Game management
+
+        synchronized(this.readyPlayers) {
+            while(this.readyPlayers.get() < this.numPlayer) {
+                try {
+                    this.readyPlayers.wait();
+                } catch(InterruptedException ignored) { }
+            }
+        }
+
+        this.playerWithInkwell = this.round.pollFirst();
+        Player next = this.playerWithInkwell;
+
+        do {
+
+            if(next != null) {
+
+                next.setActive();
+                this.broadCast(MessageParser.message("event",GameEvent.ROUND,next.getNickname()));
+
+                this.nextRound.set(false);
+
+                synchronized(this.nextRound) {
+                    while(!this.nextRound.get()) {
+                        try { this.nextRound.wait(); }
+                        catch (InterruptedException ignored) { }
+                    }
+                }
+            }
+
+            this.round.add(next);
+            this.broadCast(MessageParser.message("update","player",this.getPlayerInfo()));
+
+            next = this.round.pollFirst();
+
+        } while(!endGame || next != playerWithInkwell);
+
+        this.round.add(next);
+
+        for(Player play : this.round) {
+            play.setHasEnded();
+            play.setActive();
+        }
+        this.broadCast("GameEnd");
     }
 
     public void waitForOtherPlayer()
     {
-        if(this.readyPlayers.incrementAndGet() == this.numPlayer) {
-            this.playerWithInkwell = this.round.poll();
-            if (this.playerWithInkwell != null) this.playerWithInkwell.setActive();
+        synchronized(this.readyPlayers) {
+            this.readyPlayers.incrementAndGet();
+            this.readyPlayers.notifyAll();
+        }
+    }
+
+    @Override
+    public void nextPlayer(Player player) {
+        synchronized(this.nextRound) {
+            this.nextRound.set(true);
+            this.nextRound.notifyAll();
         }
     }
 }
