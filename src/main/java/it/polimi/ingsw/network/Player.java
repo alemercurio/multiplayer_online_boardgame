@@ -20,6 +20,8 @@ import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Player implements Runnable {
     private final int ID;
@@ -30,7 +32,7 @@ public class Player implements Runnable {
 
     private Game game;
     private PlayerBoard playerBoard;
-    private boolean isActive;
+    private final AtomicBoolean isActive = new AtomicBoolean(false);
     private boolean hasEnded;
 
     public Player(int ID,Socket client) throws IOException {
@@ -72,7 +74,8 @@ public class Player implements Runnable {
                     break;
             }
 
-            this.isActive = false;
+            //this.isActive = false;
+            this.isActive.set(false);
             this.hasEnded = false;
 
         } while(!msg.equals("esc"));
@@ -83,7 +86,18 @@ public class Player implements Runnable {
         this.messageOut.flush();
     }
 
-    public String receive() { return this.messageIn.nextLine(); }
+    public String receive() {
+        while(true) {
+            String received;
+            try { received = this.messageIn.nextLine(); }
+            catch(Exception e) { return "disconnected"; }
+            if(received.equals("alive")) {
+                this.disconnectCounter.set(3);
+                this.game.isAlive(this);
+            }
+            else return received;
+        }
+    }
 
     private void newGame() {
         String msg;
@@ -155,12 +169,13 @@ public class Player implements Runnable {
     }
 
     public synchronized void setActive() {
-        this.isActive = true;
+        //this.isActive = true;
+        this.isActive.set(true);
         notifyAll();
     }
 
     public synchronized void waitForActive() {
-        while(!this.isActive) {
+        while(!this.isActive.get()) {
             try {
                 wait();
             } catch (InterruptedException e) {
@@ -173,7 +188,7 @@ public class Player implements Runnable {
         this.hasEnded = true;
     }
 
-    public void playGame() {
+    /*public void playGame() {
 
         this.waitForActive();
 
@@ -192,7 +207,7 @@ public class Player implements Runnable {
                 this.game.nextPlayer(this);
             }
         }
-    }
+    }*/
 
     public void playSoloGame() {
 
@@ -653,6 +668,52 @@ public class Player implements Runnable {
             else {
                 this.send("OK");
                 return selected;
+            }
+        }
+    }
+
+
+    // NEW
+
+    private final AtomicInteger disconnectCounter = new AtomicInteger(3);
+
+    public void reduceDisconnectCounter() {
+        if(disconnectCounter.get() == 0) {
+            System.out.println(">> " + this.nickname +  " si è disconnesso...");
+            disconnectCounter.set(-1);
+        }
+        else if(disconnectCounter.get() > 0) this.disconnectCounter.decrementAndGet();
+    }
+
+    private void idle() {
+        while(!this.isActive.get()) {
+            String received = this.messageIn.nextLine();
+            if(received.equals("alive")) {
+                this.disconnectCounter.set(3);
+                this.game.isAlive(this);
+            } else System.out.println("(GAME) >> " + this.nickname + " sent \"" + received + "\" while it was not permitted...");
+        }
+    }
+
+    public void playGame() {
+
+        this.idle();
+
+        this.selectLeader(this.game.getLeaders());
+        this.initialAdvantage();
+
+        this.isActive.set(false);
+
+        this.game.waitForOtherPlayer();
+        this.idle();
+
+        while(!this.hasEnded) {
+            this.idle();
+
+            if(!this.hasEnded) {
+                this.playRound();
+                this.isActive.set(false);
+                this.game.nextPlayer(this);
             }
         }
     }

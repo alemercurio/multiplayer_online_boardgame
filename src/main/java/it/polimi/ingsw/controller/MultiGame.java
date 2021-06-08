@@ -116,7 +116,7 @@ public class MultiGame extends Game {
         return drawn;
     }
 
-    public void waitForOtherPlayer()
+    /*public void waitForOtherPlayer()
     {
         synchronized(this.readyPlayers)
         {
@@ -142,7 +142,7 @@ public class MultiGame extends Game {
                 if (this.playerWithInkwell != null) this.playerWithInkwell.setActive();
             }
         }
-    }
+    }*/
 
     public void start() {
 
@@ -156,6 +156,8 @@ public class MultiGame extends Game {
                 }
             }
         }
+
+        this.run();
 
         Collections.shuffle(this.round);
         this.broadCast(MessageParser.message("update","player",this.getPlayerInfo()));
@@ -211,4 +213,43 @@ public class MultiGame extends Game {
         this.endGame = true;
     }
 
+    // NEW
+
+    private final List<Player> disconnected = new ArrayList<>();
+
+    public void isAlive(Player player) {
+        synchronized(this.disconnected) {
+            disconnected.remove(player);
+        }
+    }
+
+    public void run() {
+
+        this.disconnected.addAll(this.nameTable.keySet());
+        this.broadCastFull("alive?");
+
+        TimerTask controlConnnection = new TimerTask() {
+            @Override
+            public void run() {
+                synchronized(disconnected) {
+                    for(Player player : disconnected) {
+                        player.reduceDisconnectCounter();
+                    }
+                    disconnected.addAll(nameTable.keySet());
+                }
+                broadCastFull("alive?");
+            }
+        };
+
+        Timer t = new Timer(true);
+        t.scheduleAtFixedRate(controlConnnection,1000,2000);
+    }
+
+    public void waitForOtherPlayer()
+    {
+        if(this.readyPlayers.incrementAndGet() == this.numPlayer) {
+            this.playerWithInkwell = this.round.poll();
+            if (this.playerWithInkwell != null) this.playerWithInkwell.setActive();
+        }
+    }
 }

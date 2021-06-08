@@ -72,6 +72,9 @@ public class MessageManager extends Thread {
                     case "action":
                         this.view.showAction(mp.getStringParameter());
                         break;
+                    case "alive?":
+                        this.send("alive");
+                        break;
                     default:
                         this.report(message);
                         break;

@@ -84,4 +84,6 @@ public abstract class Game {
     public static List<LeaderCard> getLeaderDeck() { return new ArrayList<LeaderCard>(Game.leaders); }
     public abstract List<LeaderCard> getLeaders();
     public ResourcePack getAdvantage(Player player) { return new ResourcePack(); }
+
+    public void isAlive(Player player) { }
 }
