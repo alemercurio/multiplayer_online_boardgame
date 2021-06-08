@@ -6,19 +6,21 @@ package it.polimi.ingsw.model.resources;
  * @author Francesco Tosini
  */
 public enum Resource {
-    COIN(false,"Y"),
-    STONE(false,"G"),
-    SERVANT(false,"P"),
-    SHIELD(false,"B"),
-    FAITHPOINT(true,"R"),
-    VOID(true,"W");
+    COIN(false,"Y","coin"),
+    STONE(false,"G","stone"),
+    SERVANT(false,"P","servant"),
+    SHIELD(false,"B","shield"),
+    FAITHPOINT(true,"R","faithmarker"),
+    VOID(true,"W","question");
 
     private final boolean special;
     private final String alias;
+    private final String image;
 
-    Resource(boolean special, String abbreviation) {
+    Resource(boolean special, String abbreviation, String image) {
         this.special = special;
         this.alias = abbreviation;
+        this.image = image;
     }
 
     /**
@@ -48,5 +50,9 @@ public enum Resource {
             if(res.alias.equals(alias)) return res;
         }
         return Resource.VOID;
+    }
+
+    public String getImage() {
+        return "/PNG/punchboard/"+this.image+".png";
     }
 }

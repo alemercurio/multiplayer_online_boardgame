@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.AdvantageSceneController">
+   <children>
+      <ImageView fitHeight="658.0" fitWidth="1292.0" layoutX="-10.0" layoutY="-7.0" pickOnBounds="true">
+         <image>
+            <Image url="@../PNG/board/playerboardbw.png" />
+         </image>
+      </ImageView>
+      <Label alignment="CENTER" layoutX="330.0" layoutY="196.0" prefHeight="44.0" prefWidth="646.0" stylesheets="@../CSS/actionMenuButton.css" text="This is your initial advantage...">
+         <font>
+            <Font size="38.0" />
+         </font>
+      </Label>
+      <Label fx:id="text" alignment="CENTER" layoutX="495.0" layoutY="272.0" prefHeight="46.0" prefWidth="293.0" stylesheets="@../CSS/actionMenuButton.css" textAlignment="CENTER">
+         <font>
+            <Font size="30.0" />
+         </font>
+      </Label>
+      <ImageView fx:id="coin" fitHeight="84.0" fitWidth="141.0" layoutX="274.0" layoutY="410.0" onMouseClicked="#chooseCoin" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/coin.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="shield" fitHeight="99.0" fitWidth="124.0" layoutX="465.0" layoutY="398.0" onMouseClicked="#chooseShield" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/shield.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="servant" fitHeight="94.0" fitWidth="104.0" layoutX="685.0" layoutY="397.0" onMouseClicked="#chooseServant" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/servant.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="stone" fitHeight="91.0" fitWidth="101.0" layoutX="857.0" layoutY="402.0" onMouseClicked="#chooseStone" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/stone.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="inkwell" fitHeight="150.0" fitWidth="200.0" layoutX="571.0" layoutY="352.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/calamaio.png" />
+         </image>
+      </ImageView>
+      <TextField fx:id="numServantText" alignment="CENTER" editable="false" layoutX="720.0" layoutY="517.0" prefHeight="25.0" prefWidth="40.0" text="1">
+         <font>
+            <Font name="Copperplate Gothic Light" size="12.0" />
+         </font>
+      </TextField>
+      <TextField fx:id="numShieldText" alignment="CENTER" editable="false" layoutX="483.0" layoutY="517.0" prefHeight="25.0" prefWidth="40.0" text="1">
+         <font>
+            <Font name="Copperplate Gothic Light" size="12.0" />
+         </font>
+      </TextField>
+      <TextField fx:id="numCoinText" alignment="CENTER" editable="false" layoutX="310.0" layoutY="517.0" prefHeight="25.0" prefWidth="40.0" text="1">
+         <font>
+            <Font name="Copperplate Gothic Light" size="12.0" />
+         </font>
+      </TextField>
+      <TextField fx:id="numStoneText" alignment="CENTER" editable="false" layoutX="889.0" layoutY="517.0" prefHeight="25.0" prefWidth="40.0" text="1">
+         <font>
+            <Font name="Copperplate Gothic Light" size="12.0" />
+         </font>
+      </TextField>
+   </children>
+</AnchorPane>

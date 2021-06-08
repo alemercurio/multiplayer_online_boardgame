@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.GameStartSceneController">
+   <children>
+      <ImageView fitHeight="658.0" fitWidth="1292.0" layoutX="-10.0" layoutY="-7.0" pickOnBounds="true">
+         <image>
+            <Image url="@../PNG/board/playerboardbw.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="leader1" fitHeight="287.0" fitWidth="209.0" layoutX="160.0" layoutY="293.0" onMouseClicked="#choose1" pickOnBounds="true" preserveRatio="true" />
+      <Label layoutX="335.0" layoutY="193.0" prefHeight="44.0" prefWidth="573.0" stylesheets="@../CSS/actionMenuButton.css" text="Choose your two Leaders!">
+         <font>
+            <Font size="38.0" />
+         </font>
+      </Label>
+      <Label layoutX="481.0" layoutY="144.0" prefHeight="44.0" prefWidth="302.0" stylesheets="@../CSS/actionMenuButton.css" text="Game Starts...">
+         <font>
+            <Font size="38.0" />
+         </font>
+      </Label>
+      <ImageView fx:id="leader2" fitHeight="287.0" fitWidth="209.0" layoutX="415.0" layoutY="293.0" onMouseClicked="#choose2" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="leader4" fitHeight="287.0" fitWidth="209.0" layoutX="945.0" layoutY="293.0" onMouseClicked="#choose4" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="leader3" fitHeight="287.0" fitWidth="209.0" layoutX="680.0" layoutY="293.0" onMouseClicked="#choose3" pickOnBounds="true" preserveRatio="true" />
+   </children>
+</AnchorPane>

@@ -11,6 +11,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
 <AnchorPane prefHeight="650.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.PlayerBoardSceneController">
@@ -23,7 +24,7 @@
       <ImageView fx:id="card1" fitHeight="304.0" fitWidth="190.0" layoutX="515.0" layoutY="282.0" pickOnBounds="true" preserveRatio="true" />
       <ImageView fx:id="card2" fitHeight="304.0" fitWidth="190.0" layoutX="760.0" layoutY="282.0" pickOnBounds="true" preserveRatio="true" />
       <ImageView fx:id="card3" fitHeight="304.0" fitWidth="190.0" layoutX="1010.0" layoutY="282.0" pickOnBounds="true" preserveRatio="true" />
-      <ImageView fx:id="faithmarker" fitHeight="44.0" fitWidth="56.0" layoutX="55.0" layoutY="126.0" onMouseClicked="#update" pickOnBounds="true" preserveRatio="true">
+      <ImageView fx:id="faithmarker" fitHeight="44.0" fitWidth="56.0" layoutX="55.0" layoutY="126.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../PNG/punchboard/faithmarker.png" />
          </image>
@@ -79,37 +80,13 @@
             </MenuBar>
          </top>
       </BorderPane>
-      <ImageView fitHeight="54.0" fitWidth="52.0" layoutX="144.0" layoutY="276.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@../PNG/punchboard/coin.png" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="54.0" fitWidth="52.0" layoutX="113.0" layoutY="339.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@../PNG/punchboard/servant.png" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="54.0" fitWidth="52.0" layoutX="165.0" layoutY="339.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@../PNG/punchboard/servant.png" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="54.0" fitWidth="52.0" layoutX="90.0" layoutY="393.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@../PNG/punchboard/shield.png" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="54.0" fitWidth="52.0" layoutX="145.0" layoutY="393.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@../PNG/punchboard/shield.png" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="54.0" fitWidth="52.0" layoutX="197.0" layoutY="393.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@../PNG/punchboard/shield.png" />
-         </image>
-      </ImageView>
-      <TextField alignment="CENTER_RIGHT" editable="false" layoutX="92.0" layoutY="504.0" prefHeight="25.0" prefWidth="40.0" text="1">
+      <ImageView fx:id="first" fitHeight="54.0" fitWidth="52.0" layoutX="144.0" layoutY="276.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="secondA" fitHeight="54.0" fitWidth="52.0" layoutX="113.0" layoutY="339.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="secondB" fitHeight="54.0" fitWidth="52.0" layoutX="165.0" layoutY="339.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="thirdA" fitHeight="54.0" fitWidth="52.0" layoutX="90.0" layoutY="393.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="thirdB" fitHeight="54.0" fitWidth="52.0" layoutX="145.0" layoutY="393.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="thirdC" fitHeight="54.0" fitWidth="52.0" layoutX="197.0" layoutY="393.0" pickOnBounds="true" preserveRatio="true" />
+      <TextField fx:id="storedCoins" alignment="CENTER_RIGHT" editable="false" layoutX="92.0" layoutY="504.0" prefHeight="25.0" prefWidth="40.0" text="0">
          <font>
             <Font name="Copperplate Gothic Light" size="12.0" />
          </font></TextField>
@@ -118,7 +95,7 @@
             <Image url="@../PNG/punchboard/coin.png" />
          </image>
       </ImageView>
-      <TextField alignment="CENTER_RIGHT" editable="false" layoutX="92.0" layoutY="570.0" prefHeight="25.0" prefWidth="40.0" text="1">
+      <TextField fx:id="storedServants" alignment="CENTER_RIGHT" editable="false" layoutX="92.0" layoutY="570.0" prefHeight="25.0" prefWidth="40.0" text="0">
          <font>
             <Font name="Copperplate Gothic Light" size="12.0" />
          </font></TextField>
@@ -127,7 +104,7 @@
             <Image url="@../PNG/punchboard/servant.png" />
          </image>
       </ImageView>
-      <TextField editable="false" layoutX="160.0" layoutY="504.0" prefHeight="25.0" prefWidth="40.0" text="1">
+      <TextField fx:id="storedShields" editable="false" layoutX="160.0" layoutY="504.0" prefHeight="25.0" prefWidth="40.0" text="0">
          <font>
             <Font name="Copperplate Gothic Light" size="12.0" />
          </font></TextField>
@@ -136,11 +113,62 @@
             <Image url="@../PNG/punchboard/shield.png" />
          </image>
       </ImageView>
-      <TextField editable="false" layoutX="160.0" layoutY="570.0" prefHeight="25.0" prefWidth="40.0" text="1">
+      <TextField fx:id="storedStones" editable="false" layoutX="160.0" layoutY="570.0" prefHeight="25.0" prefWidth="40.0" text="0">
          <font>
             <Font name="Copperplate Gothic Light" size="12.0" />
          </font></TextField>
       <ImageView fitHeight="54.0" fitWidth="52.0" layoutX="185.0" layoutY="556.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/stone.png" />
+         </image>
+      </ImageView>
+      <Label fx:id="pendingBar" alignment="CENTER" layoutX="289.0" layoutY="192.0" prefHeight="42.0" prefWidth="209.0" stylesheets="@../CSS/actionMenuButton.css" text="Pending Resources" textAlignment="CENTER">
+         <font>
+            <Font name="Copperplate Gothic Bold" size="18.0" />
+         </font>
+      </Label>
+      <Rectangle fx:id="pendingArea" arcHeight="5.0" arcWidth="5.0" fill="#30373c" height="193.0" layoutX="306.0" layoutY="234.0" stroke="BLACK" strokeType="INSIDE" width="177.0" />
+      <Button fx:id="pendingDone" layoutX="307.0" layoutY="387.0" mnemonicParsing="false" onKeyPressed="#discardResources" prefHeight="39.0" prefWidth="176.0" stylesheets="@../CSS/actionMenuButton.css" text="Done!">
+         <font>
+            <Font name="Copperplate Gothic Light" size="12.0" />
+         </font>
+      </Button>
+      <TextField fx:id="pendingCoins" alignment="CENTER_RIGHT" editable="false" layoutX="346.0" layoutY="263.0" prefHeight="25.0" prefWidth="40.0" style="-fx-background-color: red; -fx-text-fill: white;" text="0">
+         <font>
+            <Font name="Copperplate Gothic Light" size="12.0" />
+         </font>
+      </TextField>
+      <TextField fx:id="pendingServants" alignment="CENTER_RIGHT" editable="false" layoutX="346.0" layoutY="325.0" prefHeight="25.0" prefWidth="40.0" style="-fx-background-color: red; -fx-text-fill: white;" text="0">
+         <font>
+            <Font name="Copperplate Gothic Light" size="12.0" />
+         </font>
+      </TextField>
+      <TextField fx:id="pendingShields" editable="false" layoutX="404.0" layoutY="263.0" prefHeight="25.0" prefWidth="40.0" style="-fx-background-color: red; -fx-text-fill: white;" text="0">
+         <font>
+            <Font name="Copperplate Gothic Light" size="12.0" />
+         </font>
+      </TextField>
+      <TextField fx:id="pendingStones" editable="false" layoutX="404.0" layoutY="325.0" prefHeight="25.0" prefWidth="40.0" style="-fx-background-color: red; -fx-text-fill: white;" text="0">
+         <font>
+            <Font name="Copperplate Gothic Light" size="12.0" />
+         </font>
+      </TextField>
+      <ImageView fx:id="coin" fitHeight="36.0" fitWidth="49.0" layoutX="322.0" layoutY="256.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/coin.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="shield" fitHeight="47.0" fitWidth="42.0" layoutX="424.0" layoutY="250.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/shield.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="servant" fitHeight="45.0" fitWidth="49.0" layoutX="320.0" layoutY="316.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/servant.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="stone" fitHeight="57.0" fitWidth="49.0" layoutX="419.0" layoutY="319.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../PNG/punchboard/stone.png" />
          </image>

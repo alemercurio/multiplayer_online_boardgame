@@ -46,6 +46,7 @@ public class GuiApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        GuiView.getGuiView().setGuiApp(this);
         window = primaryStage;
         try {
             Scene scene = new Scene(createContent());
@@ -77,6 +78,7 @@ public class GuiApp extends Application {
             }),
             new Pair<String, Runnable>("Join Game", () -> {
                 gameChoice = "join";
+                GuiView.getGuiView().event(ViewEvent.GAMEMODE, "join");
                 setMenu(mainMenuBox, nicknameChoice);
                 showNicknameField();
             }),
@@ -84,7 +86,10 @@ public class GuiApp extends Application {
             new Pair<String, Runnable>("Bonus Content", () -> {}),
             new Pair<String, Runnable>("Rules", () -> {}),
             new Pair<String, Runnable>("Credits", () -> {}),
-            new Pair<String, Runnable>("Exit", Platform::exit)
+            new Pair<String, Runnable>("Exit", () -> {
+                GuiView.getGuiView().event(ViewEvent.GAMEMODE, "esc");
+                Platform.exit();
+            })
     );
 
     private List<Pair<String, Runnable>> newGameMenuFields = Arrays.asList(
@@ -103,7 +108,11 @@ public class GuiApp extends Application {
 
     private List<Pair<String, Runnable>> soloModeChoices = Arrays.asList(
             new Pair<String, Runnable>("Offline", () -> setSoloMode("off")),
-            new Pair<String, Runnable>("Online", () -> setSoloMode("on")),
+            new Pair<String, Runnable>("Online", () -> {
+                setSoloMode("on");
+                GuiView.getGuiView().event(ViewEvent.NUMBER_OF_PLAYERS, 1);
+                showScene("/FXML/waitingscreen.fxml");
+            }),
             new Pair<String, Runnable>("Back", () -> setMenu(soloModeChoice, newGameMenuBox))
     );
 
@@ -230,10 +239,11 @@ public class GuiApp extends Application {
                 nickname = answer.getText();
                 if(gameChoice.equals("join")) {
                     removeFromRoot(nicknameField);
-                    showWaitingScreen();
+                    showScene("/FXML/waitingscreen.fxml");
                 }
                 else if(gameChoice.equals("new")) {
                     removeFromRoot(nicknameField);
+                    GuiView.getGuiView().event(ViewEvent.NICKNAME, nickname);
                     setMenu(nicknameChoice, newGameMenuBox);
                 }
             }
@@ -244,6 +254,8 @@ public class GuiApp extends Application {
 
     private void setNumPlayers(int players) {
         numPlayers = players;
+        GuiView.getGuiView().event(ViewEvent.NUMBER_OF_PLAYERS, players);
+        showScene("/FXML/waitingscreen.fxml");
     }
 
     private void setSoloMode(String mode) {
@@ -252,7 +264,17 @@ public class GuiApp extends Application {
         }
     }
 
-    private void showWaitingScreen() {
+    public void showScene(String fxml) {
+        try {
+            Parent screen = FXMLLoader.load(getClass().getResource(fxml));
+            Scene scene = new Scene(screen);
+            window.setScene(scene);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showPlayerboard() {
         try {
             GuiView.getGuiView().devCardStack.test();
             Parent playerBoard = FXMLLoader.load(getClass().getResource("/FXML/playerboard.fxml"));

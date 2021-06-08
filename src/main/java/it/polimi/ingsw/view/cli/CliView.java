@@ -173,7 +173,7 @@ public class CliView implements View {
 
     @Override
     public void showInitialAdvantage(ResourcePack advantage) {
-        if(advantage.isEmpty()) System.out.println(">> You received nothing as your initial advantage!");
+        if(advantage.isEmpty()) System.out.println(">> You received the Inkwell! You will be the first player!");
         else {
             System.out.print(">> You received: ");
             Screen.print(advantage);

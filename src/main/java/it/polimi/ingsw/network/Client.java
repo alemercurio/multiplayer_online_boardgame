@@ -48,7 +48,6 @@ public class Client implements Runnable {
         do {
 
             msg = this.view.selectGame();
-            System.out.println(msg);
 
             switch(msg) {
                 case "new":

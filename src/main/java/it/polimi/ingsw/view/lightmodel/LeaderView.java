@@ -2,12 +2,12 @@ package it.polimi.ingsw.view.lightmodel;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import it.polimi.ingsw.model.cards.LeaderCard;
-import it.polimi.ingsw.model.cards.LeaderStack;
-import it.polimi.ingsw.model.cards.Power;
+import it.polimi.ingsw.model.cards.*;
+import it.polimi.ingsw.model.resources.Resource;
 import it.polimi.ingsw.util.Screen;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import javafx.scene.image.Image;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +28,44 @@ public class LeaderView implements Observable {
 
         for(InvalidationListener observer : this.observers)
             observer.invalidated(this);
+    }
+
+    public void showChoices(List<LeaderCard> leaders) {
+        this.leaders = new LeaderStack();
+        this.leaders.addLeaders(leaders);
+
+        for(InvalidationListener observer : this.observers) {
+            observer.invalidated(this);
+        }
+    }
+
+    public LeaderCard getCard(int index) {
+        return leaders.getInactiveLeader(index);
+    }
+
+    public Image getImageForCard(LeaderCard card) {
+        String url = null;
+        if(card.getReqDevCards().isEmpty()) {
+            for(Resource res : Resource.values()) {
+                int amount = card.getReqResources().get(res);
+                if (amount != 0) {
+                    url = String.format("/PNG/cardfront/LeaderCardFront%s%d.png", res.getAlias(), amount);
+                }
+            }
+        }
+        else {
+            StringBuilder colors = new StringBuilder();
+            for(Color color : Color.values()) {
+                for(int i=1; i<=3; i++) {
+                    int amount = card.getReqDevCards().get(color, i);
+                    if(amount>0) {
+                        colors.append(color.getAlias()).append(amount);
+                    }
+                }
+            }
+            url = String.format("/PNG/cardfront/LeaderCardFront%s.png", colors);
+        }
+        return new Image(url);
     }
 
     public void printActive() {
