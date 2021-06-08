@@ -4,6 +4,11 @@ import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.resources.Production;
 import it.polimi.ingsw.model.resources.Resource;
 import it.polimi.ingsw.model.resources.ResourcePack;
+import it.polimi.ingsw.model.singleplayer.SoloAction;
+import it.polimi.ingsw.model.singleplayer.SoloCross;
+import it.polimi.ingsw.model.singleplayer.SoloDiscard;
+
+import java.util.Map;
 
 public class Screen {
 
@@ -187,7 +192,6 @@ public class Screen {
     }
 
     public static void print(DevelopmentCard devCard) {
-
         System.out.print("{ ");
         Screen.print(devCard.getColor());
         System.out.print(" level " + devCard.getLevel() + " } cost:");
@@ -195,5 +199,20 @@ public class Screen {
         System.out.print(" production: ");
         Screen.print(devCard.getProduction());
         System.out.print(" PV: " + devCard.getPoints());
+    }
+
+    public static void print(SoloCross soloCross) {
+        Screen.setColor(237);
+        System.out.print("+" + soloCross.getFaithPoints() + " \u2670");
+        Screen.reset();
+        if(soloCross.toShuffle()) System.out.print(" \u2672");
+    }
+
+    public static void print(SoloDiscard soloDiscard) {
+        for(Map.Entry<Color,Integer> toDiscard : soloDiscard.getToDiscard().entrySet()) {
+            System.out.print("-" + toDiscard.getValue() + "\u00d7");
+            Screen.print(toDiscard.getKey());
+            System.out.print(" ");
+        }
     }
 }

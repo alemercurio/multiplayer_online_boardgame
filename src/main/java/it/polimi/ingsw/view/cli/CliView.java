@@ -1,12 +1,18 @@
 package it.polimi.ingsw.view.cli;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import it.polimi.ingsw.controller.Action;
 import it.polimi.ingsw.controller.GameEvent;
+import it.polimi.ingsw.model.cards.Color;
 import it.polimi.ingsw.model.cards.LeaderCard;
 import it.polimi.ingsw.model.cards.StockPower;
 import it.polimi.ingsw.model.resources.NonConsumablePackException;
 import it.polimi.ingsw.model.resources.Resource;
 import it.polimi.ingsw.model.resources.ResourcePack;
+import it.polimi.ingsw.model.singleplayer.SoloCross;
+import it.polimi.ingsw.model.singleplayer.SoloDiscard;
 import it.polimi.ingsw.util.Screen;
 import it.polimi.ingsw.view.*;
 import it.polimi.ingsw.controller.Error;
@@ -28,6 +34,8 @@ public class CliView implements View {
     public PlayerBoardView playerBoard = new PlayerBoardView();
 
     private static View cliView;
+    private boolean gameEvent = true;
+    private final Map<GameEvent,String> gameEventCache = new HashMap<>();
 
     public static View getCliView() {
         if(cliView == null) cliView = new CliView();
@@ -35,14 +43,41 @@ public class CliView implements View {
     }
 
     @Override
-    public void throwEvent(GameEvent event) {
+    public void throwEvent(GameEvent event,String eventData) {
+        if(!this.gameEvent) {
+            synchronized(this.gameEventCache) {
+                this.gameEventCache.put(event,eventData);
+            }
+        }
+        else this.showEvent(event,eventData);
+    }
+
+    private void showEvent(GameEvent event,String eventData) {
         switch(event) {
+            case PLAYER_JOIN:
+                System.out.println("\t>> " + eventData + " joins the game.");
+                break;
+
+            case JOINED_GAME:
+                this.players.printPlayers();
+                break;
+
+            case PLAYER_DISCONNECT:
+                Screen.setColor(197);
+                System.out.println(">> " + eventData + " has disconnected.");
+                Screen.reset();
+                break;
+
             case POPE_FAVOUR:
                 Screen.setColor(105);
                 System.out.println("\n>> REPORT SECTION REACHED!");
                 Screen.reset();
                 this.faithTrack.print();
                 System.out.print("\n\n");
+                break;
+
+            case ROUND:
+                System.out.println("\n>> it is " + eventData + "'s round");
                 break;
 
             case GAME_START:
@@ -52,8 +87,29 @@ public class CliView implements View {
     }
 
     @Override
+    public void disableGameEvent() {
+        this.gameEvent = false;
+    }
+
+    @Override
+    public void enableGameEvent() {
+        this.flushGameEvent();
+        this.gameEvent = true;
+    }
+
+    @Override
+    public void flushGameEvent() {
+        synchronized(this.gameEventCache) {
+            for(Map.Entry<GameEvent,String> event : this.gameEventCache.entrySet()) {
+                this.showEvent(event.getKey(),event.getValue());
+            }
+            this.gameEventCache.clear();
+        }
+    }
+
+    @Override
     public void tell(String message) {
-        System.out.println("\t" + message);
+        System.out.println(">> " + message);
     }
 
     @Override
@@ -96,7 +152,7 @@ public class CliView implements View {
 
         while(true) {
 
-            System.out.print(">> ");
+            System.out.print("(new|join) >> ");
 
             String msg = input.nextLine();
 
@@ -129,9 +185,8 @@ public class CliView implements View {
 
     @Override
     public void gameStart() {
-        System.out.println(">> Game starts!");
+        System.out.println("\n>> Game starts!");
         this.players.printPlayers();
-        System.out.print("\n");
     }
 
     @Override
@@ -177,13 +232,88 @@ public class CliView implements View {
         else {
             System.out.print(">> You received: ");
             Screen.print(advantage);
-            System.out.println(" as your initial advantage!");
+            System.out.println(" as your initial advantage!\n");
         }
     }
 
     @Override
-    public void showAction(String action) {
-        System.out.println(">> " + action);
+    public void showAction(String...actionData) {
+
+        Gson parser = new Gson();
+        Action action;
+
+        try { action = Action.valueOf(actionData[0]); }
+        catch(Exception e) {
+            this.showError(Error.UNKNOWN_ERROR);
+            return;
+        }
+
+        switch(action) {
+            case SOLO_ACTION:
+                if(actionData.length < 2) {
+                    this.showError(Error.UNKNOWN_ERROR);
+                    return;
+                }
+                System.out.print("\n>> Lorenzo il Magnifico: ");
+                JsonObject data = parser.fromJson(actionData[1],JsonElement.class).getAsJsonObject();
+                if(data.get("type").getAsString().equals("SoloCross"))
+                    Screen.print(parser.fromJson(data.get("description"),SoloCross.class));
+                else Screen.print(parser.fromJson(data.get("description"),SoloDiscard.class));
+                System.out.print("\n");
+                break;
+
+            case PLAY_LEADER:
+                if(actionData.length < 2) {
+                    this.showError(Error.UNKNOWN_ERROR);
+                    return;
+                }
+                System.out.println("\t>> " + actionData[1] + " plays a leader.");
+                break;
+
+            case DISCARD_LEADER:
+                if(actionData.length < 2) {
+                    this.showError(Error.UNKNOWN_ERROR);
+                    return;
+                }
+                System.out.println("\t>> " + actionData[1] + " discards a leader.");
+                break;
+
+            case BUY_DEVELOPMENT_CARD:
+                if(actionData.length < 4) {
+                    this.showError(Error.UNKNOWN_ERROR);
+                    return;
+                }
+                System.out.print("\t>> " + actionData[1] + " buys a ");
+                Screen.print(Color.valueOf(actionData[2]));
+                System.out.println("\u00d7" + actionData[3] + " Development Card.");
+                break;
+
+            case TAKE_RESOURCES:
+                if(actionData.length < 3) {
+                    this.showError(Error.UNKNOWN_ERROR);
+                    return;
+                }
+                System.out.print("\t>> " + actionData[1] + " takes this resources ");
+                Screen.print(ResourcePack.fromString(actionData[2]));
+                System.out.println(" from the market.");
+                break;
+
+            case WASTED_RESOURCES:
+                if(actionData.length < 3) {
+                    this.showError(Error.UNKNOWN_ERROR);
+                    return;
+                }
+                System.out.println("\t>> " + actionData[1] + " wastes " + actionData[2] + " resources.");
+                break;
+
+            case ACTIVATE_PRODUCTION:
+                if(actionData.length < 2) {
+                    this.showError(Error.UNKNOWN_ERROR);
+                    return;
+                }
+                System.out.println("\t>> " + actionData[1] + " activates production");
+                break;
+        }
     }
 
     @Override
@@ -267,7 +397,7 @@ public class CliView implements View {
 
                 } else Screen.printError("Please, specify what you want to see!");
             }
-            else if(order.matches("[rbplh]")) {
+            else if(order.matches("[rbplht]")) {
 
                 switch(order.charAt(0)) {
 
@@ -291,6 +421,9 @@ public class CliView implements View {
                         System.out.println("\tL) Play or Discard a LeaderCard.");
                         System.out.println("You can also use \"show\"\n");
                         break;
+
+                    case 't':
+                        return "test";
                 }
 
             } else Screen.printError("It seems that you have choose an invalid option... please try again!");
@@ -805,6 +938,18 @@ public class CliView implements View {
             }
 
         } while(true);
+    }
+
+    @Override
+    public boolean playLeaderAction() {
+        Scanner input = new Scanner(System.in);
+        while(true) {
+            System.out.print("\nDo you want to play a Leader action? (Y|N) <<  ");
+            String answer = input.nextLine().toUpperCase();
+            if(answer.matches("[ ]*Y[ ]*")) return true;
+            else if(answer.matches("[ ]*N[ ]*")) return false;
+            else this.showError(Error.INVALID_SELECTION);
+        }
     }
 
     @Override

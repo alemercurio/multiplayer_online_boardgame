@@ -218,6 +218,10 @@ public class PlayerBoard
         else return false;
     }
 
+    public int pendingResources() {
+        return this.storage.warehouse.getPendingResources().size();
+    }
+
     public int done()
     {
         int wasted = this.storage.warehouse.done();

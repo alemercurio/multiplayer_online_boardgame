@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view;
 
+import it.polimi.ingsw.controller.Action;
 import it.polimi.ingsw.controller.Error;
 import it.polimi.ingsw.controller.GameEvent;
 import it.polimi.ingsw.model.cards.LeaderCard;
@@ -9,7 +10,13 @@ import java.util.List;
 
 public interface View {
 
-    void throwEvent(GameEvent event);
+    void throwEvent(GameEvent event,String eventData);
+
+    void disableGameEvent();
+
+    void enableGameEvent();
+
+    void flushGameEvent();
 
     void tell(String message);
 
@@ -33,7 +40,7 @@ public interface View {
 
     void showInitialAdvantage(ResourcePack advantage);
 
-    void showAction(String action);
+    void showAction(String...actionData);
 
     String selectAction();
 
@@ -60,6 +67,8 @@ public interface View {
     ResourcePack selectResources(int amount);
 
     ResourcePack selectFreeRequirement(int amount);
+
+    boolean playLeaderAction();
 
     void gameEnd();
 

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.util;
 
+import it.polimi.ingsw.controller.Action;
 import it.polimi.ingsw.controller.GameEvent;
 import it.polimi.ingsw.view.View;
 
@@ -61,11 +62,23 @@ public class MessageManager extends Thread {
                 message = this.messageIn.nextLine();
                 mp.parse(message);
 
-                if(mp.getOrder().equals("update"))
-                    this.view.update(mp.getStringParameter(0),mp.getStringParameter(1));
-                else if(mp.getOrder().equals("event"))
-                    this.view.throwEvent(GameEvent.valueOf(mp.getStringParameter(0)));
-                else this.report(message);
+                switch (mp.getOrder()) {
+                    case "update":
+                        this.view.update(mp.getStringParameter(0), mp.getStringParameter(1));
+                        break;
+                    case "event":
+                        this.view.throwEvent(GameEvent.valueOf(mp.getStringParameter(0)),mp.getStringParameter(1));
+                        break;
+                    case "action":
+                        this.view.showAction(mp.getStringParameter());
+                        break;
+                    case "alive?":
+                        this.send("alive");
+                        break;
+                    default:
+                        this.report(message);
+                        break;
+                }
             }
         }
         catch(NoSuchElementException ignored) { }

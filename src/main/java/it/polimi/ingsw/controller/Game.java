@@ -40,7 +40,7 @@ public abstract class Game {
 
     public synchronized static Game newGame(Player creator, String nickname, int numPlayer) {
         if(numPlayer > 1) {
-            MultiGame game = new MultiGame(creator, nickname, numPlayer);
+            MultiGame game = new MultiGame(creator,numPlayer);
             Game.newGames.add(game);
             return game;
         }
@@ -66,15 +66,7 @@ public abstract class Game {
 
     public void broadCastFull(String message) { }
 
-    public abstract boolean nameAvailable(String name);
-
-    public abstract boolean setNickname(Player player,String name);
-
-    public abstract String getNickname(Player player);
-
-    public abstract void start();
-
-    public abstract void nextPlayer(Player player);
+    public abstract void nextPlayer();
 
     public abstract void endGame();
 
@@ -84,4 +76,7 @@ public abstract class Game {
     public static List<LeaderCard> getLeaderDeck() { return new ArrayList<LeaderCard>(Game.leaders); }
     public abstract List<LeaderCard> getLeaders();
     public ResourcePack getAdvantage(Player player) { return new ResourcePack(); }
+
+    public void isAlive(Player player) { }
+    public void hasDisconnected(Player player) { }
 }

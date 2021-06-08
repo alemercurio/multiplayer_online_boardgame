@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view.gui;
 
+import it.polimi.ingsw.controller.Action;
 import it.polimi.ingsw.model.cards.LeaderCard;
 import it.polimi.ingsw.model.resources.ResourcePack;
 import it.polimi.ingsw.view.lightmodel.*;
@@ -50,7 +51,22 @@ public class GuiView implements View {
     }
 
     @Override
-    public void throwEvent(GameEvent event) {
+    public void throwEvent(GameEvent event,String eventData) {
+
+    }
+
+    @Override
+    public void disableGameEvent() {
+
+    }
+
+    @Override
+    public void enableGameEvent() {
+
+    }
+
+    @Override
+    public void flushGameEvent() {
 
     }
 
@@ -131,7 +147,7 @@ public class GuiView implements View {
     }
 
     @Override
-    public void showAction(String action) {
+    public void showAction(String...actionData) {
 
     }
 
@@ -235,6 +251,11 @@ public class GuiView implements View {
             while (!eventHandler.containsKey(ViewEvent.FREE_REQUIREMENT)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
         return (ResourcePack) eventHandler.remove(ViewEvent.FREE_REQUIREMENT);
+    }
+
+    @Override
+    public boolean playLeaderAction() {
+        return false;
     }
 
     @Override

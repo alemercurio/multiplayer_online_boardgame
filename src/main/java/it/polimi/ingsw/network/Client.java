@@ -30,43 +30,6 @@ public class Client implements Runnable {
         this.view = view;
     }
 
-    public void run() {
-
-        this.message.start();
-
-        String msg;
-        MessageParser mp = new MessageParser();
-
-        mp.parse(this.message.receive());
-        if(!mp.getOrder().equals("welcome"))
-            System.out.println(">> Unable to be welcomed..");
-        else {
-            this.view.setID(mp.getIntParameter(0));
-            System.out.println(">> Successfully connected..");
-        }
-
-        do {
-
-            msg = this.view.selectGame();
-
-            switch(msg) {
-                case "new":
-                    this.newGame();
-                    break;
-                case "join":
-                    this.joinGame();
-                    break;
-            }
-
-        } while(!msg.equals("esc"));
-
-        try {
-            this.message.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static void main(String[] args) {
 
         Client client = new Client();
@@ -98,18 +61,71 @@ public class Client implements Runnable {
         client.run();
     }
 
+    public void run() {
+
+        this.message.start();
+
+        String msg;
+        MessageParser mp = new MessageParser();
+
+        mp.parse(this.message.receive());
+        if(!mp.getOrder().equals("welcome")) {
+            System.out.println(">> Unable to be welcomed..");
+            return;
+        }
+        else {
+            this.view.setID(mp.getIntParameter(0));
+            System.out.println(">> Successfully connected..");
+        }
+
+        this.login();
+
+        do {
+
+            msg = this.view.selectGame();
+
+            switch(msg) {
+                case "new":
+                    this.newGame();
+                    break;
+                case "join":
+                    this.joinGame();
+                    break;
+            }
+
+        } while(!msg.equals("esc"));
+
+        try {
+            this.message.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void login() {
+        while(true) {
+            this.message.send(MessageParser.message("login",this.view.selectNickname()));
+            String answer = this.message.receive();
+
+            switch(answer) {
+                case "InvalidOption":
+                    this.view.showError(Error.UNKNOWN_ERROR);
+                    break;
+                case "nameAlreadyTaken":
+                    this.view.showError(Error.NICKNAME_TAKEN);
+                    break;
+                case "OK":
+                    return;
+            }
+        }
+    }
+
     public void newGame() {
         String answer;
 
         this.message.send("NewGame");
         if(!this.message.receive().equals("OK")) {
             this.view.showError(Error.UNABLE_TO_START_A_NEW_GAME);
-            return;
-        }
-
-        this.message.send(MessageParser.message("setNickname",this.view.selectNickname()));
-        if(!this.message.receive().equals("OK")) {
-            this.view.showError(Error.INVALID_NICKNAME);
             return;
         }
 
@@ -127,22 +143,11 @@ public class Client implements Runnable {
     }
 
     public void joinGame() {
-
         this.message.send("JoinGame");
 
         if(!this.message.receive().equals("OK")) {
             this.view.tell("No game available!");
-            return;
-        }
-
-        this.message.send(MessageParser.message("setNickname",this.view.selectNickname()));
-
-        while(!this.message.receive().equals("WAIT")) {
-            this.view.showError(Error.NICKNAME_TAKEN);
-            this.message.send(MessageParser.message("setNickname",this.view.selectNickname()));
-        }
-
-        this.playGame();
+        } else this.playGame();
     }
 
     public void selectLeader() {
@@ -152,8 +157,7 @@ public class Client implements Runnable {
 
         mp.parse(this.message.receive());
 
-        if(!mp.getOrder().equals("selectLeader"))
-        {
+        if(!mp.getOrder().equals("selectLeader")) {
             this.view.showError(Error.UNKNOWN_ERROR);
             return;
         }
@@ -219,7 +223,6 @@ public class Client implements Runnable {
 
         String answer;
 
-        this.view.fancyTell("Waiting for other players!");
         do { answer = this.message.receive(); } while(!answer.equals("GameStart"));
         this.view.gameStart();
 
@@ -232,34 +235,52 @@ public class Client implements Runnable {
             do {
                 answer = this.message.receive();
                 if(answer.equals("GameEnd")) active = false;
-                else if(!answer.equals("PLAY")) this.view.showAction(answer);
+                else if(!answer.equals("PLAY")) this.view.showError(Error.UNKNOWN_ERROR);
             } while(!answer.equals("PLAY") && active);
 
             if(answer.equals("PLAY")) {
 
                 boolean endRound = true;
+                this.view.disableGameEvent();
+
                 do {
                     switch(this.view.selectAction()) {
 
                         case "buyDevCard":
                             this.message.send("buyDevCard");
                             endRound = this.buyDevelopmentCard();
+                            this.view.flushGameEvent();
+                            if(endRound && this.view.playLeaderAction()) {
+                                this.message.send("leader");
+                                this.leaderAction();
+                            } else this.message.send("pass");
                             break;
 
                         case "takeResources":
                             this.message.send("takeResources");
                             endRound = this.takeResources();
+                            this.view.flushGameEvent();
+                            if(endRound &&this.view.playLeaderAction()) {
+                                this.message.send("leader");
+                                this.leaderAction();
+                            } else this.message.send("pass");
                             break;
 
                         case "activateProduction":
                             this.message.send("activateProduction");
                             endRound = this.activateProduction();
+                            this.view.flushGameEvent();
+                            if(endRound && this.view.playLeaderAction()) {
+                                this.message.send("leader");
+                                this.leaderAction();
+                            } else this.message.send("pass");
                             break;
 
                         case "leader":
                             this.message.send("leader");
                             this.leaderAction();
                             endRound = false;
+                            this.view.flushGameEvent();
                             break;
 
                         // TODO: remove
@@ -270,6 +291,8 @@ public class Client implements Runnable {
 
                     }
                 } while(!endRound);
+
+                this.view.enableGameEvent();
             }
         }
 
@@ -328,9 +351,6 @@ public class Client implements Runnable {
             }
 
         } while(!answer.equals("OK"));
-
-        this.view.tell("Card successfully bought!");
-        // TODO: mostrare il DevCardStack
 
         return true;
     }
@@ -409,7 +429,6 @@ public class Client implements Runnable {
             switch (parser.getOrder()) {
 
                 case "Complete":
-                    this.view.tell("Resources taken successfully!");
                     return;
 
                 case "wasted":
@@ -501,8 +520,7 @@ public class Client implements Runnable {
 
         this.view.clearFactory();
 
-        if(answer.equals("COMPLETE"))
-            this.view.tell("Successfully activated production!");
+        if(!answer.equals("COMPLETE")) this.view.showError(Error.UNKNOWN_ERROR);
 
         return true;
     }

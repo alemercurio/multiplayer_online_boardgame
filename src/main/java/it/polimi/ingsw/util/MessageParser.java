@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 
+import java.util.Arrays;
+
 /**
  * The MessageParser class parses messages with the following format:
  * command(< parameters without spaces >);
@@ -77,6 +79,16 @@ public class MessageParser
         if(index >= 0 && index < this.message.parameters.length)
             return Integer.parseInt(this.message.parameters[index]);
         else return 0;
+    }
+
+    /**
+     * Returns the parameters as an array of String.
+     * The invocation of this method should follow a .parse() call.
+     * @return the parameters as an array of String.
+     */
+    public String[] getStringParameter() {
+        if(this.message == null) return new String[0];
+        else return this.message.parameters.clone();
     }
 
     /**

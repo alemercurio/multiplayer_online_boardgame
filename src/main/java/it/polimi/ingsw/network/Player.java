@@ -2,8 +2,7 @@ package it.polimi.ingsw.network;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import it.polimi.ingsw.controller.Game;
-import it.polimi.ingsw.controller.PlayerBoard;
+import it.polimi.ingsw.controller.*;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.resources.*;
 import it.polimi.ingsw.model.vatican.*;
@@ -18,9 +17,11 @@ import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Player implements Runnable {
-    private final int ID;
+    private int ID;
     private String nickname;
     private final Socket socket;
     private final Scanner messageIn;
@@ -28,7 +29,7 @@ public class Player implements Runnable {
 
     private Game game;
     private PlayerBoard playerBoard;
-    private boolean isActive;
+    private final AtomicBoolean isActive = new AtomicBoolean(false);
     private boolean hasEnded;
 
     public Player(int ID,Socket client) throws IOException {
@@ -54,6 +55,9 @@ public class Player implements Runnable {
     public void run() {
         String msg;
         this.send(MessageParser.message("welcome",this.ID));
+
+        this.login();
+
         do {
             msg = receive();
             switch(msg) {
@@ -70,34 +74,55 @@ public class Player implements Runnable {
                     break;
             }
 
-            this.isActive = false;
+            //this.isActive = false;
+            this.isActive.set(false);
             this.hasEnded = false;
 
         } while(!msg.equals("esc"));
     }
 
     public void send(String message) {
-        this.messageOut.println(message);
-        this.messageOut.flush();
+        try {
+            this.messageOut.println(message);
+            this.messageOut.flush();
+        } catch(Exception e) {
+            throw new DisconnectedPlayerException(this);
+        }
     }
 
-    public String receive() { return this.messageIn.nextLine(); }
+    public String receive() {
+        while(true) {
+            String received;
+            try { received = this.messageIn.nextLine(); }
+            catch(Exception e) { throw new DisconnectedPlayerException(this); }
+            if(received.equals("alive")) {
+                this.disconnectCounter.set(3);
+                this.game.isAlive(this);
+            }
+            else return received;
+        }
+    }
+
+    public void login() {
+        String msg;
+        MessageParser mp = new MessageParser();
+        PlayerController pc = PlayerController.getPlayerController();
+
+        do {
+            mp.parse(this.receive());
+            if(mp.getOrder().equals("login") && mp.getNumberOfParameters() == 1) {
+                if(pc.registerNickname(mp.getStringParameter(0))) {
+                    this.nickname = mp.getStringParameter(0);
+                    this.send("OK");
+                } else this.send("nameAlreadyTaken");
+            } else this.send("InvalidOption");
+        } while(this.nickname == null);
+    }
 
     private void newGame() {
         String msg;
         MessageParser mp = new MessageParser();
 
-        this.send("OK");
-
-        // Set Player Name
-        msg = this.receive();
-        mp.parse(msg);
-        while(!mp.getOrder().equals("setNickname") || mp.getNumberOfParameters() != 1) {
-            this.send("InvalidOption");
-            msg = this.receive();
-            mp.parse(msg);
-        }
-        this.nickname = mp.getStringParameter(0);
         this.send("OK");
 
         // Set Number of Players
@@ -111,29 +136,12 @@ public class Player implements Runnable {
 
         this.game = Game.newGame(this,this.nickname,mp.getIntParameter(0));
         this.send("WAIT");
-
-        this.game.start();
     }
 
     private boolean joinGame() {
         if(Game.hasNewGame()) {
-            String msg;
-            MessageParser mp = new MessageParser();
-
             this.game = Game.join(this);
             this.send("OK");
-
-            msg = this.receive();
-            mp.parse(msg);
-            while(!mp.getOrder().equals("setNickname") || mp.getNumberOfParameters() != 1 || !this.game.nameAvailable(mp.getStringParameter(0))) {
-                this.send("InvalidNickname");
-                msg = this.receive();
-                mp.parse(msg);
-            }
-            this.nickname = mp.getStringParameter(0);
-            this.game.setNickname(this,this.nickname);
-            this.send("WAIT");
-
             return true;
         }
         else {
@@ -152,54 +160,24 @@ public class Player implements Runnable {
                 this.playerBoard.countPoints());
     }
 
-    public synchronized void setActive() {
-        this.isActive = true;
-        notifyAll();
-    }
-
-    public synchronized void waitForActive() {
-        while(!this.isActive) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+    public void setActive() {
+        this.isActive.set(true);
     }
 
     public synchronized void setHasEnded() {
         this.hasEnded = true;
     }
 
-    public void playGame() {
-
-        this.waitForActive();
-
-        this.selectLeader(this.game.getLeaders());
-        this.initialAdvantage();
-
-        this.isActive = false;
-        this.game.waitForOtherPlayer();
-
-        while(!this.hasEnded) {
-            this.waitForActive();
-
-            if(!this.hasEnded) {
-                this.playRound();
-                this.isActive = false;
-                this.game.nextPlayer(this);
-            }
-        }
-    }
-
     public void playSoloGame() {
+
+        ((SoloGame) this.game).start();
 
         this.selectLeader(this.game.getLeaders());
         this.initialAdvantage();
 
         while(!this.hasEnded) {
             this.playRound();
-            if(!this.hasEnded) this.game.nextPlayer(this);
+            if(!this.hasEnded) this.game.nextPlayer();
         }
         this.send("GameEnd");
     }
@@ -308,39 +286,33 @@ public class Player implements Runnable {
     }
 
     public void playRound() {
-        String cmd;
-        // TODO: perfect
-        this.game.broadCast("Turno di " + this.nickname);
-        this.send("PLAY");
 
+        String cmd;
+        this.send("PLAY");
         boolean endRound = true;
+
         do {
 
             cmd = this.receive();
             switch(cmd) {
 
                 case "buyDevCard":
-                    if(this.buyDevelopmentCard()) {
-                        endRound = true;
-                        if(!this.game.isSinglePlayer())
-                            this.game.broadCast(this.game.getNickname(this) + " bought a DevCard...");
-                    } else endRound = false;
+                    endRound = this.buyDevelopmentCard();
+                    if(endRound && this.receive().equals("leader")) this.leaderAction();
                     break;
 
                 case "takeResources":
-                    if(this.takeResources()) {
-                        endRound = true;
-                        if(!this.game.isSinglePlayer())
-                            this.game.broadCast(this.game.getNickname(this) + " has gathered resources...");
-                    } else endRound = false;
+                    endRound = this.takeResources();
+                    if(endRound && this.receive().equals("leader")) this.leaderAction();
                     break;
 
                 case "activateProduction":
                     if(this.activateProduction()) {
                         endRound = true;
                         if(!this.game.isSinglePlayer())
-                            this.game.broadCast(this.nickname + " has activated production...");
+                            this.game.broadCast(MessageParser.message("action",Action.ACTIVATE_PRODUCTION,this.nickname));
                     } else endRound = false;
+                    if(endRound && this.receive().equals("leader")) this.leaderAction();
                     break;
 
                 case "leader":
@@ -389,6 +361,8 @@ public class Player implements Runnable {
                     if (this.playerBoard.playLeaderCard(mp.getIntParameter(0) - 1)) {
                         this.send(MessageParser.message("update", "leaders", parser.toJson(this.playerBoard.leaders)));
                         this.send("OK");
+                        if(!this.game.isSinglePlayer())
+                            this.game.broadCast(MessageParser.message("action",Action.PLAY_LEADER,this.nickname));
                         return;
                     } else this.send("UnableToPlay");
                     break;
@@ -397,6 +371,8 @@ public class Player implements Runnable {
                     if (this.playerBoard.discardLeader(mp.getIntParameter(0) - 1)) {
                         this.send(MessageParser.message("update", "leaders", parser.toJson(this.playerBoard.leaders)));
                         this.send("OK");
+                        if(!this.game.isSinglePlayer())
+                            this.game.broadCast(MessageParser.message("action",Action.DISCARD_LEADER,this.nickname));
                         return;
                     } else this.send("Error");
                     break;
@@ -448,6 +424,8 @@ public class Player implements Runnable {
                 {
                     try {
                         this.playerBoard.buyDevCard(cardLevel,cardColor,cmd.getIntParameter(0));
+                        if(!this.game.isSinglePlayer())
+                            this.game.broadCast(MessageParser.message("action",Action.BUY_DEVELOPMENT_CARD,this.nickname,cardColor,cardLevel));
                     } catch (NonPositionableCardException | NoSuchDevelopmentCardException | NonConsumablePackException ignored) {
                         /* this should never happen */
                     }
@@ -497,6 +475,10 @@ public class Player implements Runnable {
         MessageParser parser = new MessageParser();
 
         this.send(MessageParser.message("Taken",gatheredResources));
+
+        if(!this.game.isSinglePlayer())
+            this.game.broadCast(MessageParser.message("action",Action.TAKE_RESOURCES,this.nickname,gatheredResources));
+
         int numVoid = this.playerBoard.storeResources(gatheredResources);
 
         if(numVoid != 0 && this.playerBoard.hasWhitePower())
@@ -542,11 +524,13 @@ public class Player implements Runnable {
             {
                 if(this.playerBoard.storage.warehouse.update(parser.getStringParameter(0)))
                 {
-                    int wasted = this.playerBoard.done();
+                    int wasted = this.playerBoard.pendingResources();
                     if(wasted != 0) {
                         this.send(MessageParser.message("wasted",wasted));
-                    }
-                    else this.send("Complete");
+                        if(!this.game.isSinglePlayer())
+                            this.game.broadCast(MessageParser.message("action",Action.WASTED_RESOURCES,this.nickname,wasted));
+                    } else this.send("Complete");
+                    this.playerBoard.done();
                     return;
                 }
                 else this.send("InvalidConfiguration");
@@ -643,6 +627,79 @@ public class Player implements Runnable {
                 this.send("OK");
                 return selected;
             }
+        }
+    }
+
+
+    // NEW
+
+    private final AtomicInteger disconnectCounter = new AtomicInteger(3);
+
+    public boolean isDisconnected() {
+        return (this.disconnectCounter.get() < 0);
+    }
+
+    public void reduceDisconnectCounter() {
+        if(disconnectCounter.get() == 0) {
+
+            this.game.hasDisconnected(this);
+
+            try {
+                this.messageIn.close();
+                this.messageOut.close();
+                this.socket.close();
+            } catch (IOException ignored) { }
+
+            disconnectCounter.set(-1);
+        }
+        else if(disconnectCounter.get() > 0) this.disconnectCounter.decrementAndGet();
+    }
+
+    private void idle() {
+        while(!this.isActive.get()) {
+            String received;
+            try { received = this.messageIn.nextLine(); }
+            catch(Exception e) { throw new DisconnectedPlayerException(this); }
+
+            if(received.equals("alive")) {
+                this.disconnectCounter.set(3);
+                this.game.isAlive(this);
+            } else System.out.println("(GAME) >> " + this.nickname + " sent \"" + received + "\" while it was not permitted...");
+        }
+    }
+
+    public void playGame() {
+
+        try {
+            this.idle();
+
+            this.selectLeader(this.game.getLeaders());
+            this.initialAdvantage();
+
+            this.isActive.set(false);
+
+            this.game.waitForOtherPlayer();
+            this.idle();
+
+            while(!this.hasEnded) {
+                this.idle();
+
+                if(!this.hasEnded) {
+                    this.playRound();
+                    this.isActive.set(false);
+                    this.game.nextPlayer();
+                }
+            }
+        } catch(DisconnectedPlayerException disconnected) { this.game.nextPlayer(); }
+
+    }
+
+    public void resume(Player oldPlayer) {
+        if(this.nickname.equals(oldPlayer.nickname)) {
+            this.ID = oldPlayer.ID;
+            this.game = oldPlayer.game;
+            this.playerBoard = oldPlayer.playerBoard;
+            this.isActive.set(false);
         }
     }
 }

@@ -28,26 +28,7 @@ public class VaticanTest {
         }
 
         @Override
-        public boolean nameAvailable(String name) {
-            return false;
-        }
-
-        @Override
-        public boolean setNickname(Player player, String name) {
-            return false;
-        }
-
-        @Override
-        public String getNickname(Player player) {
-            return null;
-        }
-
-        @Override
-        public void start() {
-        }
-
-        @Override
-        public void nextPlayer(Player player) {
+        public void nextPlayer() {
         }
 
         @Override
