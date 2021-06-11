@@ -1,4 +1,4 @@
-package it.polimi.ingsw.view.gui;
+package it.polimi.ingsw.view.gui.controllers;
 
 import javafx.animation.RotateTransition;
 import javafx.fxml.FXML;

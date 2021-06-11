@@ -26,7 +26,7 @@ public class CliView implements View {
     private final GameView players = new GameView();
     public MarketView market = new MarketView();
     public LeaderView leaderStack = new LeaderView();
-    public DevelopmentCardView devCardStack = new DevelopmentCardView();
+    public DevelopmentCardStackView devCardStack = new DevelopmentCardStackView();
     public FactoryView factory = new FactoryView();
     public WarehouseView warehouse = new WarehouseView();
     public ResourcePack strongbox = new ResourcePack();

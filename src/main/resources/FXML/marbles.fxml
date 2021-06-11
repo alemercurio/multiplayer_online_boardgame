@@ -4,19 +4,29 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.paint.RadialGradient?>
 <?import javafx.scene.paint.Stop?>
 <?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1280.0" styleClass="paneBackGround" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.marblesController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1280.0" styleClass="paneBackGround" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.controllers.ResourceMarketController">
    <children>
-      <ImageView fitHeight="672.0" fitWidth="533.0" layoutX="385.0" layoutY="-8.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fitHeight="652.0" fitWidth="1288.0" pickOnBounds="true">
          <image>
-            <Image url="@../PNG/punchboard/plancia%20portabiglie.png" />
+            <Image url="@../PNG/board/playerboardbw.png" />
          </image>
       </ImageView>
-      <Circle fx:id="G1" layoutX="568.0" layoutY="287.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
+      <ImageView fitHeight="672.0" fitWidth="533.0" layoutX="385.0" layoutY="-8.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/marblestray.png" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="299.0" fitWidth="358.0" layoutX="466.0" layoutY="71.0" pickOnBounds="true">
+         <image>
+            <Image url="@../PNG/board/market_tray.png" />
+         </image>
+      </ImageView>
+      <Circle fx:id="a" layoutX="568.0" layoutY="287.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
          <fill>
             <RadialGradient centerX="0.2814814673529731" centerY="0.35396826607840404" radius="0.5">
                <stops>
@@ -26,8 +36,7 @@
             </RadialGradient>
          </fill>
       </Circle>
-      <Pane layoutX="900.0" layoutY="-3.0" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="662.0" prefWidth="387.0" styleClass="backGroundFlorence" stylesheets="@../CSS/style.css" />
-      <Circle fx:id="Y2" layoutX="623.0" layoutY="287.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
+      <Circle fx:id="b" layoutX="623.0" layoutY="287.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
          <fill>
             <RadialGradient centerX="0.2814814673529731" centerY="0.35396826607840404" radius="0.5">
                <stops>
@@ -37,7 +46,7 @@
             </RadialGradient>
          </fill>
       </Circle>
-      <Circle fx:id="W3" layoutX="678.0" layoutY="287.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
+      <Circle fx:id="c" layoutX="678.0" layoutY="287.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
          <fill>
             <RadialGradient centerX="0.2814814673529731" centerY="0.35396826607840404" radius="0.5">
                <stops>
@@ -47,7 +56,7 @@
             </RadialGradient>
          </fill>
       </Circle>
-      <Circle fx:id="R" layoutX="733.0" layoutY="287.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
+      <Circle fx:id="d" layoutX="733.0" layoutY="287.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
          <fill>
             <RadialGradient centerX="0.2814814673529731" centerY="0.35396826607840404" radius="0.5">
                <stops>
@@ -57,7 +66,7 @@
             </RadialGradient>
          </fill>
       </Circle>
-      <Circle fx:id="W4" layoutX="733.0" layoutY="232.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
+      <Circle fx:id="h" layoutX="733.0" layoutY="232.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
          <fill>
             <RadialGradient centerX="0.2814814673529731" centerY="0.35396826607840404" radius="0.5">
                <stops>
@@ -67,7 +76,7 @@
             </RadialGradient>
          </fill>
       </Circle>
-      <Circle fx:id="P2" layoutX="678.0" layoutY="232.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
+      <Circle fx:id="g" layoutX="678.0" layoutY="232.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
          <fill>
             <RadialGradient centerX="0.2814814673529731" centerY="0.35396826607840404" radius="0.5">
                <stops>
@@ -77,7 +86,7 @@
             </RadialGradient>
          </fill>
       </Circle>
-      <Circle fx:id="P1" layoutX="623.0" layoutY="232.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
+      <Circle fx:id="f" layoutX="623.0" layoutY="232.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
          <fill>
             <RadialGradient centerX="0.2814814673529731" centerY="0.35396826607840404" radius="0.5">
                <stops>
@@ -87,7 +96,7 @@
             </RadialGradient>
          </fill>
       </Circle>
-      <Circle fx:id="B1" layoutX="568.0" layoutY="232.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
+      <Circle fx:id="e" layoutX="568.0" layoutY="232.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
          <fill>
             <RadialGradient centerX="0.2814814673529731" centerY="0.35396826607840404" radius="0.5">
                <stops>
@@ -97,7 +106,7 @@
             </RadialGradient>
          </fill>
       </Circle>
-      <Circle fx:id="B2" layoutX="733.0" layoutY="177.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
+      <Circle fx:id="n" layoutX="733.0" layoutY="177.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
          <fill>
             <RadialGradient centerX="0.2814814673529731" centerY="0.35396826607840404" radius="0.5">
                <stops>
@@ -107,7 +116,7 @@
             </RadialGradient>
          </fill>
       </Circle>
-      <Circle fx:id="G2" layoutX="678.0" layoutY="177.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
+      <Circle fx:id="m" layoutX="678.0" layoutY="177.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
          <fill>
             <RadialGradient centerX="0.2814814673529731" centerY="0.35396826607840404" radius="0.5">
                <stops>
@@ -117,7 +126,7 @@
             </RadialGradient>
          </fill>
       </Circle>
-      <Circle fx:id="Y1" layoutX="623.0" layoutY="177.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
+      <Circle fx:id="l" layoutX="623.0" layoutY="177.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
          <fill>
             <RadialGradient centerX="0.2814814673529731" centerY="0.35396826607840404" radius="0.5">
                <stops>
@@ -127,7 +136,7 @@
             </RadialGradient>
          </fill>
       </Circle>
-      <Circle fx:id="W2" layoutX="568.0" layoutY="177.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
+      <Circle fx:id="i" layoutX="568.0" layoutY="177.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
          <fill>
             <RadialGradient centerX="0.2814814673529731" centerY="0.35396826607840404" radius="0.5">
                <stops>
@@ -137,7 +146,7 @@
             </RadialGradient>
          </fill>
       </Circle>
-      <Circle fx:id="W1" layoutX="788.0" layoutY="121.0" radius="28.0" stroke="BLACK" strokeType="INSIDE">
+      <Circle layoutX="788.0" layoutY="121.0" radius="28.0" stroke="BLACK" strokeType="INSIDE" fx:id="x">
          <fill>
             <RadialGradient centerX="0.2814814673529731" centerY="0.35396826607840404" radius="0.5">
                <stops>
@@ -147,7 +156,6 @@
             </RadialGradient>
          </fill>
       </Circle>
-      <Pane layoutX="-1.0" layoutY="-4.0" maxWidth="-Infinity" minHeight="-Infinity" prefHeight="656.0" prefWidth="387.0" styleClass="backGroundFlorence" stylesheets="@../CSS/style.css" />
       <Button fx:id="buttonColumn1" layoutX="547.0" layoutY="387.0" minWidth="39.0" mnemonicParsing="false" onAction="#moveColumn1" prefHeight="92.0" prefWidth="39.0" styleClass="invisibleButton" stylesheets="@../CSS/style.css" />
       <Button fx:id="buttonColumn2" layoutX="606.0" layoutY="387.0" minWidth="39.0" mnemonicParsing="false" onAction="#moveColumn2" prefHeight="92.0" prefWidth="39.0" styleClass="invisibleButton" stylesheets="@../CSS/style.css" />
       <Button fx:id="buttonColumn3" layoutX="665.0" layoutY="387.0" minWidth="39.0" mnemonicParsing="false" onAction="#moveColumn3" prefHeight="92.0" prefWidth="39.0" styleClass="invisibleButton" stylesheets="@../CSS/style.css" />
@@ -155,5 +163,10 @@
       <Button fx:id="buttonRow1" layoutX="840.0" layoutY="270.0" minWidth="39.0" mnemonicParsing="false" onAction="#moveRow1" prefHeight="44.0" prefWidth="65.0" styleClass="invisibleButton" stylesheets="@../CSS/style.css" />
       <Button fx:id="buttonRow3" layoutX="840.0" layoutY="154.0" minWidth="39.0" mnemonicParsing="false" onAction="#moveRow3" prefHeight="44.0" prefWidth="65.0" styleClass="invisibleButton" stylesheets="@../CSS/style.css" />
       <Button fx:id="buttonRow2" layoutX="840.0" layoutY="210.0" minWidth="39.0" mnemonicParsing="false" onAction="#moveRow2" prefHeight="44.0" prefWidth="65.0" styleClass="invisibleButton" stylesheets="@../CSS/style.css" />
+      <Button layoutX="1042.0" layoutY="45.0" mnemonicParsing="false" onAction="#cancel" prefHeight="38.0" prefWidth="99.0" stylesheets="@../CSS/actionMenuButton.css" text="Cancel">
+         <font>
+            <Font size="40.0" />
+         </font>
+      </Button>
    </children>
 </AnchorPane>

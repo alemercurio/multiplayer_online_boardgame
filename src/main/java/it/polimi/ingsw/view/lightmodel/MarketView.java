@@ -20,11 +20,11 @@ import java.util.Map;
 public class MarketView implements Observable {
 
     // Resource Market
-    private Resource[][] marketTray;
-    private Resource remaining;
+    public Resource[][] marketTray;
+    public Resource remaining;
 
     // Card Market
-    private Map<Color,List<DevelopmentCard>> decksMap;
+    public Map<Color,List<DevelopmentCard>> decksMap;
 
     // Util
     private final List<InvalidationListener> observers = new ArrayList<>();

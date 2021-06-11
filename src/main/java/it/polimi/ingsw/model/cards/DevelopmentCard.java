@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import it.polimi.ingsw.model.resources.Production;
 import it.polimi.ingsw.model.resources.ResourcePack;
+import javafx.scene.image.Image;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -90,6 +91,15 @@ public class DevelopmentCard extends Card {
      */
     public int getLevel() {
         return this.level;
+    }
+
+    /**
+     * Getter for the matching png file for the Card.
+     * @return the path to the file as String.
+     */
+    public String getPathForCard() {
+        String url = String.format("/PNG/cardfront/DevCardFront%s%d.png", this.getColor().getAlias(), this.getPoints());
+        return url;
     }
 
     @Override

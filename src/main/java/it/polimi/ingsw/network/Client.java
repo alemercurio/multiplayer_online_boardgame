@@ -260,7 +260,7 @@ public class Client implements Runnable {
                             this.message.send("takeResources");
                             endRound = this.takeResources();
                             this.view.flushGameEvent();
-                            if(endRound &&this.view.playLeaderAction()) {
+                            if(endRound && this.view.playLeaderAction()) {
                                 this.message.send("leader");
                                 this.leaderAction();
                             } else this.message.send("pass");

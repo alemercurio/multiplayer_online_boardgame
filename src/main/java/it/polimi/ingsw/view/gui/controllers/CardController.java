@@ -1,5 +1,6 @@
-package it.polimi.ingsw.view.gui;
+package it.polimi.ingsw.view.gui.controllers;
 
+import it.polimi.ingsw.view.lightmodel.DevelopmentCardView;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -14,10 +15,10 @@ public class CardController {
         listener.onClickListener(cardView);
     }
 
-    private CardView cardView;
-    private Listener listener;
+    private DevelopmentCardView cardView;
+    private CardListener listener;
 
-    public void setData(CardView cardView, Listener listener) {
+    public void setData(DevelopmentCardView cardView, CardListener listener) {
         this.cardView = cardView;
         this.listener = listener;
         Image image = new Image(getClass().getResourceAsStream(cardView.getImgSrc()));

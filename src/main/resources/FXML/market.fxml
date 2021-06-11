@@ -5,7 +5,6 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
@@ -16,27 +15,20 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="marketPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1280.0" styleClass="ColorStandard" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.MarketController">
+<AnchorPane fx:id="marketPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1280.0" styleClass="ColorStandard" stylesheets="@../CSS/style.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.controllers.CardMarketController">
     <children>
         <BorderPane layoutX="6.0" layoutY="-12.0" prefHeight="566.0" prefWidth="1280.0" styleClass="backGroundFlorence" stylesheets="@../CSS/style.css" AnchorPane.bottomAnchor="96.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="-12.0">
             <left>
-                <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="690.0" prefWidth="369.0" stylesheets="@../CSS/style.css" BorderPane.alignment="CENTER">
+                <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="690.0" prefWidth="404.0" stylesheets="@../CSS/style.css" BorderPane.alignment="CENTER">
                     <children>
-                        <HBox alignment="CENTER" prefHeight="87.0" prefWidth="435.0">
-                            <children>
-                                <Label prefHeight="49.0" prefWidth="234.0" text="Card Market" textFill="WHITE">
-                                    <font>
-                                        <Font name="Cambria Bold" size="40.0" />
-                                    </font>
-                           <HBox.margin>
-                              <Insets left="42.0" />
-                           </HBox.margin>
-                                </Label>
-                            </children>
-                        </HBox>
+                          <Label alignment="CENTER" prefHeight="57.0" prefWidth="404.0" stylesheets="@../CSS/actionMenuButton.css" text="Card Market" textFill="WHITE">
+                              <font>
+                                  <Font name="Cambria Bold" size="23.0" />
+                              </font>
+                          </Label>
                         <Pane prefHeight="68.0" prefWidth="435.0" VBox.vgrow="ALWAYS">
                      <children>
-                        <Button fx:id="cancelButton" layoutX="102.0" layoutY="7.0" mnemonicParsing="false" onAction="#cancel" prefHeight="25.0" prefWidth="201.0" styleClass="search-button" stylesheets="@../CSS/style.css" text="cancel" textFill="WHITE">
+                        <Button fx:id="cancelButton" layoutX="102.0" layoutY="20.0" mnemonicParsing="false" onAction="#cancel" prefHeight="25.0" prefWidth="201.0" styleClass="search-button" stylesheets="@../CSS/actionMenuButton.css" text="cancel" textFill="WHITE">
                            <font>
                               <Font name="Cambria Bold" size="14.0" />
                            </font>
@@ -53,9 +45,6 @@
                                     </VBox.margin>
                                 </HBox>
                                 <ImageView fx:id="cardImg" fitHeight="468.0" fitWidth="220.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@../PNG/cardfront/DevCardFrontG1_1.png" />
-                                    </image>
                                     <VBox.margin>
                                         <Insets top="50.0" />
                                     </VBox.margin>
@@ -66,7 +55,7 @@
                                     </VBox.margin>
                                 </HBox>
                                 <HBox alignment="CENTER" prefHeight="53.0" prefWidth="335.0" />
-                                <Button mnemonicParsing="false" prefHeight="55.0" prefWidth="270.0" styleClass="add-btn" stylesheets="@../CSS/style.css" text="BUY CARD" textFill="#828282">
+                                <Button mnemonicParsing="false" onMouseClicked="#buyCard" prefHeight="55.0" prefWidth="270.0" styleClass="add-btn" stylesheets="@../CSS/actionMenuButton.css" text="BUY CARD" textFill="#828282">
                                     <VBox.margin>
                                         <Insets bottom="60.0" top="30.0" />
                                     </VBox.margin>
@@ -80,7 +69,7 @@
                                 <String fx:value="shadow" />
                             </styleClass>
                         </VBox>
-                        <Pane prefHeight="57.0" prefWidth="435.0" VBox.vgrow="ALWAYS" />
+                        <Pane prefHeight="57.0" prefWidth="435.0" visible="false" VBox.vgrow="ALWAYS" />
                     </children>
                <styleClass>
                   <String fx:value="right-bar" />
