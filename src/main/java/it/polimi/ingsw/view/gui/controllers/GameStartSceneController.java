@@ -1,6 +1,7 @@
-package it.polimi.ingsw.view.gui;
+package it.polimi.ingsw.view.gui.controllers;
 
 import it.polimi.ingsw.view.ViewEvent;
+import it.polimi.ingsw.view.gui.GuiView;
 import it.polimi.ingsw.view.lightmodel.LeaderView;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;

@@ -239,6 +239,7 @@ public class GuiApp extends Application {
                 nickname = answer.getText();
                 if(gameChoice.equals("join")) {
                     removeFromRoot(nicknameField);
+                    GuiView.getGuiView().event(ViewEvent.NICKNAME, nickname);
                     showScene("/FXML/waitingscreen.fxml");
                 }
                 else if(gameChoice.equals("new")) {
@@ -268,17 +269,6 @@ public class GuiApp extends Application {
         try {
             Parent screen = FXMLLoader.load(getClass().getResource(fxml));
             Scene scene = new Scene(screen);
-            window.setScene(scene);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void showPlayerboard() {
-        try {
-            GuiView.getGuiView().devCardStack.test();
-            Parent playerBoard = FXMLLoader.load(getClass().getResource("/FXML/playerboard.fxml"));
-            Scene scene = new Scene(playerBoard);
             window.setScene(scene);
         } catch (IOException e) {
             e.printStackTrace();

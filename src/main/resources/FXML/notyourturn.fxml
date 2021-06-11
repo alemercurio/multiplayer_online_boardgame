@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="650.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.controllers.NotYourTurnController">
+   <children>
+      <ImageView fitHeight="676.0" fitWidth="1293.0" layoutX="-8.0" layoutY="-4.0" pickOnBounds="true">
+         <image>
+            <Image url="@../PNG/board/playerboardbw.png" />
+         </image>
+      </ImageView>
+      <Label layoutX="145.0" layoutY="273.0" prefHeight="58.0" prefWidth="989.0" stylesheets="@../CSS/actionMenuButton.css" text="Please wait for your turn to start...">
+         <font>
+            <Font size="50.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

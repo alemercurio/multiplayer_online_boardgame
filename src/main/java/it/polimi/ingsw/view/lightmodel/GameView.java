@@ -14,7 +14,7 @@ public class GameView implements Observable {
 
     private final static int[] color = {202,191,81,147};
     private int currentPlayerID;
-    private PlayerView[] players;
+    public PlayerView[] players;
     private final List<InvalidationListener> observers = new ArrayList<>();
 
     public GameView() {

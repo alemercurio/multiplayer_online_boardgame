@@ -1,14 +1,22 @@
 package it.polimi.ingsw.view.gui;
 
-import it.polimi.ingsw.controller.Action;
+import com.google.gson.Gson;
+import it.polimi.ingsw.model.cards.DevelopmentCard;
 import it.polimi.ingsw.model.cards.LeaderCard;
+import it.polimi.ingsw.model.cards.StockPower;
+import it.polimi.ingsw.model.resources.Resource;
 import it.polimi.ingsw.model.resources.ResourcePack;
+import it.polimi.ingsw.view.gui.controllers.AdvantageSceneController;
+import it.polimi.ingsw.view.gui.controllers.LootSceneController;
+import it.polimi.ingsw.view.gui.controllers.PlayerBoardSceneController;
 import it.polimi.ingsw.view.lightmodel.*;
 import it.polimi.ingsw.controller.Error;
 import it.polimi.ingsw.controller.GameEvent;
 import it.polimi.ingsw.view.View;
 import it.polimi.ingsw.view.ViewEvent;
 import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,10 +29,11 @@ public class GuiView implements View {
 
     private static GuiView guiView;
 
-    private final GameView players = new GameView();
+    public final GameView players = new GameView();
     public MarketView market = new MarketView();
     public LeaderView leaderStack = new LeaderView();
-    public DevelopmentCardView devCardStack = new DevelopmentCardView();
+    public DevelopmentCardStackView devCardStack = new DevelopmentCardStackView();
+    public DevelopmentCardView buyed = new DevelopmentCardView();
     public FactoryView factory = new FactoryView();
     public WarehouseView warehouse = new WarehouseView();
     public ResourcePack strongbox = new ResourcePack();
@@ -33,6 +42,7 @@ public class GuiView implements View {
 
     public AdvantageSceneController advantageSetter;
     public PlayerBoardSceneController playerboard;
+    public LootSceneController lootScene;
 
     private final Map<ViewEvent,Object> eventHandler = new HashMap<>();
 
@@ -104,8 +114,29 @@ public class GuiView implements View {
     }
 
     @Override
-    public void showError(Error error) {
+    public synchronized void showError(Error error) {
+        Platform.runLater(() -> {
+            if(error.compareTo(Error.INVALID_CARD_SELECTION)==0) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Not enough Resources");
+                alert.setHeaderText("You cannot buy this Card!");
+                alert.setContentText("You do not have enough Resources.");
 
+                if(alert.showAndWait().get() == ButtonType.OK){
+                    alert.close();
+                }
+            }
+            if(error.compareTo(Error.INVALID_POSITION)==0) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Not valid position");
+                alert.setHeaderText("You cannot put this Card here!");
+                alert.setContentText("Its level is wrong for this positioning.");
+
+                if(alert.showAndWait().get() == ButtonType.OK){
+                    alert.close();
+                }
+            }
+        });
     }
 
     @Override
@@ -152,10 +183,10 @@ public class GuiView implements View {
     }
 
     @Override
-    public String selectAction() {
+    public synchronized String selectAction() {
         Platform.runLater(() -> {
             guiApp.showScene("/FXML/playerboard.fxml");
-            playerboard.invalidated(this.warehouse);
+            this.playerboard.setActive();
         });
         try {
             while (!eventHandler.containsKey(ViewEvent.ACTION)) wait();
@@ -164,7 +195,7 @@ public class GuiView implements View {
     }
 
     @Override
-    public String selectLeaderAction() {
+    public synchronized String selectLeaderAction() {
         try {
             while (!eventHandler.containsKey(ViewEvent.LEADER_ACTION)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
@@ -172,7 +203,7 @@ public class GuiView implements View {
     }
 
     @Override
-    public String selectDevCard() {
+    public synchronized String selectDevCard() {
         try {
             while (!eventHandler.containsKey(ViewEvent.DEVCARD)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
@@ -180,15 +211,18 @@ public class GuiView implements View {
     }
 
     @Override
-    public String selectDevCardPosition() {
+    public synchronized String selectDevCardPosition() {
+        GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+        Platform.runLater(() -> GuiView.getGuiView().playerboard.positionCard(buyed));
         try {
             while (!eventHandler.containsKey(ViewEvent.DEVCARD_POSITION)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
+        Platform.runLater(() -> GuiView.getGuiView().playerboard.notYourTurn());
         return (String) eventHandler.remove(ViewEvent.DEVCARD_POSITION);
     }
 
     @Override
-    public String selectMarbles() {
+    public synchronized String selectMarbles() {
         try {
             while (!eventHandler.containsKey(ViewEvent.MARBLES)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
@@ -196,12 +230,20 @@ public class GuiView implements View {
     }
 
     @Override
-    public void showGatheredResources(ResourcePack gathered) {
-
+    public synchronized void showGatheredResources(ResourcePack gathered) {
+        if(gathered.get(Resource.VOID)>0 && playerBoard.hasWhitePower()) {
+            Platform.runLater(() -> {
+                guiApp.showScene("/FXML/loot.fxml");
+                lootScene.setPack(gathered);
+            });
+        }
     }
 
     @Override
     public ResourcePack selectWhite(int amount) {
+        Platform.runLater(() -> {
+            lootScene.askWhite(amount);
+        });
         try {
             while (!eventHandler.containsKey(ViewEvent.CONVERT_WHITE)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
@@ -212,6 +254,7 @@ public class GuiView implements View {
     public synchronized String selectWarehouse() {
         Platform.runLater(() -> {
             guiApp.showScene("/FXML/playerboard.fxml");
+            playerboard.invalidated(this.warehouse);
         });
         try {
             while (!eventHandler.containsKey(ViewEvent.WAREHOUSE_CONFIG)) wait();
@@ -266,5 +309,61 @@ public class GuiView implements View {
     @Override
     public void update(String target, String state) {
 
+        if(target == null || state == null) return;
+
+        switch(target) {
+
+            case "fact":
+                this.factory.update(state);
+                break;
+
+            case "player":
+                this.players.update(state);
+                break;
+
+            case "white":
+                this.playerBoard.updateWhite(state);
+                break;
+
+            case "WHConfig":
+                this.warehouse.update(state);
+                break;
+
+            case "WH":
+                this.warehouse.addStockPower(new Gson().fromJson(state, StockPower.class));
+                break;
+
+            case "strongbox":
+                this.strongbox = new Gson().fromJson(state,ResourcePack.class);
+                break;
+
+            /*case "leaders":
+                this.leaderStack.update(state);
+                break;*/
+
+            case "market:res":
+                this.market.updateResourceMarket(state);
+                break;
+
+            case "market:card":
+                this.market.updateCardMarket(state);
+                break;
+
+            case "devCards":
+                this.devCardStack.update(state);
+                break;
+
+            case "faith:track":
+                this.faithTrack.setTrack(state);
+                break;
+
+            case "faith:config":
+                this.faithTrack.update(state);
+                break;
+        }
+    }
+
+    public void showScene(String fxml) {
+        Platform.runLater(() -> guiApp.showScene(fxml));
     }
 }

@@ -1,57 +1,70 @@
-package it.polimi.ingsw.view.gui;
+package it.polimi.ingsw.view.gui.controllers;
 
+import it.polimi.ingsw.model.resources.Resource;
+import it.polimi.ingsw.view.ViewEvent;
+import it.polimi.ingsw.view.gui.GuiView;
 import javafx.animation.ParallelTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 import java.net.URL;
-import java.util.ResourceBundle;
+import java.util.*;
 
-public class marblesController implements Initializable {
+public class ResourceMarketController implements Initializable, InvalidationListener {
 
-    @FXML
-    private Circle G1;
-
-    @FXML
-    private Circle Y2;
+    private Resource[][] tray;
+    private Resource remaining;
 
     @FXML
-    private Circle W3;
+    private Circle a;
 
     @FXML
-    private Circle R;
+    private Circle b;
 
     @FXML
-    private Circle W4;
+    private Circle c;
 
     @FXML
-    private Circle P2;
+    private Circle d;
 
     @FXML
-    private Circle P1;
+    private Circle e;
 
     @FXML
-    private Circle B1;
+    private Circle f;
 
     @FXML
-    private Circle B2;
+    private Circle g;
 
     @FXML
-    private Circle G2;
+    private Circle h;
 
     @FXML
-    private Circle Y1;
+    private Circle i;
 
     @FXML
-    private Circle W2;
+    private Circle l;
 
     @FXML
-    private Circle W1;
+    private Circle m;
+
+    @FXML
+    private Circle n;
+
+    @FXML
+    private Circle x;
 
     @FXML
     private Button buttonColumn1;
@@ -65,7 +78,6 @@ public class marblesController implements Initializable {
     @FXML
     private Button buttonColumn4;
 
-
     @FXML
     private Button buttonRow1;
 
@@ -74,7 +86,6 @@ public class marblesController implements Initializable {
 
     @FXML
     private Button buttonRow2;
-
 
     @FXML
     void moveColumn1(ActionEvent event) {
@@ -120,15 +131,11 @@ public class marblesController implements Initializable {
         secondStep.setDuration(Duration.millis(1000));
 
         SequentialTransition finalTransition = new SequentialTransition(firstStep, secondStep);
+        finalTransition.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+            GuiView.getGuiView().event(ViewEvent.MARBLES, "column 1");
+        }));
         finalTransition.play();
-
-
-        // update values
-        Circle tempPending = pendingMarble;
-        pendingMarble = marketTray[2][0];
-        marketTray[2][0] = marketTray[1][0];
-        marketTray[1][0] = marketTray[0][0];
-        marketTray[0][0] = tempPending;
     }
 
     @FXML
@@ -176,15 +183,11 @@ public class marblesController implements Initializable {
         secondStep.setDuration(Duration.millis(1000));
 
         SequentialTransition finalTransition = new SequentialTransition(firstStep, secondStep);
+        finalTransition.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+            GuiView.getGuiView().event(ViewEvent.MARBLES, "column 2");
+        }));
         finalTransition.play();
-
-
-        // update values
-        Circle tempPending = pendingMarble;
-        pendingMarble = marketTray[2][1];
-        marketTray[2][1] = marketTray[1][1];
-        marketTray[1][1] = marketTray[0][1];
-        marketTray[0][1] = tempPending;
     }
 
 
@@ -233,15 +236,11 @@ public class marblesController implements Initializable {
         secondStep.setDuration(Duration.millis(1000));
 
         SequentialTransition finalTransition = new SequentialTransition(firstStep, secondStep);
+        finalTransition.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+            GuiView.getGuiView().event(ViewEvent.MARBLES, "column 3");
+        }));
         finalTransition.play();
-
-
-        // update values
-        Circle tempPending = pendingMarble;
-        pendingMarble = marketTray[2][2];
-        marketTray[2][2] = marketTray[1][2];
-        marketTray[1][2] = marketTray[0][2];
-        marketTray[0][2] = tempPending;
     }
 
     @FXML
@@ -289,15 +288,11 @@ public class marblesController implements Initializable {
         secondStep.setDuration(Duration.millis(1000));
 
         SequentialTransition finalTransition = new SequentialTransition(firstStep, secondStep);
+        finalTransition.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+            GuiView.getGuiView().event(ViewEvent.MARBLES, "column 4");
+        }));
         finalTransition.play();
-
-
-        // update values
-        Circle tempPending = pendingMarble;
-        pendingMarble = marketTray[2][3];
-        marketTray[2][3] = marketTray[1][3];
-        marketTray[1][3] = marketTray[0][3];
-        marketTray[0][3] = tempPending;
     }
 
     @FXML
@@ -348,15 +343,11 @@ public class marblesController implements Initializable {
 
         SequentialTransition secondStep = new SequentialTransition(lastTransition1,lastTransition2);
         SequentialTransition last = new SequentialTransition(firstStep, secondStep);
+        last.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+            GuiView.getGuiView().event(ViewEvent.MARBLES, "row 3");
+        }));
         last.play();
-
-        //update data
-        Circle tempPending = pendingMarble;
-        pendingMarble = marketTray[0][0];
-        marketTray[0][0] = marketTray[0][1];
-        marketTray[0][1] = marketTray[0][2];
-        marketTray[0][2] = marketTray[0][3];
-        marketTray[0][3] = tempPending;
     }
 
     @FXML
@@ -408,15 +399,11 @@ public class marblesController implements Initializable {
 
         SequentialTransition secondStep = new SequentialTransition(lastTransition1,lastTransition2);
         SequentialTransition last = new SequentialTransition(firstStep, secondStep);
+        last.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+            GuiView.getGuiView().event(ViewEvent.MARBLES, "row 2");
+        }));
         last.play();
-
-        //update data
-        Circle tempPending = pendingMarble;
-        pendingMarble = marketTray[1][0];
-        marketTray[1][0] = marketTray[1][1];
-        marketTray[1][1] = marketTray[1][2];
-        marketTray[1][2] = marketTray[1][3];
-        marketTray[1][3] = tempPending;
     }
 
     @FXML
@@ -467,15 +454,11 @@ public class marblesController implements Initializable {
 
         SequentialTransition secondStep = new SequentialTransition(lastTransition1,lastTransition2);
         SequentialTransition last = new SequentialTransition(firstStep, secondStep);
+        last.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+            GuiView.getGuiView().event(ViewEvent.MARBLES, "row 1");
+        }));
         last.play();
-
-        //update data
-        Circle tempPending = pendingMarble;
-        pendingMarble = marketTray[2][0];
-        marketTray[2][0] = marketTray[2][1];
-        marketTray[2][1] = marketTray[2][2];
-        marketTray[2][2] = marketTray[2][3];
-        marketTray[2][3] = tempPending;
     }
 
     private Circle pendingMarble;
@@ -483,22 +466,82 @@ public class marblesController implements Initializable {
     @FXML
     private final Circle[][] marketTray = new Circle[3][4];
 
-    public void initialMarketSetting() {
-        marketTray[0][0] = G1;
-        marketTray[0][1] = Y2;
-        marketTray[0][2] = W3;
-        marketTray[0][3] = R;
-        marketTray[1][0] = B1;
-        marketTray[1][1] = P1;
-        marketTray[1][2] = P2;
-        marketTray[1][3] = W4;
-        marketTray[2][0] = W2;
-        marketTray[2][1] = Y1;
-        marketTray[2][2] = G2;
-        marketTray[2][3] = B2;
-        pendingMarble = W1;
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        marketTray[0][0] = a;
+        marketTray[0][1] = b;
+        marketTray[0][2] = c;
+        marketTray[0][3] = d;
+        marketTray[1][0] = e;
+        marketTray[1][1] = f;
+        marketTray[1][2] = g;
+        marketTray[1][3] = h;
+        marketTray[2][0] = i;
+        marketTray[2][1] = l;
+        marketTray[2][2] = m;
+        marketTray[2][3] = n;
+        pendingMarble = x;
+
+        GuiView.getGuiView().market.addListener(this);
+        this.invalidated(GuiView.getGuiView().market);
+    }
+
+    public void cancel(ActionEvent event) {
+        GuiView.getGuiView().event(ViewEvent.MARBLES, "back");
+        GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+        Platform.runLater(() -> GuiView.getGuiView().playerboard.showMenu());
     }
 
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {initialMarketSetting();}
+    public void invalidated(Observable observable) {
+        tray = GuiView.getGuiView().market.marketTray;
+        remaining = GuiView.getGuiView().market.remaining;
+
+        for (int i = 0; i < 3; i++) {
+            int k=i;
+            if(i==0) k=2;
+            if(i==2) k=0;
+
+            for (int j = 0; j < 4; j++) {
+                if (tray[i][j].compareTo(Resource.COIN) == 0) {
+                    marketTray[k][j].setFill(Color.YELLOW);
+                }
+                if (tray[i][j].compareTo(Resource.SHIELD) == 0) {
+                    marketTray[k][j].setFill(Color.BLUE);
+                }
+                if (tray[i][j].compareTo(Resource.STONE) == 0) {
+                    marketTray[k][j].setFill(Color.GRAY);
+                }
+                if (tray[i][j].compareTo(Resource.SERVANT) == 0) {
+                    marketTray[k][j].setFill(Color.PURPLE);
+                }
+                if (tray[i][j].compareTo(Resource.VOID) == 0) {
+                    marketTray[k][j].setFill(Color.WHITESMOKE);
+                }
+                if (tray[i][j].compareTo(Resource.FAITHPOINT) == 0) {
+                    marketTray[k][j].setFill(Color.RED);
+                }
+            }
+        }
+        if (remaining.compareTo(Resource.COIN) == 0) {
+            pendingMarble.setFill(Color.YELLOW);
+        }
+        if (remaining.compareTo(Resource.SHIELD) == 0) {
+            pendingMarble.setFill(Color.BLUE);
+        }
+        if (remaining.compareTo(Resource.STONE) == 0) {
+            pendingMarble.setFill(Color.GRAY);
+        }
+        if (remaining.compareTo(Resource.SERVANT) == 0) {
+            pendingMarble.setFill(Color.PURPLE);
+        }
+        if (remaining.compareTo(Resource.VOID) == 0) {
+            pendingMarble.setFill(Color.WHITESMOKE);
+        }
+        if (remaining.compareTo(Resource.FAITHPOINT) == 0) {
+            pendingMarble.setFill(Color.RED);
+        }
+    }
 }
