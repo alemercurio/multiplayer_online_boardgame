@@ -226,22 +226,20 @@ public class MultiGame extends Game implements Runnable{
     @Override
     public void hasDisconnected(Player player) {
         this.round.remove(player);
-        this.broadCastFull(MessageParser.message("event",GameEvent.PLAYER_DISCONNECT,player.getNickname()));
+        this.players.remove(player);
         this.vatican.removeFaithTrack(player.getID());
+        this.broadCastFull(MessageParser.message("event",GameEvent.PLAYER_DISCONNECT,player.getNickname()));
     }
 
-    public void resumePlayer(Player newPlayer) {
-
+    public boolean resumePlayer(Player newPlayer) {
         Player oldPlayer = this.disconnectedPlayer.get(newPlayer.getNickname());
         if(oldPlayer != null) {
             newPlayer.resume(oldPlayer);
-
             this.round.add(newPlayer);
             this.broadCast(MessageParser.message("update","player",this.getPlayerInfo()));
-
             this.market.update();
-
             this.vatican.retrieveFaithTrack(oldPlayer.getID());
-        }
+            return true;
+        } else return false;
     }
 }

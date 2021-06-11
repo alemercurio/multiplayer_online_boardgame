@@ -1,5 +1,7 @@
 package it.polimi.ingsw.model.cards;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import it.polimi.ingsw.controller.PlayerBoard;
 
 import java.util.LinkedList;
@@ -111,5 +113,14 @@ public class LeaderStack {
         for (LeaderCard leader : activeLeaders)
             totalPoints = totalPoints + leader.getPoints();
         return totalPoints;
+    }
+
+    @Override
+    public String toString() {
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(Power.class,new LeaderCard.PowerReader());
+        builder.enableComplexMapKeySerialization();
+        Gson parser = builder.create();
+        return parser.toJson(this);
     }
 }

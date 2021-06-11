@@ -77,6 +77,7 @@ public abstract class Game {
     public abstract List<LeaderCard> getLeaders();
     public ResourcePack getAdvantage(Player player) { return new ResourcePack(); }
 
-    public void isAlive(Player player) { }
-    public void hasDisconnected(Player player) { }
+    public abstract void isAlive(Player player);
+    public abstract void hasDisconnected(Player player);
+    public boolean resumePlayer(Player player) { return false; }
 }

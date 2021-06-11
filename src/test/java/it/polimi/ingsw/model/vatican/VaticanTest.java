@@ -40,6 +40,16 @@ public class VaticanTest {
         public List<LeaderCard> getLeaders() {
             return null;
         }
+
+        @Override
+        public void isAlive(Player player) {
+
+        }
+
+        @Override
+        public void hasDisconnected(Player player) {
+
+        }
     }
 
     private final String vaticanData = "src/main/resources/JSON/Vatican.json";
