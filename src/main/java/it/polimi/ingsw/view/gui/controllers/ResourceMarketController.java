@@ -131,7 +131,10 @@ public class ResourceMarketController implements Initializable, InvalidationList
         secondStep.setDuration(Duration.millis(1000));
 
         SequentialTransition finalTransition = new SequentialTransition(firstStep, secondStep);
-        finalTransition.setOnFinished(e -> GuiView.getGuiView().event(ViewEvent.MARBLES, "column 1"));
+        finalTransition.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+            GuiView.getGuiView().event(ViewEvent.MARBLES, "column 1");
+        }));
         finalTransition.play();
     }
 
@@ -180,7 +183,10 @@ public class ResourceMarketController implements Initializable, InvalidationList
         secondStep.setDuration(Duration.millis(1000));
 
         SequentialTransition finalTransition = new SequentialTransition(firstStep, secondStep);
-        finalTransition.setOnFinished(e -> GuiView.getGuiView().event(ViewEvent.MARBLES, "column 2"));
+        finalTransition.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+            GuiView.getGuiView().event(ViewEvent.MARBLES, "column 2");
+        }));
         finalTransition.play();
     }
 
@@ -230,7 +236,10 @@ public class ResourceMarketController implements Initializable, InvalidationList
         secondStep.setDuration(Duration.millis(1000));
 
         SequentialTransition finalTransition = new SequentialTransition(firstStep, secondStep);
-        finalTransition.setOnFinished(e -> GuiView.getGuiView().event(ViewEvent.MARBLES, "column 3"));
+        finalTransition.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+            GuiView.getGuiView().event(ViewEvent.MARBLES, "column 3");
+        }));
         finalTransition.play();
     }
 
@@ -279,7 +288,10 @@ public class ResourceMarketController implements Initializable, InvalidationList
         secondStep.setDuration(Duration.millis(1000));
 
         SequentialTransition finalTransition = new SequentialTransition(firstStep, secondStep);
-        finalTransition.setOnFinished(e -> GuiView.getGuiView().event(ViewEvent.MARBLES, "column 4"));
+        finalTransition.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+            GuiView.getGuiView().event(ViewEvent.MARBLES, "column 4");
+        }));
         finalTransition.play();
     }
 
@@ -331,7 +343,10 @@ public class ResourceMarketController implements Initializable, InvalidationList
 
         SequentialTransition secondStep = new SequentialTransition(lastTransition1,lastTransition2);
         SequentialTransition last = new SequentialTransition(firstStep, secondStep);
-        last.setOnFinished(e -> GuiView.getGuiView().event(ViewEvent.MARBLES, "row 3"));
+        last.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+            GuiView.getGuiView().event(ViewEvent.MARBLES, "row 3");
+        }));
         last.play();
     }
 
@@ -384,7 +399,10 @@ public class ResourceMarketController implements Initializable, InvalidationList
 
         SequentialTransition secondStep = new SequentialTransition(lastTransition1,lastTransition2);
         SequentialTransition last = new SequentialTransition(firstStep, secondStep);
-        last.setOnFinished(e -> GuiView.getGuiView().event(ViewEvent.MARBLES, "row 2"));
+        last.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+            GuiView.getGuiView().event(ViewEvent.MARBLES, "row 2");
+        }));
         last.play();
     }
 
@@ -436,7 +454,10 @@ public class ResourceMarketController implements Initializable, InvalidationList
 
         SequentialTransition secondStep = new SequentialTransition(lastTransition1,lastTransition2);
         SequentialTransition last = new SequentialTransition(firstStep, secondStep);
-        last.setOnFinished(e -> GuiView.getGuiView().event(ViewEvent.MARBLES, "row 1"));
+        last.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+            GuiView.getGuiView().event(ViewEvent.MARBLES, "row 1");
+        }));
         last.play();
     }
 
