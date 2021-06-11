@@ -58,6 +58,20 @@ public class Player implements Runnable {
 
         this.login();
 
+        if(PlayerController.getPlayerController().hasLeftGame(this.nickname)) {
+            this.send("resumeGame?");
+            MessageParser mp = new MessageParser();
+            mp.parse(this.receive());
+
+            if(mp.getOrder().equals("resume")) {
+                if(Boolean.parseBoolean(mp.getStringParameter(0))) {
+                    PlayerController.getPlayerController().resumeGame(this.nickname).resumePlayer(this);
+                    this.runSoloGame();
+                }
+            }
+            else this.send("InvalidOption");
+        } else this.send("noLeftGame");
+
         do {
             msg = receive();
             switch(msg) {
@@ -74,7 +88,6 @@ public class Player implements Runnable {
                     break;
             }
 
-            //this.isActive = false;
             this.isActive.set(false);
             this.hasEnded = false;
 
@@ -104,7 +117,6 @@ public class Player implements Runnable {
     }
 
     public void login() {
-        String msg;
         MessageParser mp = new MessageParser();
         PlayerController pc = PlayerController.getPlayerController();
 
@@ -172,14 +184,25 @@ public class Player implements Runnable {
 
         ((SoloGame) this.game).start();
 
-        this.selectLeader(this.game.getLeaders());
-        this.initialAdvantage();
-
-        while(!this.hasEnded) {
-            this.playRound();
-            if(!this.hasEnded) this.game.nextPlayer();
+        try {
+            this.selectLeader(this.game.getLeaders());
+            this.initialAdvantage();
+        } catch(DisconnectedPlayerException e) {
+            return;
         }
-        this.send("GameEnd");
+
+        this.runSoloGame();
+    }
+
+    private void runSoloGame() {
+        ((SoloGame) this.game).setInitialised();
+        try {
+            while(!this.hasEnded) {
+                this.playRound();
+                if(!this.hasEnded) this.game.nextPlayer();
+            }
+            this.send("GameEnd");
+        } catch(DisconnectedPlayerException ignored) { }
     }
 
     public void selectLeader(List<LeaderCard> leaders)
@@ -340,12 +363,7 @@ public class Player implements Runnable {
 
     public void leaderAction() {
 
-        GsonBuilder builder = new GsonBuilder();
-        builder.registerTypeAdapter(Power.class,new LeaderCard.PowerReader());
-        builder.enableComplexMapKeySerialization();
-        Gson parser = builder.create();
-
-        this.send(MessageParser.message("update","leaders", parser.toJson(this.playerBoard.leaders)));
+        this.send(MessageParser.message("update","leaders",this.playerBoard.leaders));
         this.send("OK");
 
         while(true) {
@@ -359,7 +377,7 @@ public class Player implements Runnable {
 
                 case "play":
                     if (this.playerBoard.playLeaderCard(mp.getIntParameter(0) - 1)) {
-                        this.send(MessageParser.message("update", "leaders", parser.toJson(this.playerBoard.leaders)));
+                        this.send(MessageParser.message("update", "leaders",this.playerBoard.leaders));
                         this.send("OK");
                         if(!this.game.isSinglePlayer())
                             this.game.broadCast(MessageParser.message("action",Action.PLAY_LEADER,this.nickname));
@@ -369,7 +387,7 @@ public class Player implements Runnable {
 
                 case "discard":
                     if (this.playerBoard.discardLeader(mp.getIntParameter(0) - 1)) {
-                        this.send(MessageParser.message("update", "leaders", parser.toJson(this.playerBoard.leaders)));
+                        this.send(MessageParser.message("update", "leaders",this.playerBoard.leaders));
                         this.send("OK");
                         if(!this.game.isSinglePlayer())
                             this.game.broadCast(MessageParser.message("action",Action.DISCARD_LEADER,this.nickname));
@@ -690,16 +708,24 @@ public class Player implements Runnable {
                     this.game.nextPlayer();
                 }
             }
-        } catch(DisconnectedPlayerException disconnected) { this.game.nextPlayer(); }
+        } catch(DisconnectedPlayerException disconnected) {
+            if(this.isActive.get()) this.game.nextPlayer();
+        }
 
     }
 
     public void resume(Player oldPlayer) {
         if(this.nickname.equals(oldPlayer.nickname)) {
             this.ID = oldPlayer.ID;
+            this.send(MessageParser.message("update","playerID",this.ID));
             this.game = oldPlayer.game;
             this.playerBoard = oldPlayer.playerBoard;
+            this.playerBoard.setPlayer(this);
             this.isActive.set(false);
         }
+    }
+
+    public void updateAll() {
+        this.playerBoard.updateAll();
     }
 }

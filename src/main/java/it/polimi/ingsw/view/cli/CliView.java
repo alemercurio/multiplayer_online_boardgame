@@ -113,11 +113,6 @@ public class CliView implements View {
     }
 
     @Override
-    public void fancyTell(String message) {
-        System.out.println("FANCY >> " + message);
-    }
-
-    @Override
     public String selectConnection() {
 
         Scanner input = new Scanner(System.in);
@@ -174,6 +169,21 @@ public class CliView implements View {
         Scanner input = new Scanner(System.in);
         System.out.print("\tChoose a nickname! << ");
         return input.nextLine();
+    }
+
+    @Override
+    public boolean selectResume() {
+        Scanner input = new Scanner(System.in);
+        System.out.print("\tYou have left a game, do you want to resume it? (Y|N) << ");
+        while(true) {
+            String selection = input.nextLine().toUpperCase();
+            if(selection.matches("[ ]*[Y][ ]*")) return true;
+            else if(selection.matches("[ ]*[N][ ]*")) return false;
+            else {
+                this.showError(Error.INVALID_SELECTION);
+                System.out.print("Please, try again! << ");
+            }
+        }
     }
 
     @Override
@@ -968,6 +978,10 @@ public class CliView implements View {
 
             case "fact":
                 this.factory.update(state);
+                break;
+
+            case "playerID":
+                this.players.setCurrentPlayerID(Integer.parseInt(state));
                 break;
 
             case "player":

@@ -13,7 +13,7 @@ import java.util.List;
 public class PlayerBoard
 {
     private final MarketBoard market;
-    private final Player player;
+    private Player player;
     public final Storage storage;
     public final LeaderStack leaders;
     public final DevelopmentCardStack devCards;
@@ -44,6 +44,10 @@ public class PlayerBoard
 
         this.marketDiscounts = new ResourcePack();
         this.whiteExchange = new ArrayList<>();
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 
     /**
@@ -194,8 +198,7 @@ public class PlayerBoard
         return white;
     }
 
-    public List<Resource> getWhiteExchange()
-    {
+    public List<Resource> getWhiteExchange() {
         return Collections.unmodifiableList(this.whiteExchange);
     }
 
@@ -222,8 +225,7 @@ public class PlayerBoard
         return this.storage.warehouse.getPendingResources().size();
     }
 
-    public int done()
-    {
+    public int done() {
         int wasted = this.storage.warehouse.done();
         this.faithTrack.wastedResources(wasted);
         return wasted;
@@ -270,16 +272,37 @@ public class PlayerBoard
 
     // Methods for power activation
 
-    public void addDiscount(ResourcePack rp) { this.marketDiscounts.add(rp); }
+    public void addDiscount(ResourcePack rp) {
+        this.marketDiscounts.add(rp);
+    }
 
-    public void addProduction(Production p) { this.factory.addProductionPower(p); }
+    public void addProduction(Production p) {
+        this.factory.addProductionPower(p);
+        this.player.send(MessageParser.message("update","fact",this.factory));
+    }
 
     public void addWhite(Resource res) {
         if(!this.whiteExchange.contains(res)) this.whiteExchange.add(res);
+        this.player.send(MessageParser.message("update","white",this.whiteExchange));
     }
 
     public void addLeaderStock(StockPower stock) {
         this.storage.warehouse.addStockPower(stock);
         this.player.send(MessageParser.message("update","WH",stock));
+    }
+
+    // NEW
+
+    public void updateAll() {
+        this.player.send(MessageParser.message("update","fact",this.factory));
+        this.player.send(MessageParser.message("update","white",this.whiteExchange));
+        for(StockPower stock : this.storage.warehouse.getStockPower())
+            this.player.send(MessageParser.message("update","WH",stock));
+        this.player.send(MessageParser.message("update","WHConfig",this.storage.warehouse.getConfig()));
+        this.player.send(MessageParser.message("update","strongbox",this.storage.strongbox));
+        this.player.send(MessageParser.message("update","leaders",this.leaders));
+        this.player.send(MessageParser.message("update","devCards",this.devCards));
+        this.player.send(MessageParser.message("update","faith:track",this.faithTrack));
+        this.player.send(MessageParser.message("update","faith:config",this.faithTrack.getConfig()));
     }
 }

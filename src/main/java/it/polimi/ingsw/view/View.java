@@ -20,8 +20,6 @@ public interface View {
 
     void tell(String message);
 
-    void fancyTell(String message);
-
     String selectConnection();
 
     void setID(int playerID);
@@ -31,6 +29,8 @@ public interface View {
     void showError(Error error);
 
     String selectNickname();
+
+    boolean selectResume();
 
     int selectNumberOfPlayer();
 

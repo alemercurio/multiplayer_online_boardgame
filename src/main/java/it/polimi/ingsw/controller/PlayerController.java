@@ -8,7 +8,7 @@ import java.util.Map;
 public class PlayerController {
 
     private final List<String> nameList = new LinkedList<>();
-    private final Map<String,MultiGame> disconnectedPlayer = new HashMap<>();
+    private final Map<String,Game> disconnectedPlayer = new HashMap<>();
 
     private static PlayerController controller;
 
@@ -27,7 +27,7 @@ public class PlayerController {
         return this.disconnectedPlayer.containsKey(nickname);
     }
 
-    public MultiGame resumeGame(String nickname) {
+    public Game resumeGame(String nickname) {
         return this.disconnectedPlayer.remove(nickname);
     }
 
@@ -38,7 +38,7 @@ public class PlayerController {
         } else return false;
     }
 
-    public synchronized void postPlayerDisconnected(String nickname,MultiGame game) {
+    public synchronized void postPlayerDisconnected(String nickname,Game game) {
         this.nameList.remove(nickname);
         this.disconnectedPlayer.put(nickname,game);
     }

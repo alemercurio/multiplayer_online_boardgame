@@ -80,6 +80,13 @@ public class Client implements Runnable {
 
         this.login();
 
+        msg = this.message.receive();
+        if(msg.equals("resumeGame?")) {
+            boolean resume = this.view.selectResume();
+            this.message.send(MessageParser.message("resume",resume));
+            if(resume) this.runGame();
+        }
+
         do {
 
             msg = this.view.selectGame();
@@ -229,13 +236,21 @@ public class Client implements Runnable {
         this.selectLeader();
         this.initialAdvantage();
 
+        this.runGame();
+    }
+
+    private void runGame() {
+        String answer;
         boolean active = true;
         while(active) {
 
             do {
                 answer = this.message.receive();
                 if(answer.equals("GameEnd")) active = false;
-                else if(!answer.equals("PLAY")) this.view.showError(Error.UNKNOWN_ERROR);
+                else if(!answer.equals("PLAY")) {
+                    this.view.showError(Error.UNKNOWN_ERROR);
+                    System.out.println(answer);
+                }
             } while(!answer.equals("PLAY") && active);
 
             if(answer.equals("PLAY")) {

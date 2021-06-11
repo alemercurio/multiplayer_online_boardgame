@@ -86,11 +86,6 @@ public class GuiView implements View {
     }
 
     @Override
-    public void fancyTell(String message) {
-
-    }
-
-    @Override
     public String selectConnection() {
         return "127.0.0.1 2703";
 
@@ -145,6 +140,11 @@ public class GuiView implements View {
             while (!eventHandler.containsKey(ViewEvent.NICKNAME)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
         return (String) eventHandler.remove(ViewEvent.NICKNAME);
+    }
+
+    @Override
+    public boolean selectResume() {
+        return false;
     }
 
     @Override
