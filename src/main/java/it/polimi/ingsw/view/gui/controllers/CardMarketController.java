@@ -87,6 +87,7 @@ public class CardMarketController implements Initializable, InvalidationListener
         cardImg.setImage(image);
         chosenCard.setStyle("-fx-background-color: #" + cardView.getColor() + ";\n" +
                 "    -fx-background-radius: 30;");
+        chosenCard.setVisible(true);
     }
 
     @Override
@@ -137,7 +138,7 @@ public class CardMarketController implements Initializable, InvalidationListener
         } catch (IOException e) {
             e.printStackTrace();
         }
-        cardImg.imageProperty().set(null);
+        chosenCard.setVisible(false);
     }
 
     public void buyCard() {
