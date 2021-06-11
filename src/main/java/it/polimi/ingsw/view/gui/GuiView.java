@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.gui;
 
 import com.google.gson.Gson;
+import it.polimi.ingsw.model.cards.DevelopmentCard;
 import it.polimi.ingsw.model.cards.LeaderCard;
 import it.polimi.ingsw.model.cards.StockPower;
 import it.polimi.ingsw.model.resources.Resource;
@@ -32,6 +33,7 @@ public class GuiView implements View {
     public MarketView market = new MarketView();
     public LeaderView leaderStack = new LeaderView();
     public DevelopmentCardStackView devCardStack = new DevelopmentCardStackView();
+    public DevelopmentCardView buyed = new DevelopmentCardView();
     public FactoryView factory = new FactoryView();
     public WarehouseView warehouse = new WarehouseView();
     public ResourcePack strongbox = new ResourcePack();
@@ -124,6 +126,16 @@ public class GuiView implements View {
                     alert.close();
                 }
             }
+            if(error.compareTo(Error.INVALID_POSITION)==0) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Not valid position");
+                alert.setHeaderText("You cannot put this Card here!");
+                alert.setContentText("Its level is wrong for this positioning.");
+
+                if(alert.showAndWait().get() == ButtonType.OK){
+                    alert.close();
+                }
+            }
         });
     }
 
@@ -199,10 +211,13 @@ public class GuiView implements View {
     }
 
     @Override
-    public String selectDevCardPosition() {
+    public synchronized String selectDevCardPosition() {
+        GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+        Platform.runLater(() -> GuiView.getGuiView().playerboard.positionCard(buyed));
         try {
             while (!eventHandler.containsKey(ViewEvent.DEVCARD_POSITION)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
+        Platform.runLater(() -> GuiView.getGuiView().playerboard.notYourTurn());
         return (String) eventHandler.remove(ViewEvent.DEVCARD_POSITION);
     }
 

@@ -4,10 +4,8 @@ import it.polimi.ingsw.model.resources.Resource;
 import it.polimi.ingsw.model.resources.ResourcePack;
 import it.polimi.ingsw.view.ViewEvent;
 import it.polimi.ingsw.view.gui.GuiView;
-import it.polimi.ingsw.view.lightmodel.DevelopmentCardStackView;
-import it.polimi.ingsw.view.lightmodel.FaithView;
-import it.polimi.ingsw.view.lightmodel.GameView;
-import it.polimi.ingsw.view.lightmodel.WarehouseView;
+import it.polimi.ingsw.view.lightmodel.*;
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.fxml.Initializable;
@@ -46,7 +44,7 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     private int markerPosition = 0;
 
     @FXML
-    private ImageView board, card1, card2, card3,
+    private ImageView board, card1, card2, card3, buyed,
             first, secondA, secondB, thirdA, thirdB, thirdC,
             coin, stone, shield, servant;
 
@@ -60,7 +58,7 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     private MenuBar show;
 
     @FXML
-    private Label pendingBar;
+    private Label pendingBar, notYourTurnBar;
 
     @FXML
     private Rectangle pendingArea;
@@ -81,6 +79,7 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
         board.setImage(new Image("/PNG/board/playerboard.png"));
         setBlank();
         updateWarehouse();
+        updateCards();
         pendingSceneOff();
     }
 
@@ -100,12 +99,23 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
         pendingShields.setVisible(false);
         pendingServants.setVisible(false);
         moveStarted = false;
+        buyed.setVisible(false);
+        notYourTurnBar.setVisible(false);
     }
 
     public void setActive() {
         active = true;
         actionMenu.setVisible(true);
+        card1.setVisible(true);
+        card2.setVisible(true);
+        card3.setVisible(true);
+    }
 
+    public void notYourTurn() {
+        active = false;
+        setBlank();
+        show.setVisible(true);
+        notYourTurnBar.setVisible(true);
     }
 
     public void hideMenu() {
@@ -115,9 +125,14 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     }
 
     public void showMenu() {
-        menuToggler.setVisible(false);
-        show.setVisible(false);
-        actionMenu.setVisible(true);
+        if(active) {
+            menuToggler.setVisible(false);
+            show.setVisible(false);
+            actionMenu.setVisible(true);
+        }
+        else {
+            notYourTurn();
+        }
     }
 
     public void pendingSceneOn() {
@@ -230,7 +245,7 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     public void done() {
         GuiView.getGuiView().event(ViewEvent.WAREHOUSE_CONFIG, warehouse.getConfig());
         pendingSceneOff();
-        GuiView.getGuiView().showScene("/FXML/notyourturn.fxml");
+        Platform.runLater(() -> GuiView.getGuiView().playerboard.notYourTurn());
     }
 
     public void showResourceMarket() {
@@ -257,6 +272,26 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     public void buyDevCard() {
         GuiView.getGuiView().event(ViewEvent.ACTION, "buyDevCard");
         GuiView.getGuiView().showScene("/FXML/market.fxml");
+    }
+
+    public void positionCard(DevelopmentCardView card) {
+        buyed.setVisible(true);
+        buyed.setImage(new Image(card.getImgSrc()));
+    }
+
+    public void put1() {
+        GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "1");
+        buyed.setVisible(false);
+    }
+
+    public void put2() {
+        GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "2");
+        buyed.setVisible(false);
+    }
+
+    public void put3() {
+        GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "3");
+        buyed.setVisible(false);
     }
 
     public void activateProduction() {

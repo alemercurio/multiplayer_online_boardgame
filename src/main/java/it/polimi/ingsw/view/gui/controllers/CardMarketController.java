@@ -59,6 +59,7 @@ public class CardMarketController implements Initializable, InvalidationListener
     private DevelopmentCardView cardToBuy;
 
     public void cancel(ActionEvent event) {
+        GuiView.getGuiView().event(ViewEvent.DEVCARD, "back");
         GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
         Platform.runLater(() -> GuiView.getGuiView().playerboard.showMenu());
     }
@@ -98,7 +99,6 @@ public class CardMarketController implements Initializable, InvalidationListener
             listener = new CardListener() {
                 @Override
                 public void onClickListener(DevelopmentCardView cardView) {
-
                     setChosenCard(cardView);
                     //save the chosen card
                     cardToBuy = cardView;
@@ -137,10 +137,11 @@ public class CardMarketController implements Initializable, InvalidationListener
         } catch (IOException e) {
             e.printStackTrace();
         }
+        cardImg.imageProperty().set(null);
     }
 
     public void buyCard() {
-        System.out.println("Buying "+Color.toColorFromValue(cardToBuy.getColor()).getAlias()+cardToBuy.getLevel());
+        GuiView.getGuiView().buyed = cardToBuy;
         GuiView.getGuiView().event(ViewEvent.DEVCARD, ""+Color.toColorFromValue(cardToBuy.getColor()).getAlias()+cardToBuy.getLevel());
     }
 

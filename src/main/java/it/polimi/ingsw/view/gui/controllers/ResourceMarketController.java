@@ -468,6 +468,7 @@ public class ResourceMarketController implements Initializable, InvalidationList
     }
 
     public void cancel(ActionEvent event) {
+        GuiView.getGuiView().event(ViewEvent.MARBLES, "back");
         GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
         Platform.runLater(() -> GuiView.getGuiView().playerboard.showMenu());
     }

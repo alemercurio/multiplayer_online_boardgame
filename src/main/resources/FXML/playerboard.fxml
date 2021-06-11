@@ -14,16 +14,16 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="650.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.controllers.PlayerBoardSceneController">
+<AnchorPane prefHeight="650.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.controllers.PlayerBoardSceneController">
    <children>
       <ImageView fx:id="board" fitHeight="662.0" fitWidth="1281.0" layoutY="-2.0" pickOnBounds="true">
          <image>
             <Image url="@../PNG/board/playerboard.png" />
          </image>
       </ImageView>
-      <ImageView fx:id="card1" fitHeight="304.0" fitWidth="190.0" layoutX="515.0" layoutY="282.0" pickOnBounds="true" preserveRatio="true" />
-      <ImageView fx:id="card2" fitHeight="304.0" fitWidth="190.0" layoutX="760.0" layoutY="282.0" pickOnBounds="true" preserveRatio="true" />
-      <ImageView fx:id="card3" fitHeight="304.0" fitWidth="190.0" layoutX="1010.0" layoutY="282.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="card1" fitHeight="304.0" fitWidth="190.0" layoutX="515.0" layoutY="282.0" onMouseClicked="#put1" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="card2" fitHeight="304.0" fitWidth="190.0" layoutX="760.0" layoutY="282.0" onMouseClicked="#put2" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="card3" fitHeight="304.0" fitWidth="190.0" layoutX="1010.0" layoutY="282.0" onMouseClicked="#put3" pickOnBounds="true" preserveRatio="true" />
       <ImageView fx:id="marker" fitHeight="44.0" fitWidth="56.0" layoutX="55.0" layoutY="126.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../PNG/punchboard/faithmarker.png" />
@@ -174,5 +174,11 @@
       <ImageView fx:id="secondA" fitHeight="54.0" fitWidth="52.0" layoutX="116.0" layoutY="333.0" onMouseClicked="#moveSecondA" pickOnBounds="true" preserveRatio="true" />
       <ImageView fx:id="secondB" fitHeight="54.0" fitWidth="52.0" layoutX="164.0" layoutY="333.0" onMouseClicked="#moveSecondB" pickOnBounds="true" preserveRatio="true" />
       <ImageView fx:id="thirdC" fitHeight="54.0" fitWidth="52.0" layoutX="190.0" layoutY="393.0" onMouseClicked="#moveThirdC" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="buyed" fitHeight="304.0" fitWidth="190.0" layoutX="305.0" layoutY="67.0" pickOnBounds="true" preserveRatio="true" />
+      <Label fx:id="notYourTurnBar" alignment="CENTER" layoutX="-13.0" layoutY="438.0" prefHeight="42.0" prefWidth="1293.0" stylesheets="@../CSS/actionMenuButton.css" text="It is not your turn... Wait for it to start. If you want, you can look around while waiting." textAlignment="CENTER">
+         <font>
+            <Font name="Copperplate Gothic Bold" size="18.0" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>
