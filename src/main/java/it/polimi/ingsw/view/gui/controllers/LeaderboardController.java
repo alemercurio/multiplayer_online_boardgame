@@ -3,6 +3,7 @@ package it.polimi.ingsw.view.gui.controllers;
 import it.polimi.ingsw.controller.Game;
 import it.polimi.ingsw.model.resources.Resource;
 import it.polimi.ingsw.model.resources.ResourcePack;
+import it.polimi.ingsw.network.Player;
 import it.polimi.ingsw.view.ViewEvent;
 import it.polimi.ingsw.view.gui.GuiView;
 import it.polimi.ingsw.view.lightmodel.GameView;
@@ -16,6 +17,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Rectangle;
 
@@ -39,6 +41,9 @@ public class LeaderboardController implements Initializable, InvalidationListene
     @FXML
     TextField numPoints1, numPoints2, numPoints3, numPoints4;
 
+    @FXML
+    ImageView crown1, crown2, crown3, crown4;
+
     GameView players;
 
     @Override
@@ -48,6 +53,10 @@ public class LeaderboardController implements Initializable, InvalidationListene
         current2.setVisible(false);
         current3.setVisible(false);
         current4.setVisible(false);
+        crown1.setVisible(false);
+        crown2.setVisible(false);
+        crown3.setVisible(false);
+        crown4.setVisible(false);
         this.invalidated(null);
         if(GuiView.getGuiView().players.players.length>=2) {
             if(GuiView.getGuiView().players.players.length>=3) {
@@ -129,6 +138,8 @@ public class LeaderboardController implements Initializable, InvalidationListene
         this.players = GuiView.getGuiView().players;
 
         int i = 1;
+        int maxPoints=0;
+        String leader = "";
         for(PlayerView player : players.players) {
             if(i==1) {
                 player1.setVisible(true);
@@ -155,10 +166,22 @@ public class LeaderboardController implements Initializable, InvalidationListene
                 update(4, player.getResources(), player.getVictoryPoints(), player.getNickname());
                 i++;
             }
-            if(GuiView.getGuiView().currentPlayer.equals(player1.getText())) current1.setVisible(true);
-            if(GuiView.getGuiView().currentPlayer.equals(player2.getText())) current2.setVisible(true);
-            if(GuiView.getGuiView().currentPlayer.equals(player3.getText())) current3.setVisible(true);
-            if(GuiView.getGuiView().currentPlayer.equals(player4.getText())) current4.setVisible(true);
+
+            if(player.getVictoryPoints()>maxPoints) {
+                maxPoints = player.getVictoryPoints();
+                leader = player.getNickname();
+            }
+            if(GuiView.getGuiView().currentPlayer!=null) {
+                if (GuiView.getGuiView().currentPlayer.equals(player1.getText())) current1.setVisible(true);
+                if (GuiView.getGuiView().currentPlayer.equals(player2.getText())) current2.setVisible(true);
+                if (GuiView.getGuiView().currentPlayer.equals(player3.getText())) current3.setVisible(true);
+                if (GuiView.getGuiView().currentPlayer.equals(player4.getText())) current4.setVisible(true);
+            }
         }
+
+        if(leader.equals(player1.getText())) crown1.setVisible(true);
+        if(leader.equals(player2.getText())) crown2.setVisible(true);
+        if(leader.equals(player3.getText())) crown3.setVisible(true);
+        if(leader.equals(player4.getText())) crown4.setVisible(true);
     }
 }

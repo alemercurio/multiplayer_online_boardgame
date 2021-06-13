@@ -301,5 +301,25 @@
             <Font name="Cambria Bold" size="24.0" />
          </font>
       </Label>
+      <ImageView fx:id="crown1" fitHeight="53.0" fitWidth="112.0" layoutX="55.0" layoutY="147.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/crown.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="crown2" fitHeight="53.0" fitWidth="112.0" layoutX="337.0" layoutY="147.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/crown.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="crown3" fitHeight="53.0" fitWidth="112.0" layoutX="621.0" layoutY="147.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/crown.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="crown4" fitHeight="53.0" fitWidth="112.0" layoutX="900.0" layoutY="147.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/crown.png" />
+         </image>
+      </ImageView>
    </children>
 </AnchorPane>
