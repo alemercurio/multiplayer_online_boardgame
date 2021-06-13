@@ -6,9 +6,8 @@ import it.polimi.ingsw.model.cards.LeaderCard;
 import it.polimi.ingsw.model.cards.StockPower;
 import it.polimi.ingsw.model.resources.Resource;
 import it.polimi.ingsw.model.resources.ResourcePack;
-import it.polimi.ingsw.view.gui.controllers.AdvantageSceneController;
-import it.polimi.ingsw.view.gui.controllers.LootSceneController;
-import it.polimi.ingsw.view.gui.controllers.PlayerBoardSceneController;
+import it.polimi.ingsw.util.Screen;
+import it.polimi.ingsw.view.gui.controllers.*;
 import it.polimi.ingsw.view.lightmodel.*;
 import it.polimi.ingsw.controller.Error;
 import it.polimi.ingsw.controller.GameEvent;
@@ -18,13 +17,14 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
+import java.sql.SQLOutput;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class GuiView implements View {
 
-    private int playerID;
+    public int playerID;
     private GuiApp guiApp;
 
     private static GuiView guiView;
@@ -43,6 +43,12 @@ public class GuiView implements View {
     public AdvantageSceneController advantageSetter;
     public PlayerBoardSceneController playerboard;
     public LootSceneController lootScene;
+    public CardMarketController cardMarket;
+    public ResourceMarketController resourceMarket;
+    public LeaderboardController leaderboard;
+
+    public String nickname;
+    public String currentPlayer;
 
     private final Map<ViewEvent,Object> eventHandler = new HashMap<>();
 
@@ -62,7 +68,48 @@ public class GuiView implements View {
 
     @Override
     public void throwEvent(GameEvent event,String eventData) {
+        switch(event) {
+            case PLAYER_JOIN:
+                Platform.runLater(() -> {
+                    Alert join = new Alert(Alert.AlertType.INFORMATION);
+                    join.setTitle("Join");
+                    join.setHeaderText("A player is joining!");
+                    join.setContentText(eventData);
 
+                    if (join.showAndWait().get() == ButtonType.OK) {
+                        join.close();
+                    }
+                });
+                break;
+
+            case PLAYER_DISCONNECT:
+                Platform.runLater(() -> {
+                    Alert disconnect = new Alert(Alert.AlertType.WARNING);
+                    disconnect.setTitle("Disconnect");
+                    disconnect.setHeaderText(eventData + " has disconnected from the game.");
+
+                    if (disconnect.showAndWait().get() == ButtonType.OK) {
+                        disconnect.close();
+                    }
+                });
+                break;
+
+            case POPE_FAVOUR:
+                Platform.runLater(() -> {
+                    Alert favour = new Alert(Alert.AlertType.INFORMATION);
+                    favour.setTitle("Pope's Favour");
+                    favour.setHeaderText("Pope's Favour activated!");
+
+                    if (favour.showAndWait().get() == ButtonType.OK) {
+                        favour.close();
+                    }
+                });
+                break;
+
+            case ROUND:
+                currentPlayer = eventData;
+                break;
+        }
     }
 
     @Override
@@ -97,7 +144,7 @@ public class GuiView implements View {
 
     @Override
     public void setID(int playerID) {
-        this.playerID = playerID;
+        this.players.setCurrentPlayerID(playerID);
     }
 
     @Override
@@ -115,7 +162,7 @@ public class GuiView implements View {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Not enough Resources");
                 alert.setHeaderText("You cannot buy this Card!");
-                alert.setContentText("You do not have enough Resources.");
+                alert.setContentText("Choose another one or change action.");
 
                 if(alert.showAndWait().get() == ButtonType.OK){
                     alert.close();
@@ -187,6 +234,7 @@ public class GuiView implements View {
         Platform.runLater(() -> {
             guiApp.showScene("/FXML/playerboard.fxml");
             this.playerboard.setActive();
+            this.playerboard.showMenu();
         });
         try {
             while (!eventHandler.containsKey(ViewEvent.ACTION)) wait();
@@ -315,6 +363,10 @@ public class GuiView implements View {
 
             case "fact":
                 this.factory.update(state);
+                break;
+
+            case "playerID":
+                this.players.setCurrentPlayerID(Integer.parseInt(state));
                 break;
 
             case "player":

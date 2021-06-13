@@ -178,7 +178,7 @@ public class MultiGame extends Game implements Runnable{
             if(next != null) {
 
                 next.setActive();
-                this.broadCast(MessageParser.message("event",GameEvent.ROUND,next.getNickname()));
+                this.broadCastFull(MessageParser.message("event",GameEvent.ROUND,next.getNickname()));
 
                 this.nextRound.set(false);
 

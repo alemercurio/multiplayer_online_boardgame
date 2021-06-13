@@ -39,7 +39,6 @@ public class GuiApp extends Application {
     private static String gameChoice;
     private static int numPlayers;
     private static String soloMode;
-    private static String nickname;
 
     private static final int WIDTH = 1280;
     private static final int HEIGHT = 650;
@@ -236,15 +235,15 @@ public class GuiApp extends Application {
         answer.setStyle("-fx-background-color: transparent");
         answer.setOnKeyPressed(event -> {
             if(event.getCode() == KeyCode.ENTER) {
-                nickname = answer.getText();
+                GuiView.getGuiView().nickname = answer.getText();
                 if(gameChoice.equals("join")) {
                     removeFromRoot(nicknameField);
-                    GuiView.getGuiView().event(ViewEvent.NICKNAME, nickname);
+                    GuiView.getGuiView().event(ViewEvent.NICKNAME, GuiView.getGuiView().nickname);
                     showScene("/FXML/waitingscreen.fxml");
                 }
                 else if(gameChoice.equals("new")) {
                     removeFromRoot(nicknameField);
-                    GuiView.getGuiView().event(ViewEvent.NICKNAME, nickname);
+                    GuiView.getGuiView().event(ViewEvent.NICKNAME, GuiView.getGuiView().nickname);
                     setMenu(nicknameChoice, newGameMenuBox);
                 }
             }

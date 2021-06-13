@@ -25,6 +25,10 @@ public class PlayerView {
         return this.id;
     }
 
+    public ResourcePack getResources() {
+        return this.resources.getCopy();
+    }
+
     public String getNickname() {
         if(this.nickname == null) return "...";
         else return this.nickname;
