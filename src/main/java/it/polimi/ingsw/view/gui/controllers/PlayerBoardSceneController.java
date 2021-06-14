@@ -5,9 +5,11 @@ import it.polimi.ingsw.model.resources.ResourcePack;
 import it.polimi.ingsw.view.ViewEvent;
 import it.polimi.ingsw.view.gui.GuiView;
 import it.polimi.ingsw.view.lightmodel.*;
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -18,6 +20,7 @@ import javafx.scene.image.ImageView;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -42,6 +45,7 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     }};
 
     private int markerPosition = 0;
+    private int previousMarkerPosition = 0;
 
     @FXML
     private ImageView board, card1, card2, card3, buyed,
@@ -370,6 +374,7 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
         this.game = GuiView.getGuiView().players;
         int id = game.getCurrentPlayerID();
         markerPosition = game.players[id].getFaithMarker();
+        updatePosition();
         System.out.println(markerPosition);
     }
 
@@ -378,5 +383,51 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
         if (observable instanceof DevelopmentCardStackView) updateCards();
         if (observable instanceof WarehouseView) updateWarehouse();
         if (observable instanceof FaithView) updateFaith();
+    }
+
+    void updatePosition() {
+        int position = previousMarkerPosition;
+        while(position != markerPosition) {
+            if ((0 <= position && position <= 1) || (4 <= position && position <= 6) || (11 <= position && position <= 14) || (18 <= position && position <= 22) || (position == 8))
+                horizontalTranslation();
+            else if ((position == 7) || (position == 15) || (position == 23))
+                horizontalTranslationToPopeSpace();
+            else if ((2 <= position && position <= 3) || (16 <= position && position <= 17))
+                upVerticalTranslation();
+            else
+                downVerticalTranslation();
+            position++;
+        }
+        previousMarkerPosition = markerPosition;
+    }
+    public void horizontalTranslation(){
+        TranslateTransition transition = new TranslateTransition();
+        transition.setNode(marker);
+        transition.setByX(63);
+        transition.setDuration(Duration.millis(500));
+        transition.play();
+    }
+    public void horizontalTranslationToPopeSpace(){
+        TranslateTransition transition = new TranslateTransition();
+        transition.setNode(marker);
+        transition.setByX(61.75);
+        transition.setDuration(Duration.millis(500));
+        transition.play();
+    }
+
+    public void downVerticalTranslation(){
+        TranslateTransition transition = new TranslateTransition();
+        transition.setNode(marker);
+        transition.setByY(45);
+        transition.setDuration(Duration.millis(500));
+        transition.play();
+    }
+
+    public void upVerticalTranslation(){
+        TranslateTransition transition = new TranslateTransition();
+        transition.setNode(marker);
+        transition.setByY(-45);
+        transition.setDuration(Duration.millis(500));
+        transition.play();
     }
 }
