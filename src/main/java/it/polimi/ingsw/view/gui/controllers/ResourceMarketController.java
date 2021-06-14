@@ -87,6 +87,29 @@ public class ResourceMarketController implements Initializable, InvalidationList
     @FXML
     private Button buttonRow2;
 
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        GuiView.getGuiView().resourceMarket = this;
+
+        marketTray[0][0] = a;
+        marketTray[0][1] = b;
+        marketTray[0][2] = c;
+        marketTray[0][3] = d;
+        marketTray[1][0] = e;
+        marketTray[1][1] = f;
+        marketTray[1][2] = g;
+        marketTray[1][3] = h;
+        marketTray[2][0] = i;
+        marketTray[2][1] = l;
+        marketTray[2][2] = m;
+        marketTray[2][3] = n;
+        pendingMarble = x;
+
+        GuiView.getGuiView().market.addListener(this);
+        this.invalidated(GuiView.getGuiView().market);
+    }
+
     @FXML
     void moveColumn1(ActionEvent event) {
         //animation
@@ -466,32 +489,20 @@ public class ResourceMarketController implements Initializable, InvalidationList
     @FXML
     private final Circle[][] marketTray = new Circle[3][4];
 
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-
-        marketTray[0][0] = a;
-        marketTray[0][1] = b;
-        marketTray[0][2] = c;
-        marketTray[0][3] = d;
-        marketTray[1][0] = e;
-        marketTray[1][1] = f;
-        marketTray[1][2] = g;
-        marketTray[1][3] = h;
-        marketTray[2][0] = i;
-        marketTray[2][1] = l;
-        marketTray[2][2] = m;
-        marketTray[2][3] = n;
-        pendingMarble = x;
-
-        GuiView.getGuiView().market.addListener(this);
-        this.invalidated(GuiView.getGuiView().market);
-    }
-
     public void cancel(ActionEvent event) {
         GuiView.getGuiView().event(ViewEvent.MARBLES, "back");
         GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
         Platform.runLater(() -> GuiView.getGuiView().playerboard.showMenu());
+    }
+
+    public void disableActions() {
+        buttonColumn1.setVisible(false);
+        buttonColumn2.setVisible(false);
+        buttonColumn3.setVisible(false);
+        buttonColumn4.setVisible(false);
+        buttonRow1.setVisible(false);
+        buttonRow2.setVisible(false);
+        buttonRow3.setVisible(false);
     }
 
     @Override

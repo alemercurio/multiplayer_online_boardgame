@@ -29,7 +29,7 @@ import java.util.ResourceBundle;
 
 public class PlayerBoardSceneController implements Initializable, InvalidationListener {
 
-    boolean active = false;
+    boolean active;
 
     private DevelopmentCardStackView cards;
     private WarehouseView warehouse;
@@ -76,6 +76,7 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        game = GuiView.getGuiView().players;
         GuiView.getGuiView().playerboard = this;
         GuiView.getGuiView().devCardStack.addListener(this);
         GuiView.getGuiView().warehouse.addListener(this);
@@ -85,6 +86,9 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
         updateWarehouse();
         updateCards();
         pendingSceneOff();
+        if(GuiView.getGuiView().nickname.equals(GuiView.getGuiView().currentPlayer)) {
+            setActive();
+        }
     }
 
     public void setBlank() {
@@ -109,7 +113,6 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
 
     public void setActive() {
         active = true;
-        actionMenu.setVisible(true);
         card1.setVisible(true);
         card2.setVisible(true);
         card3.setVisible(true);
@@ -254,10 +257,12 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
 
     public void showResourceMarket() {
         GuiView.getGuiView().showScene("/FXML/marbles.fxml");
+        Platform.runLater(() -> GuiView.getGuiView().resourceMarket.disableActions());
     }
 
     public void showCardMarket() {
         GuiView.getGuiView().showScene("/FXML/market.fxml");
+        Platform.runLater(() -> GuiView.getGuiView().cardMarket.disableActions());
     }
 
     public void showProductions() {
@@ -265,7 +270,7 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     }
 
     public void showPlayers() {
-
+        GuiView.getGuiView().showScene("/FXML/leaderboard.fxml");
     }
 
     public void takeResources() {

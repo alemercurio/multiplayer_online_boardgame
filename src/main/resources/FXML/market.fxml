@@ -55,7 +55,7 @@
                                     </VBox.margin>
                                 </HBox>
                                 <HBox alignment="CENTER" prefHeight="53.0" prefWidth="335.0" />
-                                <Button mnemonicParsing="false" onMouseClicked="#buyCard" prefHeight="55.0" prefWidth="270.0" styleClass="add-btn" stylesheets="@../CSS/actionMenuButton.css" text="BUY CARD" textFill="#828282">
+                                <Button fx:id="buyButton" mnemonicParsing="false" onMouseClicked="#buyCard" prefHeight="55.0" prefWidth="270.0" styleClass="add-btn" stylesheets="@../CSS/actionMenuButton.css" text="BUY CARD" textFill="#828282">
                                     <VBox.margin>
                                         <Insets bottom="60.0" top="30.0" />
                                     </VBox.margin>

@@ -47,7 +47,7 @@ public class CardMarketController implements Initializable, InvalidationListener
     private GridPane grid;
 
     @FXML
-    private Button cancelButton;
+    private Button cancelButton, buyButton;
 
     Stage stage;
 
@@ -92,6 +92,7 @@ public class CardMarketController implements Initializable, InvalidationListener
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        GuiView.getGuiView().cardMarket = this;
         GuiView.getGuiView().market.addListener(this);
         this.invalidated(GuiView.getGuiView().market);
         cards.addAll(getData());
@@ -144,6 +145,10 @@ public class CardMarketController implements Initializable, InvalidationListener
     public void buyCard() {
         GuiView.getGuiView().buyed = cardToBuy;
         GuiView.getGuiView().event(ViewEvent.DEVCARD, ""+Color.toColorFromValue(cardToBuy.getColor()).getAlias()+cardToBuy.getLevel());
+    }
+
+    public void disableActions() {
+        buyButton.setVisible(false);
     }
 
     @Override
