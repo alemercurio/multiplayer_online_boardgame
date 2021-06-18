@@ -42,7 +42,7 @@ public class ProductionSceneController implements Initializable, InvalidationLis
                 if(rp.get(res) != 0) {
                     HBox hBox = new HBox();
                     hBox.setAlignment(Pos.CENTER);
-                    hBox.setSpacing(2);
+                    hBox.setSpacing(5);
 
                     ImageView resImage = new ImageView(res.getImage());
                     resImage.setFitHeight(50);
@@ -258,7 +258,11 @@ public class ProductionSceneController implements Initializable, InvalidationLis
 
         this.resButton.getChildren().setAll(picker.get());
         this.first_row.setText("To activate these production");
-        this.second_row.setText("you have to choose " + amount + " resources");
+
+        if(amount == 1)
+            this.second_row.setText("you have to choose 1 resource");
+        else
+            this.second_row.setText("you have to choose " + amount + " resources");
 
         this.done.setOnMouseClicked(event -> {
             GuiView.getGuiView().event(ViewEvent.FREE_REQUIREMENT,picker.getSelected());
@@ -274,7 +278,11 @@ public class ProductionSceneController implements Initializable, InvalidationLis
 
         this.resButton.getChildren().setAll(select.get());
         this.first_row.setText("");
-        this.second_row.setText("You can choose " + amount + " resources!");
+
+        if(amount == 1)
+            this.second_row.setText("You can choose 1 resource!");
+        else
+            this.second_row.setText("You can choose " + amount + " resources!");
 
         this.done.setOnMouseClicked(event -> {
             GuiView.getGuiView().event(ViewEvent.CHOOSE_PRODUCT,select.getSelected());

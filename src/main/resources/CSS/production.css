@@ -3,7 +3,7 @@
 }
 
 .list-cell:selected {
-    -fx-background-color: black;
+    -fx-background-color: gold;
 }
 
 .list-view {

@@ -190,7 +190,14 @@ public class CliView implements View {
     public int selectNumberOfPlayer() {
         Scanner input = new Scanner(System.in);
         System.out.print("\tHow many players? << ");
-        return input.nextInt();
+        while(true) {
+            try {
+                return input.nextInt();
+            } catch(InputMismatchException e) {
+                System.out.print("\tPlease, insert a number between 1 and 4 << ");
+                input.nextLine();
+            }
+        }
     }
 
     @Override
@@ -556,6 +563,7 @@ public class CliView implements View {
 
                         } catch(NumberFormatException e) {
                             this.showError(Error.INVALID_SELECTION);
+                            System.out.print("(row) >> ");
                         }
                     }
 
@@ -576,6 +584,7 @@ public class CliView implements View {
 
                         } catch(NumberFormatException e) {
                             this.showError(Error.INVALID_SELECTION);
+                            System.out.print("(column) >> ");
                         }
                     }
 
@@ -584,6 +593,7 @@ public class CliView implements View {
 
                 default:
                     this.showError(Error.INVALID_ROW_OR_COLUMN);
+                    System.out.print("Please, try again << ");
                     break;
             }
         }
@@ -701,7 +711,7 @@ public class CliView implements View {
 
                     parameter = read.next();
 
-                    if(parameter.equals("INTO")) {
+                    if(parameter.equals("INTO") && read.hasNextInt()) {
                         destination = read.nextInt();
                     }
 
@@ -719,7 +729,7 @@ public class CliView implements View {
                         parameter = read.next();
                     }
 
-                    if(parameter.equals("INTO")) {
+                    if(parameter.equals("INTO") && read.hasNextInt()) {
                         destination = read.nextInt();
                         System.out.println("><>> " + destination);
                     }
@@ -894,7 +904,7 @@ public class CliView implements View {
         String cmd;
         int toAdd;
 
-        System.out.println(">> To activate production you have to select " + amount + " more resources.");
+        System.out.println(">> To activate these productions you have to select " + amount + " more resources.");
         System.out.print("\tYou should choose between these: ");
         Screen.print(available);
         System.out.println("\n");
