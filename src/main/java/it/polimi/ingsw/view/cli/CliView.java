@@ -481,8 +481,14 @@ public class CliView implements View {
 
         Scanner input = new Scanner(System.in);
 
-        System.out.println(">> This is the market board, please choose a card!");
+        System.out.println(">> This is the market board, please choose a card!\n");
         this.market.printCardMarket();
+
+        if(this.playerBoard.hasDiscount()) {
+            System.out.print("\n>> You have the following discount: ");
+            Screen.print(this.playerBoard.discount);
+            System.out.print("\n\n");
+        }
 
         System.out.print(">> ");
         String selected = input.nextLine();
@@ -990,6 +996,10 @@ public class CliView implements View {
 
             case "white":
                 this.playerBoard.updateWhite(state);
+                break;
+
+            case "discount":
+                this.playerBoard.updateDiscount(state);
                 break;
 
             case "WHConfig":

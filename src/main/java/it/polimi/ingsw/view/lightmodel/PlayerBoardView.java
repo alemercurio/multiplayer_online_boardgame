@@ -3,6 +3,7 @@ package it.polimi.ingsw.view.lightmodel;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import it.polimi.ingsw.model.resources.Resource;
+import it.polimi.ingsw.model.resources.ResourcePack;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 
@@ -13,6 +14,8 @@ import java.util.List;
 public class PlayerBoardView implements Observable {
 
     public List<Resource> whitePower;
+    public ResourcePack discount;
+
     private final List<InvalidationListener> observers = new ArrayList<>();
 
     public void updateWhite(String whitePower) {
@@ -24,10 +27,17 @@ public class PlayerBoardView implements Observable {
             observer.invalidated(this);
     }
 
-    public boolean hasWhitePower() {
-        return (whitePower != null) && (!whitePower.isEmpty());
+    public void updateDiscount(String discount) {
+        this.discount = ResourcePack.fromString(discount);
     }
 
+    public boolean hasWhitePower() {
+        return (this.whitePower != null) && (!this.whitePower.isEmpty());
+    }
+
+    public boolean hasDiscount() {
+        return (this.discount != null) && (!this.discount.isEmpty());
+    }
     @Override
     public void addListener(InvalidationListener invalidationListener) {
         this.observers.add(invalidationListener);

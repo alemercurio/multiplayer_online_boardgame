@@ -377,6 +377,10 @@ public class GuiView implements View {
                 this.playerBoard.updateWhite(state);
                 break;
 
+            case "discount":
+                this.playerBoard.updateDiscount(state);
+                break;
+
             case "WHConfig":
                 this.warehouse.update(state);
                 break;
