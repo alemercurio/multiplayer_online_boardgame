@@ -8,6 +8,10 @@ import it.polimi.ingsw.model.resources.Resource;
 import it.polimi.ingsw.model.resources.ResourcePack;
 import it.polimi.ingsw.util.Screen;
 import it.polimi.ingsw.view.gui.controllers.*;
+import it.polimi.ingsw.view.gui.controllers.AdvantageSceneController;
+import it.polimi.ingsw.view.gui.controllers.LootSceneController;
+import it.polimi.ingsw.view.gui.controllers.PlayerBoardSceneController;
+import it.polimi.ingsw.view.gui.controllers.ProductionSceneController;
 import it.polimi.ingsw.view.lightmodel.*;
 import it.polimi.ingsw.controller.Error;
 import it.polimi.ingsw.controller.GameEvent;
@@ -17,7 +21,6 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
-import java.sql.SQLOutput;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +52,7 @@ public class GuiView implements View {
 
     public String nickname;
     public String currentPlayer;
+    public ProductionSceneController productionScene;
 
     private final Map<ViewEvent,Object> eventHandler = new HashMap<>();
 
@@ -311,7 +315,7 @@ public class GuiView implements View {
     }
 
     @Override
-    public String selectProduction() {
+    public synchronized String selectProduction() {
         try {
             while (!eventHandler.containsKey(ViewEvent.PRODUCTION)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
@@ -320,12 +324,12 @@ public class GuiView implements View {
 
     @Override
     public void clearFactory() {
-
+        this.factory.clear();
     }
 
     @Override
     public String getActiveProductions() {
-        return null;
+        return this.factory.getActive();
     }
 
     @Override
@@ -337,11 +341,21 @@ public class GuiView implements View {
     }
 
     @Override
-    public ResourcePack selectFreeRequirement(int amount) {
+    public synchronized ResourcePack selectFreeRequirement(int amount) {
+        Platform.runLater(() -> this.productionScene.selectFreeRequirement(amount));
         try {
             while (!eventHandler.containsKey(ViewEvent.FREE_REQUIREMENT)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
         return (ResourcePack) eventHandler.remove(ViewEvent.FREE_REQUIREMENT);
+    }
+
+    @Override
+    public synchronized ResourcePack selectProduct(int amount) {
+        Platform.runLater(() -> this.productionScene.selectResources(amount));
+        try {
+            while (!eventHandler.containsKey(ViewEvent.CHOOSE_PRODUCT)) wait();
+        } catch (InterruptedException ignored) { /* Should not happen */ }
+        return (ResourcePack) eventHandler.remove(ViewEvent.CHOOSE_PRODUCT);
     }
 
     @Override

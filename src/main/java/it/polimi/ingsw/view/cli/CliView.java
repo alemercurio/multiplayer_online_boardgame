@@ -957,6 +957,11 @@ public class CliView implements View {
     }
 
     @Override
+    public ResourcePack selectProduct(int amount) {
+        return this.selectResources(amount);
+    }
+
+    @Override
     public boolean playLeaderAction() {
         Scanner input = new Scanner(System.in);
         while(true) {
