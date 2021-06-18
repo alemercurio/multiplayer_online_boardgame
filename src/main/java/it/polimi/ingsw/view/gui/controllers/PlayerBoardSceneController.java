@@ -10,7 +10,6 @@ import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -45,7 +44,6 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
         for(Resource resource : Resource.values()) put(resource, 0);
     }};
 
-    private int tempPosition = 0;
     private int markerPosition = 0;
     private int previousMarkerPosition = 0;
 
@@ -390,15 +388,13 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
 
     public void updateFaith() {
         this.game = GuiView.getGuiView().players;
-        int id = 0;
         for(PlayerView player : game.players) {
             if(player.getNickname().equals(GuiView.getGuiView().nickname)) {
-                id = player.getID();
+                if(previousMarkerPosition == -1) previousMarkerPosition = 0;
+                else previousMarkerPosition = player.getPreviousMarker();
+                markerPosition = player.getFaithMarker();
             }
         }
-        if(previousMarkerPosition == -1) previousMarkerPosition = 0;
-        else previousMarkerPosition = game.players[id].getPreviousMarker();
-        markerPosition = game.players[id].getFaithMarker();
         updatePosition();
     }
 
@@ -429,13 +425,11 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
             }
         }
         else {
-            int id = 0;
             for(PlayerView player : game.players) {
                 if(player.getNickname().equals(GuiView.getGuiView().nickname)) {
-                    id = player.getID();
+                    player.setPreviousMarker(position);
                 }
             }
-            game.players[id].setPreviousMarker(position);
         }
     }
     public void horizontalTranslation() {
