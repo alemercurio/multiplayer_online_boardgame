@@ -514,9 +514,9 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     }
 
     public void discardPope2() {
-        pope2.imageProperty().set(null);
+        pope3.imageProperty().set(null);
     }
     public void discardPope3() {
-        pope2.imageProperty().set(null);
+        pope4.imageProperty().set(null);
     }
 }
