@@ -13,8 +13,8 @@ import java.util.List;
 
 public class FaithView implements Observable {
 
-    private Vatican.Space[] spaces = new Vatican.Space[0];
-    private Vatican.ReportSection[] popeSpaces = new Vatican.ReportSection[0];
+    public Vatican.Space[] spaces = new Vatican.Space[0];
+    public Vatican.ReportSection[] popeSpaces = new Vatican.ReportSection[0];
     private final GameView players;
     private final List<InvalidationListener> observers = new ArrayList<>();
 
