@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view.gui.controllers;
 
+import it.polimi.ingsw.model.cards.DevelopmentCard;
 import it.polimi.ingsw.model.resources.Resource;
 import it.polimi.ingsw.model.resources.ResourcePack;
 import it.polimi.ingsw.model.vatican.Vatican;
@@ -24,6 +25,7 @@ import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -82,9 +84,9 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
         GuiView.getGuiView().warehouse.addListener(this);
         GuiView.getGuiView().players.addListener(this);
         board.setImage(new Image("/PNG/board/playerboard.png"));
+        updateCards();
         setBlank();
         updateWarehouse();
-        updateCards();
         previousMarkerPosition = -1;
         updateFaith();
         pendingSceneOff();
@@ -120,6 +122,52 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
         moveStarted = false;
         buyed.setVisible(false);
         notYourTurnBar.setVisible(false);
+        setDevCardDecks();
+    }
+
+    public void setDevCardDecks() {
+        setDeck1();
+        setDeck2();
+        setDeck3();
+    }
+
+    public void setDeck1() {
+        LinkedList<DevelopmentCard> deck1 = cards.getCardStack().getDevCardDeck(1);
+        if(deck1==null || deck1.size()==1) {
+            bookmark1.setVisible(false);
+        }
+        else bookmark1.setVisible(true);
+        deckBack1.setVisible(false);
+        deck1liv1.setVisible(false);
+        deck1liv2.setVisible(false);
+        deck1color1.setVisible(false);
+        deck1color2.setVisible(false);
+    }
+
+    public void setDeck2() {
+        LinkedList<DevelopmentCard> deck2 = cards.getCardStack().getDevCardDeck(2);
+        if(deck2==null || deck2.size()==1) {
+            bookmark2.setVisible(false);
+        }
+        else bookmark2.setVisible(true);
+        deckBack2.setVisible(false);
+        deck2liv1.setVisible(false);
+        deck2liv2.setVisible(false);
+        deck2color1.setVisible(false);
+        deck2color2.setVisible(false);
+    }
+
+    public void setDeck3() {
+        LinkedList<DevelopmentCard> deck3 = cards.getCardStack().getDevCardDeck(3);
+        if(deck3==null || deck3.size()==1) {
+            bookmark3.setVisible(false);
+        }
+        else bookmark3.setVisible(true);
+        deckBack3.setVisible(false);
+        deck3liv1.setVisible(false);
+        deck3liv2.setVisible(false);
+        deck3color1.setVisible(false);
+        deck3color2.setVisible(false);
     }
 
     public void setActive() {
@@ -302,16 +350,19 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     public void put1() {
         GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "1");
         buyed.setVisible(false);
+        setDevCardDecks();
     }
 
     public void put2() {
         GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "2");
         buyed.setVisible(false);
+        setDevCardDecks();
     }
 
     public void put3() {
         GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "3");
         buyed.setVisible(false);
+        setDevCardDecks();
     }
 
     public void activateProduction() {
