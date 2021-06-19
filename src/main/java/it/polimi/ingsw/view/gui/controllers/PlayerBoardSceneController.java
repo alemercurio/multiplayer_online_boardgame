@@ -20,7 +20,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.net.URL;
@@ -53,6 +56,18 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     private ImageView board, card1, card2, card3, buyed,
             first, secondA, secondB, thirdA, thirdB, thirdC,
             coin, stone, shield, servant;
+
+    @FXML
+    private ImageView bookmark1, bookmark2, bookmark3;
+
+    @FXML
+    private Rectangle deckBack1, deckBack2, deckBack3;
+
+    @FXML
+    private Circle deck1color1, deck1color2, deck2color1, deck2color2, deck3color1, deck3color2;
+
+    @FXML
+    private Text deck1liv1, deck1liv2, deck2liv1, deck2liv2, deck3liv1, deck3liv2;
 
     @FXML
     private ImageView marker, pope2, pope3, pope4;
@@ -366,8 +381,7 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     }
 
     public void activateProduction() {
-        GuiView.getGuiView().event(ViewEvent.ACTION, "activateProduction");
-        GuiView.getGuiView().showScene("/FXML/production.fxml");
+
     }
 
     public void leaderAction() {
@@ -562,7 +576,65 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     public void discardPope2() {
         pope3.imageProperty().set(null);
     }
+
     public void discardPope3() {
         pope4.imageProperty().set(null);
+    }
+
+    public void showDeck1() {
+        LinkedList<DevelopmentCard> deck1 = cards.getCardStack().getDevCardDeck(1);
+        if(deck1.size()>1) {
+            deckBack1.setVisible(true);
+            deck1liv1.setVisible(true);
+            if(deck1.size()>2) {
+                deck1liv2.setVisible(true);
+                deck1color1.setVisible(true);
+                deck1color2.setVisible(true);
+                deck1color1.setFill(Color.web(deck1.get(2).getColor().getValue()));
+                deck1color2.setFill(Color.web(deck1.get(2).getColor().getValue()));
+            }
+            else {
+                deck1color1.setVisible(true);
+                deck1color1.setFill(Color.web(deck1.get(1).getColor().getValue()));
+            }
+        }
+    }
+
+    public void showDeck2() {
+        LinkedList<DevelopmentCard> deck2 = cards.getCardStack().getDevCardDeck(2);
+        if(deck2.size()>1) {
+            deckBack2.setVisible(true);
+            deck2liv1.setVisible(true);
+            if(deck2.size()>2) {
+                deck2liv2.setVisible(true);
+                deck2color1.setVisible(true);
+                deck2color2.setVisible(true);
+                deck2color1.setFill(Color.web(deck2.get(2).getColor().getValue()));
+                deck2color2.setFill(Color.web(deck2.get(2).getColor().getValue()));
+            }
+            else {
+                deck2color1.setVisible(true);
+                deck2color1.setFill(Color.web(deck2.get(1).getColor().getValue()));
+            }
+        }
+    }
+
+    public void showDeck3() {
+        LinkedList<DevelopmentCard> deck3 = cards.getCardStack().getDevCardDeck(3);
+        if(deck3.size()>1) {
+            deckBack3.setVisible(true);
+            deck3liv1.setVisible(true);
+            if(deck3.size()>2) {
+                deck3liv2.setVisible(true);
+                deck3color1.setVisible(true);
+                deck3color2.setVisible(true);
+                deck3color1.setFill(Color.web(deck3.get(2).getColor().getValue()));
+                deck3color2.setFill(Color.web(deck3.get(2).getColor().getValue()));
+            }
+            else {
+                deck3color1.setVisible(true);
+                deck3color1.setFill(Color.web(deck3.get(1).getColor().getValue()));
+            }
+        }
     }
 }
