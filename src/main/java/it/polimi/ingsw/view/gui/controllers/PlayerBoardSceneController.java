@@ -1,7 +1,9 @@
 package it.polimi.ingsw.view.gui.controllers;
 
+import it.polimi.ingsw.model.cards.DevelopmentCard;
 import it.polimi.ingsw.model.resources.Resource;
 import it.polimi.ingsw.model.resources.ResourcePack;
+import it.polimi.ingsw.model.vatican.Vatican;
 import it.polimi.ingsw.view.ViewEvent;
 import it.polimi.ingsw.view.gui.GuiView;
 import it.polimi.ingsw.view.lightmodel.*;
@@ -9,7 +11,6 @@ import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -24,6 +25,7 @@ import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -53,7 +55,7 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
             coin, stone, shield, servant;
 
     @FXML
-    private ImageView marker;
+    private ImageView marker, pope2, pope3, pope4;
 
     @FXML
     private VBox actionMenu;
@@ -82,10 +84,21 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
         GuiView.getGuiView().warehouse.addListener(this);
         GuiView.getGuiView().players.addListener(this);
         board.setImage(new Image("/PNG/board/playerboard.png"));
+        updateCards();
         setBlank();
         updateWarehouse();
-        updateCards();
+        previousMarkerPosition = -1;
+        updateFaith();
         pendingSceneOff();
+        for(int i = 0; i < 3; i++) {
+            Vatican.ReportSection ps = GuiView.getGuiView().faithTrack.popeSpaces[i];
+            if (ps.getState() == Vatican.State.GOT) {
+                turnPope(i + 1);
+            }
+            else if(ps.getState() == Vatican.State.LOST) {
+                discardPope(i+1);
+            }
+        }
         if(GuiView.getGuiView().nickname.equals(GuiView.getGuiView().currentPlayer)) {
             setActive();
         }
@@ -109,6 +122,52 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
         moveStarted = false;
         buyed.setVisible(false);
         notYourTurnBar.setVisible(false);
+        setDevCardDecks();
+    }
+
+    public void setDevCardDecks() {
+        setDeck1();
+        setDeck2();
+        setDeck3();
+    }
+
+    public void setDeck1() {
+        LinkedList<DevelopmentCard> deck1 = cards.getCardStack().getDevCardDeck(1);
+        if(deck1==null || deck1.size()==1) {
+            bookmark1.setVisible(false);
+        }
+        else bookmark1.setVisible(true);
+        deckBack1.setVisible(false);
+        deck1liv1.setVisible(false);
+        deck1liv2.setVisible(false);
+        deck1color1.setVisible(false);
+        deck1color2.setVisible(false);
+    }
+
+    public void setDeck2() {
+        LinkedList<DevelopmentCard> deck2 = cards.getCardStack().getDevCardDeck(2);
+        if(deck2==null || deck2.size()==1) {
+            bookmark2.setVisible(false);
+        }
+        else bookmark2.setVisible(true);
+        deckBack2.setVisible(false);
+        deck2liv1.setVisible(false);
+        deck2liv2.setVisible(false);
+        deck2color1.setVisible(false);
+        deck2color2.setVisible(false);
+    }
+
+    public void setDeck3() {
+        LinkedList<DevelopmentCard> deck3 = cards.getCardStack().getDevCardDeck(3);
+        if(deck3==null || deck3.size()==1) {
+            bookmark3.setVisible(false);
+        }
+        else bookmark3.setVisible(true);
+        deckBack3.setVisible(false);
+        deck3liv1.setVisible(false);
+        deck3liv2.setVisible(false);
+        deck3color1.setVisible(false);
+        deck3color2.setVisible(false);
     }
 
     public void setActive() {
@@ -291,16 +350,19 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     public void put1() {
         GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "1");
         buyed.setVisible(false);
+        setDevCardDecks();
     }
 
     public void put2() {
         GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "2");
         buyed.setVisible(false);
+        setDevCardDecks();
     }
 
     public void put3() {
         GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "3");
         buyed.setVisible(false);
+        setDevCardDecks();
     }
 
     public void activateProduction() {
@@ -378,62 +440,129 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
 
     public void updateFaith() {
         this.game = GuiView.getGuiView().players;
-        int id = game.getCurrentPlayerID();
-        markerPosition = game.players[id].getFaithMarker();
+        for(PlayerView player : game.players) {
+            if(player.getNickname().equals(GuiView.getGuiView().nickname)) {
+                if(previousMarkerPosition == -1) previousMarkerPosition = 0;
+                else previousMarkerPosition = player.getPreviousMarker();
+                markerPosition = player.getFaithMarker();
+            }
+        }
         updatePosition();
-        System.out.println(markerPosition);
     }
 
     @Override
     public void invalidated(Observable observable) {
         if (observable instanceof DevelopmentCardStackView) updateCards();
         if (observable instanceof WarehouseView) updateWarehouse();
-        if (observable instanceof FaithView) updateFaith();
     }
 
     void updatePosition() {
         int position = previousMarkerPosition;
-        while(position != markerPosition) {
-            if ((0 <= position && position <= 1) || (4 <= position && position <= 6) || (11 <= position && position <= 14) || (18 <= position && position <= 22) || (position == 8))
+        if(position != markerPosition) {
+            if ((0 <= position && position <= 1) || (4 <= position && position <= 6) || (11 <= position && position <= 14) || (18 <= position && position <= 22) || (position == 8)) {
+                previousMarkerPosition++;
                 horizontalTranslation();
-            else if ((position == 7) || (position == 15) || (position == 23))
+            }
+            else if ((position == 7) || (position == 15) || (position == 23)) {
+                previousMarkerPosition++;
                 horizontalTranslationToPopeSpace();
-            else if ((2 <= position && position <= 3) || (16 <= position && position <= 17))
+            }
+            else if ((2 <= position && position <= 3) || (16 <= position && position <= 17)) {
+                previousMarkerPosition++;
                 upVerticalTranslation();
-            else
+            }
+            else {
+                previousMarkerPosition++;
                 downVerticalTranslation();
-            position++;
+            }
         }
-        previousMarkerPosition = markerPosition;
+        else {
+            for(PlayerView player : game.players) {
+                if(player.getNickname().equals(GuiView.getGuiView().nickname)) {
+                    player.setPreviousMarker(position);
+                }
+            }
+        }
     }
-    public void horizontalTranslation(){
+    public void horizontalTranslation() {
         TranslateTransition transition = new TranslateTransition();
         transition.setNode(marker);
         transition.setByX(63);
-        transition.setDuration(Duration.millis(500));
+        transition.setDuration(Duration.millis(10));
+        transition.setOnFinished(e -> updatePosition());
         transition.play();
     }
-    public void horizontalTranslationToPopeSpace(){
+
+    public void horizontalTranslationToPopeSpace() {
         TranslateTransition transition = new TranslateTransition();
         transition.setNode(marker);
         transition.setByX(61.75);
-        transition.setDuration(Duration.millis(500));
+        transition.setDuration(Duration.millis(10));
+        transition.setOnFinished(e -> updatePosition());
         transition.play();
     }
 
-    public void downVerticalTranslation(){
+    public void downVerticalTranslation() {
         TranslateTransition transition = new TranslateTransition();
         transition.setNode(marker);
         transition.setByY(45);
-        transition.setDuration(Duration.millis(500));
+        transition.setDuration(Duration.millis(10));
+        transition.setOnFinished(e -> updatePosition());
         transition.play();
     }
 
-    public void upVerticalTranslation(){
+    public void upVerticalTranslation() {
         TranslateTransition transition = new TranslateTransition();
         transition.setNode(marker);
         transition.setByY(-45);
-        transition.setDuration(Duration.millis(500));
+        transition.setDuration(Duration.millis(10));
+        transition.setOnFinished(e -> updatePosition());
         transition.play();
+    }
+
+    public void turnPope(int i) {
+        if(i==1) {
+            turnPope1();
+        }
+        else if(i==2) {
+            turnPope2();
+        }
+        else if(i==3) {
+            turnPope3();
+        }
+    }
+
+    public void turnPope1() {
+        pope2.setImage(new Image("/PNG/punchboard/pope_favor1_front.png"));
+    }
+
+    public void turnPope2() {
+        pope3.setImage(new Image("/PNG/punchboard/pope_favor2_front.png"));
+    }
+    public void turnPope3() {
+        pope4.setImage(new Image("/PNG/punchboard/pope_favor3_front.png"));
+    }
+
+    public void discardPope(int i) {
+        if(i==1) {
+            discardPope1();
+        }
+        else if(i==2) {
+            discardPope2();
+        }
+        else if(i==3) {
+            discardPope3();
+        }
+    }
+
+    public void discardPope1() {
+        pope2.imageProperty().set(null);
+    }
+
+    public void discardPope2() {
+        pope3.imageProperty().set(null);
+    }
+    public void discardPope3() {
+        pope4.imageProperty().set(null);
     }
 }

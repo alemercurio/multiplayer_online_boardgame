@@ -14,7 +14,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="650.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.controllers.PlayerBoardSceneController">
+<AnchorPane prefHeight="650.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.controllers.PlayerBoardSceneController">
    <children>
       <ImageView fx:id="board" fitHeight="662.0" fitWidth="1281.0" layoutY="-2.0" pickOnBounds="true">
          <image>
@@ -174,11 +174,65 @@
       <ImageView fx:id="secondA" fitHeight="54.0" fitWidth="52.0" layoutX="116.0" layoutY="333.0" onMouseClicked="#moveSecondA" pickOnBounds="true" preserveRatio="true" />
       <ImageView fx:id="secondB" fitHeight="54.0" fitWidth="52.0" layoutX="164.0" layoutY="333.0" onMouseClicked="#moveSecondB" pickOnBounds="true" preserveRatio="true" />
       <ImageView fx:id="thirdC" fitHeight="54.0" fitWidth="52.0" layoutX="190.0" layoutY="393.0" onMouseClicked="#moveThirdC" pickOnBounds="true" preserveRatio="true" />
-      <ImageView fx:id="buyed" fitHeight="304.0" fitWidth="190.0" layoutX="305.0" layoutY="67.0" pickOnBounds="true" preserveRatio="true" />
       <Label fx:id="notYourTurnBar" alignment="CENTER" layoutX="-13.0" layoutY="438.0" prefHeight="42.0" prefWidth="1293.0" stylesheets="@../CSS/actionMenuButton.css" text="It is not your turn... Wait for it to start. If you want, you can look around while waiting." textAlignment="CENTER">
          <font>
             <Font name="Copperplate Gothic Bold" size="18.0" />
          </font>
       </Label>
+      <ImageView fx:id="pope2" fitHeight="78.0" fitWidth="77.0" layoutX="321.0" layoutY="86.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/pope_favor1_back.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="pope3" fitHeight="78.0" fitWidth="77.0" layoutX="637.0" layoutY="45.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/pope_favor2_back.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="pope4" fitHeight="78.0" fitWidth="77.0" layoutX="1014.0" layoutY="86.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/pope_favor3_back.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="buyed" fitHeight="304.0" fitWidth="190.0" layoutX="305.0" layoutY="67.0" pickOnBounds="true" preserveRatio="true" />
+      <Rectangle fx:id="deckBack1" arcHeight="5.0" arcWidth="5.0" fill="#fa73a0" height="86.0" layoutX="510.0" layoutY="552.0" onMouseClicked="#setDeck1" stroke="BLACK" strokeType="INSIDE" width="147.0" />
+      <Rectangle fx:id="deckBack2" arcHeight="5.0" arcWidth="5.0" fill="#fa73a0" height="86.0" layoutX="760.0" layoutY="552.0" onMouseClicked="#setDeck2" stroke="BLACK" strokeType="INSIDE" width="147.0" />
+      <Rectangle fx:id="deckBack3" arcHeight="5.0" arcWidth="5.0" fill="#fa73a0" height="86.0" layoutX="1015.0" layoutY="552.0" onMouseClicked="#setDeck3" stroke="BLACK" strokeType="INSIDE" width="147.0" />
+      <Text fx:id="deck1liv1" fill="WHITE" layoutX="516.0" layoutY="581.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Level 1: " wrappingWidth="119.66654459635402">
+         <font>
+            <Font name="Copperplate Gothic Light" size="22.0" />
+         </font>
+      </Text>
+      <Text fx:id="deck1liv2" fill="WHITE" layoutX="516.0" layoutY="619.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Level 2: " wrappingWidth="119.66654459635402">
+         <font>
+            <Font name="Copperplate Gothic Light" size="22.0" />
+         </font>
+      </Text>
+      <Text fx:id="deck2liv1" fill="WHITE" layoutX="766.0" layoutY="582.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Level 1: " wrappingWidth="119.66654459635402">
+         <font>
+            <Font name="Copperplate Gothic Light" size="22.0" />
+         </font>
+      </Text>
+      <Text fx:id="deck2liv2" fill="WHITE" layoutX="770.0" layoutY="621.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Level 2: " wrappingWidth="119.66654459635402">
+         <font>
+            <Font name="Copperplate Gothic Light" size="22.0" />
+         </font>
+      </Text>
+      <Text fx:id="deck3liv2" fill="WHITE" layoutX="1023.0" layoutY="618.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Level 2: " wrappingWidth="119.66654459635402">
+         <font>
+            <Font name="Copperplate Gothic Light" size="22.0" />
+         </font>
+      </Text>
+      <Text fx:id="deck3liv1" fill="WHITE" layoutX="1026.0" layoutY="584.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Level 1: " wrappingWidth="119.66654459635402">
+         <font>
+            <Font name="Copperplate Gothic Light" size="22.0" />
+         </font>
+      </Text>
+      <Circle fx:id="deck1color1" fill="DODGERBLUE" layoutX="633.0" layoutY="571.0" radius="13.0" stroke="BLACK" strokeType="INSIDE" />
+      <Circle fx:id="deck1color2" fill="DODGERBLUE" layoutX="634.0" layoutY="611.0" radius="13.0" stroke="BLACK" strokeType="INSIDE" />
+      <Circle fx:id="deck2color1" fill="DODGERBLUE" layoutX="885.0" layoutY="572.0" radius="13.0" stroke="BLACK" strokeType="INSIDE" />
+      <Circle fx:id="deck2color2" fill="DODGERBLUE" layoutX="885.0" layoutY="612.0" radius="13.0" stroke="BLACK" strokeType="INSIDE" />
+      <Circle fx:id="deck3color1" fill="DODGERBLUE" layoutX="1136.0" layoutY="573.0" radius="13.0" stroke="BLACK" strokeType="INSIDE" />
+      <Circle fx:id="deck3color2" fill="DODGERBLUE" layoutX="1137.0" layoutY="611.0" radius="13.0" stroke="BLACK" strokeType="INSIDE" />
    </children>
 </AnchorPane>

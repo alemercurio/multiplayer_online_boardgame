@@ -298,6 +298,7 @@ public class Player implements Runnable {
                 {
                     if(this.playerBoard.storage.warehouse.update(mp.getStringParameter(0))) {
 
+                        this.playerBoard.storage.warehouse.done();
                         this.send(MessageParser.message("update","WHConfig",this.playerBoard.storage.warehouse.getConfig()));
                         this.send("OK");
                         return;

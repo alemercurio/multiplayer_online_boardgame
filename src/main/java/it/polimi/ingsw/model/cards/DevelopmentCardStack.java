@@ -82,6 +82,19 @@ public class DevelopmentCardStack {
     }
 
     /**
+     * Gets the DevelopmentCard specified stack;
+     * if the given position is invalid or empty returns null.
+     * @param position the chosen stack (1,2 or 3).
+     * @return the stack or null.
+     */
+    public LinkedList<DevelopmentCard> getDevCardDeck(int position) {
+        if(position >=1 && position <=3) {
+            if (this.devCards.get(position - 1).isEmpty()) return null;
+            else return this.devCards.get(position - 1);
+        } else return null;
+    }
+
+    /**
      * Gets the DevelopmentCard on top of the specified stack;
      * if the given position is invalid or empty returns null.
      * @param position the chosen stack (1,2 or 3).

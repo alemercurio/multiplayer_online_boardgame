@@ -9,6 +9,7 @@ public class PlayerView {
     private final String nickname;
     private final ResourcePack resources;
     private int faithMarker;
+    private int previousMarker;
     private final int victoryPoints;
 
     public PlayerView(int id,String nickname,ResourcePack res,int faithMarker,int victoryPoints)
@@ -39,8 +40,20 @@ public class PlayerView {
         return this.faithMarker;
     }
 
+    public int getPreviousMarker() {
+        return this.previousMarker;
+    }
+
     public void setFaithMarker(int faithMarker) {
+        if(this.faithMarker>0) {
+            this.previousMarker = this.faithMarker;
+        }
+        else this.previousMarker = 0;
         this.faithMarker = faithMarker;
+    }
+
+    public void setPreviousMarker(int faithMarker) {
+        this.previousMarker=faithMarker;
     }
 
     public int getVictoryPoints() {

@@ -98,7 +98,7 @@ public class LeaderboardController implements Initializable, InvalidationListene
             shields=numShields1;
             servants=numServ1;
             numPoints=numPoints1;
-            name = player1;
+            name=player1;
         }
         else if(player==2) {
             coins=numCoins2;
@@ -106,7 +106,7 @@ public class LeaderboardController implements Initializable, InvalidationListene
             shields=numShields2;
             servants=numServ2;
             numPoints=numPoints2;
-            name = player2;
+            name=player2;
         }
         else if(player==3) {
             coins=numCoins3;
@@ -114,7 +114,7 @@ public class LeaderboardController implements Initializable, InvalidationListene
             shields=numShields3;
             servants=numServ3;
             numPoints=numPoints3;
-            name = player3;
+            name=player3;
         }
         else {
             coins=numCoins4;
@@ -122,7 +122,7 @@ public class LeaderboardController implements Initializable, InvalidationListene
             shields=numShields4;
             servants=numServ4;
             numPoints=numPoints4;
-            name = player4;
+            name=player4;
         }
 
         coins.setText("" + resources.get(Resource.COIN));
@@ -145,7 +145,6 @@ public class LeaderboardController implements Initializable, InvalidationListene
                 player1.setVisible(true);
                 one.setVisible(true);
                 update(1, player.getResources(), player.getVictoryPoints(), player.getNickname());
-                if(players.getCurrentPlayerID()==1) current1.setVisible(true);
                 i++;
             }
             else if(i==2) {
@@ -178,10 +177,11 @@ public class LeaderboardController implements Initializable, InvalidationListene
                 if (GuiView.getGuiView().currentPlayer.equals(player4.getText())) current4.setVisible(true);
             }
         }
-
-        if(leader.equals(player1.getText())) crown1.setVisible(true);
-        if(leader.equals(player2.getText())) crown2.setVisible(true);
-        if(leader.equals(player3.getText())) crown3.setVisible(true);
-        if(leader.equals(player4.getText())) crown4.setVisible(true);
+        if(!leader.equals("")) {
+            if (leader.equals(player1.getText())) crown1.setVisible(true);
+            if (leader.equals(player2.getText())) crown2.setVisible(true);
+            if (leader.equals(player3.getText())) crown3.setVisible(true);
+            if (leader.equals(player4.getText())) crown4.setVisible(true);
+        }
     }
 }
