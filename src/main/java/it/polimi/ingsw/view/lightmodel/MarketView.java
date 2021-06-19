@@ -12,19 +12,17 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MarketView implements Observable {
 
     // Resource Market
-    public Resource[][] marketTray;
-    public Resource remaining;
+    private Resource[][] marketTray;
+    private Resource remaining;
 
     // Card Market
-    public Map<Color,List<DevelopmentCard>> decksMap;
+    private Map<Color,List<DevelopmentCard>> decksMap;
 
     // Util
     private final List<InvalidationListener> observers = new ArrayList<>();
@@ -40,7 +38,7 @@ public class MarketView implements Observable {
         this.decksMap = new HashMap<>();
     }
 
-    public void updateResourceMarket(String state) {
+    public synchronized void updateResourceMarket(String state) {
 
         Gson parser = new Gson();
         JsonElement element = parser.fromJson(state,JsonElement.class);
@@ -53,7 +51,7 @@ public class MarketView implements Observable {
             observer.invalidated(this);
     }
 
-    public void updateCardMarket(String state) {
+    public synchronized void updateCardMarket(String state) {
         Type decksMapType = new TypeToken<Map<Color,List<DevelopmentCard>>>() {}.getType();
         this.decksMap = new Gson().fromJson(state,decksMapType);
 
@@ -61,7 +59,22 @@ public class MarketView implements Observable {
             observer.invalidated(this);
     }
 
-    public void printResourceMarket() {
+    public synchronized Resource[][] getMarketTray() {
+        Resource[][] tray = new Resource[3][4];
+        for(int i = 0; i < 3;i++)
+            System.arraycopy(marketTray[i], 0, tray[i], 0, 4);
+        return tray;
+    }
+
+    public synchronized Resource getRemaining() {
+        return remaining;
+    }
+
+    public synchronized Map<Color,List<DevelopmentCard>> getDecksMap() {
+        return Collections.unmodifiableMap(decksMap);
+    }
+
+    public synchronized void printResourceMarket() {
 
         for(int i = 0; i < this.marketTray.length; i++) {
 
@@ -83,7 +96,7 @@ public class MarketView implements Observable {
         System.out.print("\n");
     }
 
-    public void printCardMarket() {
+    public synchronized void printCardMarket() {
 
         for(Color color : Color.values())
         {

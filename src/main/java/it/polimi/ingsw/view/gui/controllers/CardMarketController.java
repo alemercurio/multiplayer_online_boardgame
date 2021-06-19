@@ -153,7 +153,7 @@ public class CardMarketController implements Initializable, InvalidationListener
 
     @Override
     public void invalidated(Observable observable) {
-        this.cardsMatrix = GuiView.getGuiView().market.decksMap;
+        this.cardsMatrix = GuiView.getGuiView().market.getDecksMap();
         getData();
     }
 }

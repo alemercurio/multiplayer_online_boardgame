@@ -68,6 +68,8 @@ public interface View {
 
     ResourcePack selectFreeRequirement(int amount);
 
+    ResourcePack selectProduct(int amount);
+
     boolean playLeaderAction();
 
     void gameEnd();

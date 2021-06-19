@@ -507,8 +507,8 @@ public class ResourceMarketController implements Initializable, InvalidationList
 
     @Override
     public void invalidated(Observable observable) {
-        tray = GuiView.getGuiView().market.marketTray;
-        remaining = GuiView.getGuiView().market.remaining;
+        tray = GuiView.getGuiView().market.getMarketTray();
+        remaining = GuiView.getGuiView().market.getRemaining();
 
         for (int i = 0; i < 3; i++) {
             int k=i;

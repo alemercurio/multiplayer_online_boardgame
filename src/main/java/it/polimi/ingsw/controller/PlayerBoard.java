@@ -130,12 +130,12 @@ public class PlayerBoard
      * @param color the colour of the desired DevelopmentCard.
      * @return true if it is possible to buy the DevelopmentCard, false otherwise.
      */
-    public boolean canBuyDevCard(int level,Color color)
-    {
+    public boolean canBuyDevCard(int level,Color color) {
         try {
             DevelopmentCard toBuy = this.market.getDevelopmentCard(level,color);
-            return this.devCards.canBeStored(toBuy) && this.storage.getAllResource().isConsumable(toBuy.getCost());
-
+            ResourcePack price = toBuy.getCost();
+            price.discount(this.marketDiscounts);
+            return this.devCards.canBeStored(toBuy) && this.storage.getAllResource().isConsumable(price);
         } catch (NoSuchDevelopmentCardException e) {
             return false;
         }
@@ -148,17 +148,19 @@ public class PlayerBoard
     public void buyDevCard(int level,Color color,int position) throws NonConsumablePackException, NoSuchDevelopmentCardException, NonPositionableCardException {
 
         if(!this.canBeStored(level,position)) throw new NonPositionableCardException();
-        if(!this.storage.isConsumable(this.market.getCost(level,color))) throw new NonConsumablePackException();
+
+        ResourcePack price = this.market.getCost(level,color);
+        price.discount(this.marketDiscounts);
+        if(!this.storage.isConsumable(price)) throw new NonConsumablePackException();
 
         DevelopmentCard devCard = this.market.buyDevelopmentCard(level,color);
 
-        this.storage.autoConsume(devCard.getCost());
+        this.storage.autoConsume(price);
 
         this.player.send(MessageParser.message("update","WHConfig",this.storage.warehouse.getConfig()));
         this.player.send(MessageParser.message("update","strongbox",this.storage.strongbox));
 
         this.storeDevelopmentCard(devCard,position);
-
     }
 
     /**
@@ -274,6 +276,7 @@ public class PlayerBoard
 
     public void addDiscount(ResourcePack rp) {
         this.marketDiscounts.add(rp);
+        this.player.send(MessageParser.message("update","discount",this.marketDiscounts));
     }
 
     public void addProduction(Production p) {
@@ -296,6 +299,7 @@ public class PlayerBoard
     public void updateAll() {
         this.player.send(MessageParser.message("update","fact",this.factory));
         this.player.send(MessageParser.message("update","white",this.whiteExchange));
+        this.player.send(MessageParser.message("update","discount",this.marketDiscounts));
         for(StockPower stock : this.storage.warehouse.getStockPower())
             this.player.send(MessageParser.message("update","WH",stock));
         this.player.send(MessageParser.message("update","WHConfig",this.storage.warehouse.getConfig()));
