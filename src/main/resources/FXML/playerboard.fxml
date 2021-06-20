@@ -23,6 +23,21 @@
             <Image url="@../PNG/board/playerboard.png" />
          </image>
       </ImageView>
+      <ImageView fx:id="bookmark2" fitHeight="86.0" fitWidth="97.0" layoutX="881.0" layoutY="535.0" onMouseClicked="#showDeck2" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/bookmark-ribbon.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="bookmark3" fitHeight="86.0" fitWidth="97.0" layoutX="1136.0" layoutY="535.0" onMouseClicked="#showDeck3" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/bookmark-ribbon.png" />
+         </image>
+      </ImageView>
+      <ImageView fx:id="bookmark1" fitHeight="86.0" fitWidth="97.0" layoutX="630.0" layoutY="535.0" onMouseClicked="#showDeck1" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/bookmark-ribbon.png" />
+         </image>
+      </ImageView>
       <ImageView fx:id="card1" fitHeight="304.0" fitWidth="190.0" layoutX="515.0" layoutY="282.0" onMouseClicked="#put1" pickOnBounds="true" preserveRatio="true" />
       <ImageView fx:id="card2" fitHeight="304.0" fitWidth="190.0" layoutX="760.0" layoutY="282.0" onMouseClicked="#put2" pickOnBounds="true" preserveRatio="true" />
       <ImageView fx:id="card3" fitHeight="304.0" fitWidth="190.0" layoutX="1010.0" layoutY="282.0" onMouseClicked="#put3" pickOnBounds="true" preserveRatio="true" />
