@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.gui.controllers;
 
 import it.polimi.ingsw.model.cards.DevelopmentCard;
+import it.polimi.ingsw.model.cards.DevelopmentCardStack;
 import it.polimi.ingsw.model.resources.Resource;
 import it.polimi.ingsw.model.resources.ResourcePack;
 import it.polimi.ingsw.model.vatican.Vatican;
@@ -37,6 +38,7 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     boolean active;
 
     private DevelopmentCardStackView cards;
+    private int[] numCards = {0,0,0}; //[0] for position 1, [1] for position 2, [2] for position 3
     private WarehouseView warehouse;
     private ResourcePack strongbox;
     private ResourcePack pending;
@@ -100,6 +102,9 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
         GuiView.getGuiView().players.addListener(this);
         board.setImage(new Image("/PNG/board/playerboard.png"));
         updateCards();
+        bookmark1.setVisible(false);
+        bookmark2.setVisible(false);
+        bookmark3.setVisible(false);
         setBlank();
         updateWarehouse();
         previousMarkerPosition = -1;
@@ -148,7 +153,7 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
 
     public void setDeck1() {
         LinkedList<DevelopmentCard> deck1 = cards.getCardStack().getDevCardDeck(1);
-        if(deck1==null || deck1.size()==1) {
+        if(!bookmark1.isVisible() && (deck1==null || deck1.size()==1)) {
             bookmark1.setVisible(false);
         }
         else bookmark1.setVisible(true);
@@ -161,7 +166,7 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
 
     public void setDeck2() {
         LinkedList<DevelopmentCard> deck2 = cards.getCardStack().getDevCardDeck(2);
-        if(deck2==null || deck2.size()==1) {
+        if(!bookmark2.isVisible() && (deck2==null || deck2.size()==1)) {
             bookmark2.setVisible(false);
         }
         else bookmark2.setVisible(true);
@@ -174,7 +179,7 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
 
     public void setDeck3() {
         LinkedList<DevelopmentCard> deck3 = cards.getCardStack().getDevCardDeck(3);
-        if(deck3==null || deck3.size()==1) {
+        if(!bookmark3.isVisible() && (deck3==null || deck3.size()==1)) {
             bookmark3.setVisible(false);
         }
         else bookmark3.setVisible(true);
@@ -365,19 +370,28 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     public void put1() {
         GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "1");
         buyed.setVisible(false);
-        setDevCardDecks();
+        numCards[0]+=1;
+        if(numCards[0]>1) {
+            bookmark1.setVisible(true);
+        }
     }
 
     public void put2() {
         GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "2");
         buyed.setVisible(false);
-        setDevCardDecks();
+        numCards[1]+=1;
+        if(numCards[1]>1) {
+            bookmark2.setVisible(true);
+        }
     }
 
     public void put3() {
         GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "3");
         buyed.setVisible(false);
-        setDevCardDecks();
+        numCards[2]+=1;
+        if(numCards[2]>1) {
+            bookmark3.setVisible(true);
+        }
     }
 
     public void activateProduction() {
@@ -393,6 +407,19 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
         card1.setImage(cards.getImageForCard(cards.getCard(1)));
         card2.setImage(cards.getImageForCard(cards.getCard(2)));
         card3.setImage(cards.getImageForCard(cards.getCard(3)));
+        DevelopmentCardStack decks = cards.getCardStack();
+        if(decks.getDevCardDeck(1)!=null) {
+            numCards[0] = cards.getCardStack().getDevCardDeck(1).size();
+        }
+        else numCards[0] = 0;
+        if(decks.getDevCardDeck(2)!=null) {
+            numCards[1] = cards.getCardStack().getDevCardDeck(2).size();
+        }
+        else numCards[1] = 0;
+        if(decks.getDevCardDeck(3)!=null) {
+            numCards[2] = cards.getCardStack().getDevCardDeck(3).size();
+        }
+        else numCards[2] = 0;
     }
 
     public void updateWarehouse() {
