@@ -11,6 +11,7 @@ import javafx.beans.Observable;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class FactoryView implements Observable {
@@ -36,6 +37,11 @@ public class FactoryView implements Observable {
     public void setActive(Integer index) {
         if(index >= 0 && index < this.productions.size())
             this.active.add(index);
+    }
+
+    public void setActive(List<Integer> indexes) {
+        for(int index : indexes)
+            this.setActive(index);
     }
 
     public void setInactive(Integer index)
@@ -81,6 +87,10 @@ public class FactoryView implements Observable {
         return product;
     }
 
+    public List<Production> getProductions() {
+        return Collections.unmodifiableList(this.productions);
+    }
+
     public void print() {
 
         System.out.print("\n");
@@ -99,6 +109,7 @@ public class FactoryView implements Observable {
     @Override
     public void addListener(InvalidationListener invalidationListener) {
         this.observers.add(invalidationListener);
+        invalidationListener.invalidated(this);
     }
 
     @Override

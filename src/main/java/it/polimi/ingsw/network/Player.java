@@ -353,6 +353,7 @@ public class Player implements Runnable {
                             new ResourcePack(0,2,0,0,0,6)));
                     this.playerBoard.addWhite(Resource.COIN);
                     this.playerBoard.addWhite(Resource.SHIELD);
+                    this.playerBoard.addDiscount(new ResourcePack(10,10,10,10));
                     this.playerBoard.addLeaderStock(new StockPower(2,Resource.COIN));
                     this.send(MessageParser.message("update","strongbox",this.playerBoard.storage.strongbox));
                     endRound = false;

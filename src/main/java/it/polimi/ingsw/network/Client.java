@@ -518,7 +518,7 @@ public class Client implements Runnable {
 
         if(mp.getOrder().equals("convert")) {
              do {
-                ResourcePack selected = this.view.selectResources(mp.getIntParameter(0));
+                ResourcePack selected = this.view.selectProduct(mp.getIntParameter(0));
                 this.message.send(MessageParser.message("selected",selected));
 
                 if(this.message.receive().equals("SelectionNotValid")) {

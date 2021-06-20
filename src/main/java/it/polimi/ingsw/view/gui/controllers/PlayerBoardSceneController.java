@@ -395,7 +395,8 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     }
 
     public void activateProduction() {
-
+        GuiView.getGuiView().event(ViewEvent.ACTION, "activateProduction");
+        GuiView.getGuiView().showScene("/FXML/production.fxml");
     }
 
     public void leaderAction() {
