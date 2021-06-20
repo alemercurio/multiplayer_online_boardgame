@@ -1,12 +1,11 @@
 package it.polimi.ingsw.view.gui;
 
 import com.google.gson.Gson;
-import it.polimi.ingsw.model.cards.DevelopmentCard;
 import it.polimi.ingsw.model.cards.LeaderCard;
 import it.polimi.ingsw.model.cards.StockPower;
 import it.polimi.ingsw.model.resources.Resource;
 import it.polimi.ingsw.model.resources.ResourcePack;
-import it.polimi.ingsw.util.Screen;
+import it.polimi.ingsw.model.vatican.Vatican;
 import it.polimi.ingsw.view.gui.controllers.*;
 import it.polimi.ingsw.view.lightmodel.*;
 import it.polimi.ingsw.controller.Error;
@@ -17,14 +16,12 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
-import java.sql.SQLOutput;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class GuiView implements View {
 
-    public int playerID;
     private GuiApp guiApp;
 
     private static GuiView guiView;
@@ -37,7 +34,7 @@ public class GuiView implements View {
     public FactoryView factory = new FactoryView();
     public WarehouseView warehouse = new WarehouseView();
     public ResourcePack strongbox = new ResourcePack();
-    private final FaithView faithTrack = new FaithView(this.players);
+    public final FaithView faithTrack = new FaithView(this.players);
     public PlayerBoardView playerBoard = new PlayerBoardView();
 
     public AdvantageSceneController advantageSetter;
@@ -45,7 +42,6 @@ public class GuiView implements View {
     public LootSceneController lootScene;
     public CardMarketController cardMarket;
     public ResourceMarketController resourceMarket;
-    public LeaderboardController leaderboard;
 
     public String nickname;
     public String currentPlayer;
@@ -104,6 +100,17 @@ public class GuiView implements View {
                         favour.close();
                     }
                 });
+
+                playerboard.updateFaith();
+                for(int i = 0; i < 3; i++) {
+                    Vatican.ReportSection ps = faithTrack.popeSpaces[i];
+                    if (ps.getState() == Vatican.State.GOT) {
+                        playerboard.turnPope(i + 1);
+                    }
+                    else if(ps.getState() == Vatican.State.LOST) {
+                        playerboard.discardPope(i+1);
+                    }
+                }
                 break;
 
             case ROUND:

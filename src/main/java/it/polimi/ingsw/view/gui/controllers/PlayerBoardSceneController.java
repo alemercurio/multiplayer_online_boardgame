@@ -1,7 +1,10 @@
 package it.polimi.ingsw.view.gui.controllers;
 
+import it.polimi.ingsw.model.cards.DevelopmentCard;
+import it.polimi.ingsw.model.cards.DevelopmentCardStack;
 import it.polimi.ingsw.model.resources.Resource;
 import it.polimi.ingsw.model.resources.ResourcePack;
+import it.polimi.ingsw.model.vatican.Vatican;
 import it.polimi.ingsw.view.ViewEvent;
 import it.polimi.ingsw.view.gui.GuiView;
 import it.polimi.ingsw.view.lightmodel.*;
@@ -9,7 +12,6 @@ import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -19,11 +21,15 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -32,6 +38,7 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     boolean active;
 
     private DevelopmentCardStackView cards;
+    private int[] numCards = {0,0,0}; //[0] for position 1, [1] for position 2, [2] for position 3
     private WarehouseView warehouse;
     private ResourcePack strongbox;
     private ResourcePack pending;
@@ -53,7 +60,19 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
             coin, stone, shield, servant;
 
     @FXML
-    private ImageView marker;
+    private ImageView bookmark1, bookmark2, bookmark3;
+
+    @FXML
+    private Rectangle deckBack1, deckBack2, deckBack3;
+
+    @FXML
+    private Circle deck1color1, deck1color2, deck2color1, deck2color2, deck3color1, deck3color2;
+
+    @FXML
+    private Text deck1liv1, deck1liv2, deck2liv1, deck2liv2, deck3liv1, deck3liv2;
+
+    @FXML
+    private ImageView marker, pope2, pope3, pope4;
 
     @FXML
     private VBox actionMenu;
@@ -82,10 +101,24 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
         GuiView.getGuiView().warehouse.addListener(this);
         GuiView.getGuiView().players.addListener(this);
         board.setImage(new Image("/PNG/board/playerboard.png"));
+        updateCards();
+        bookmark1.setVisible(false);
+        bookmark2.setVisible(false);
+        bookmark3.setVisible(false);
         setBlank();
         updateWarehouse();
-        updateCards();
+        previousMarkerPosition = -1;
+        updateFaith();
         pendingSceneOff();
+        for(int i = 0; i < 3; i++) {
+            Vatican.ReportSection ps = GuiView.getGuiView().faithTrack.popeSpaces[i];
+            if (ps.getState() == Vatican.State.GOT) {
+                turnPope(i + 1);
+            }
+            else if(ps.getState() == Vatican.State.LOST) {
+                discardPope(i+1);
+            }
+        }
         if(GuiView.getGuiView().nickname.equals(GuiView.getGuiView().currentPlayer)) {
             setActive();
         }
@@ -109,6 +142,52 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
         moveStarted = false;
         buyed.setVisible(false);
         notYourTurnBar.setVisible(false);
+        setDevCardDecks();
+    }
+
+    public void setDevCardDecks() {
+        setDeck1();
+        setDeck2();
+        setDeck3();
+    }
+
+    public void setDeck1() {
+        LinkedList<DevelopmentCard> deck1 = cards.getCardStack().getDevCardDeck(1);
+        if(!bookmark1.isVisible() && (deck1==null || deck1.size()==1)) {
+            bookmark1.setVisible(false);
+        }
+        else bookmark1.setVisible(true);
+        deckBack1.setVisible(false);
+        deck1liv1.setVisible(false);
+        deck1liv2.setVisible(false);
+        deck1color1.setVisible(false);
+        deck1color2.setVisible(false);
+    }
+
+    public void setDeck2() {
+        LinkedList<DevelopmentCard> deck2 = cards.getCardStack().getDevCardDeck(2);
+        if(!bookmark2.isVisible() && (deck2==null || deck2.size()==1)) {
+            bookmark2.setVisible(false);
+        }
+        else bookmark2.setVisible(true);
+        deckBack2.setVisible(false);
+        deck2liv1.setVisible(false);
+        deck2liv2.setVisible(false);
+        deck2color1.setVisible(false);
+        deck2color2.setVisible(false);
+    }
+
+    public void setDeck3() {
+        LinkedList<DevelopmentCard> deck3 = cards.getCardStack().getDevCardDeck(3);
+        if(!bookmark3.isVisible() && (deck3==null || deck3.size()==1)) {
+            bookmark3.setVisible(false);
+        }
+        else bookmark3.setVisible(true);
+        deckBack3.setVisible(false);
+        deck3liv1.setVisible(false);
+        deck3liv2.setVisible(false);
+        deck3color1.setVisible(false);
+        deck3color2.setVisible(false);
     }
 
     public void setActive() {
@@ -291,16 +370,28 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     public void put1() {
         GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "1");
         buyed.setVisible(false);
+        numCards[0]+=1;
+        if(numCards[0]>1) {
+            bookmark1.setVisible(true);
+        }
     }
 
     public void put2() {
         GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "2");
         buyed.setVisible(false);
+        numCards[1]+=1;
+        if(numCards[1]>1) {
+            bookmark2.setVisible(true);
+        }
     }
 
     public void put3() {
         GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "3");
         buyed.setVisible(false);
+        numCards[2]+=1;
+        if(numCards[2]>1) {
+            bookmark3.setVisible(true);
+        }
     }
 
     public void activateProduction() {
@@ -316,6 +407,19 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
         card1.setImage(cards.getImageForCard(cards.getCard(1)));
         card2.setImage(cards.getImageForCard(cards.getCard(2)));
         card3.setImage(cards.getImageForCard(cards.getCard(3)));
+        DevelopmentCardStack decks = cards.getCardStack();
+        if(decks.getDevCardDeck(1)!=null) {
+            numCards[0] = cards.getCardStack().getDevCardDeck(1).size();
+        }
+        else numCards[0] = 0;
+        if(decks.getDevCardDeck(2)!=null) {
+            numCards[1] = cards.getCardStack().getDevCardDeck(2).size();
+        }
+        else numCards[1] = 0;
+        if(decks.getDevCardDeck(3)!=null) {
+            numCards[2] = cards.getCardStack().getDevCardDeck(3).size();
+        }
+        else numCards[2] = 0;
     }
 
     public void updateWarehouse() {
@@ -377,62 +481,187 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
 
     public void updateFaith() {
         this.game = GuiView.getGuiView().players;
-        int id = game.getCurrentPlayerID();
-        markerPosition = game.players[id].getFaithMarker();
+        for(PlayerView player : game.players) {
+            if(player.getNickname().equals(GuiView.getGuiView().nickname)) {
+                if(previousMarkerPosition == -1) previousMarkerPosition = 0;
+                else previousMarkerPosition = player.getPreviousMarker();
+                markerPosition = player.getFaithMarker();
+            }
+        }
         updatePosition();
-        System.out.println(markerPosition);
     }
 
     @Override
     public void invalidated(Observable observable) {
         if (observable instanceof DevelopmentCardStackView) updateCards();
         if (observable instanceof WarehouseView) updateWarehouse();
-        if (observable instanceof FaithView) updateFaith();
     }
 
     void updatePosition() {
         int position = previousMarkerPosition;
-        while(position != markerPosition) {
-            if ((0 <= position && position <= 1) || (4 <= position && position <= 6) || (11 <= position && position <= 14) || (18 <= position && position <= 22) || (position == 8))
+        if(position != markerPosition) {
+            if ((0 <= position && position <= 1) || (4 <= position && position <= 6) || (11 <= position && position <= 14) || (18 <= position && position <= 22) || (position == 8)) {
+                previousMarkerPosition++;
                 horizontalTranslation();
-            else if ((position == 7) || (position == 15) || (position == 23))
+            }
+            else if ((position == 7) || (position == 15) || (position == 23)) {
+                previousMarkerPosition++;
                 horizontalTranslationToPopeSpace();
-            else if ((2 <= position && position <= 3) || (16 <= position && position <= 17))
+            }
+            else if ((2 <= position && position <= 3) || (16 <= position && position <= 17)) {
+                previousMarkerPosition++;
                 upVerticalTranslation();
-            else
+            }
+            else {
+                previousMarkerPosition++;
                 downVerticalTranslation();
-            position++;
+            }
         }
-        previousMarkerPosition = markerPosition;
+        else {
+            for(PlayerView player : game.players) {
+                if(player.getNickname().equals(GuiView.getGuiView().nickname)) {
+                    player.setPreviousMarker(position);
+                }
+            }
+        }
     }
-    public void horizontalTranslation(){
+    public void horizontalTranslation() {
         TranslateTransition transition = new TranslateTransition();
         transition.setNode(marker);
         transition.setByX(63);
-        transition.setDuration(Duration.millis(500));
+        transition.setDuration(Duration.millis(10));
+        transition.setOnFinished(e -> updatePosition());
         transition.play();
     }
-    public void horizontalTranslationToPopeSpace(){
+
+    public void horizontalTranslationToPopeSpace() {
         TranslateTransition transition = new TranslateTransition();
         transition.setNode(marker);
         transition.setByX(61.75);
-        transition.setDuration(Duration.millis(500));
+        transition.setDuration(Duration.millis(10));
+        transition.setOnFinished(e -> updatePosition());
         transition.play();
     }
 
-    public void downVerticalTranslation(){
+    public void downVerticalTranslation() {
         TranslateTransition transition = new TranslateTransition();
         transition.setNode(marker);
         transition.setByY(45);
-        transition.setDuration(Duration.millis(500));
+        transition.setDuration(Duration.millis(10));
+        transition.setOnFinished(e -> updatePosition());
         transition.play();
     }
 
-    public void upVerticalTranslation(){
+    public void upVerticalTranslation() {
         TranslateTransition transition = new TranslateTransition();
         transition.setNode(marker);
         transition.setByY(-45);
-        transition.setDuration(Duration.millis(500));
+        transition.setDuration(Duration.millis(10));
+        transition.setOnFinished(e -> updatePosition());
         transition.play();
+    }
+
+    public void turnPope(int i) {
+        if(i==1) {
+            turnPope1();
+        }
+        else if(i==2) {
+            turnPope2();
+        }
+        else if(i==3) {
+            turnPope3();
+        }
+    }
+
+    public void turnPope1() {
+        pope2.setImage(new Image("/PNG/punchboard/pope_favor1_front.png"));
+    }
+
+    public void turnPope2() {
+        pope3.setImage(new Image("/PNG/punchboard/pope_favor2_front.png"));
+    }
+    public void turnPope3() {
+        pope4.setImage(new Image("/PNG/punchboard/pope_favor3_front.png"));
+    }
+
+    public void discardPope(int i) {
+        if(i==1) {
+            discardPope1();
+        }
+        else if(i==2) {
+            discardPope2();
+        }
+        else if(i==3) {
+            discardPope3();
+        }
+    }
+
+    public void discardPope1() {
+        pope2.imageProperty().set(null);
+    }
+
+    public void discardPope2() {
+        pope3.imageProperty().set(null);
+    }
+
+    public void discardPope3() {
+        pope4.imageProperty().set(null);
+    }
+
+    public void showDeck1() {
+        LinkedList<DevelopmentCard> deck1 = cards.getCardStack().getDevCardDeck(1);
+        if(deck1.size()>1) {
+            deckBack1.setVisible(true);
+            deck1liv1.setVisible(true);
+            if(deck1.size()>2) {
+                deck1liv2.setVisible(true);
+                deck1color1.setVisible(true);
+                deck1color2.setVisible(true);
+                deck1color1.setFill(Color.web(deck1.get(2).getColor().getValue()));
+                deck1color2.setFill(Color.web(deck1.get(2).getColor().getValue()));
+            }
+            else {
+                deck1color1.setVisible(true);
+                deck1color1.setFill(Color.web(deck1.get(1).getColor().getValue()));
+            }
+        }
+    }
+
+    public void showDeck2() {
+        LinkedList<DevelopmentCard> deck2 = cards.getCardStack().getDevCardDeck(2);
+        if(deck2.size()>1) {
+            deckBack2.setVisible(true);
+            deck2liv1.setVisible(true);
+            if(deck2.size()>2) {
+                deck2liv2.setVisible(true);
+                deck2color1.setVisible(true);
+                deck2color2.setVisible(true);
+                deck2color1.setFill(Color.web(deck2.get(2).getColor().getValue()));
+                deck2color2.setFill(Color.web(deck2.get(2).getColor().getValue()));
+            }
+            else {
+                deck2color1.setVisible(true);
+                deck2color1.setFill(Color.web(deck2.get(1).getColor().getValue()));
+            }
+        }
+    }
+
+    public void showDeck3() {
+        LinkedList<DevelopmentCard> deck3 = cards.getCardStack().getDevCardDeck(3);
+        if(deck3.size()>1) {
+            deckBack3.setVisible(true);
+            deck3liv1.setVisible(true);
+            if(deck3.size()>2) {
+                deck3liv2.setVisible(true);
+                deck3color1.setVisible(true);
+                deck3color2.setVisible(true);
+                deck3color1.setFill(Color.web(deck3.get(2).getColor().getValue()));
+                deck3color2.setFill(Color.web(deck3.get(2).getColor().getValue()));
+            }
+            else {
+                deck3color1.setVisible(true);
+                deck3color1.setFill(Color.web(deck3.get(1).getColor().getValue()));
+            }
+        }
     }
 }

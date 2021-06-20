@@ -23,6 +23,10 @@ public class DevelopmentCardStackView implements Observable {
         this.developmentCards = new DevelopmentCardStack();
     }
 
+    public DevelopmentCardStack getCardStack() {
+        return developmentCards;
+    }
+
     public DevelopmentCard getCard(int index) {
         return developmentCards.getDevCard(index);
     }
