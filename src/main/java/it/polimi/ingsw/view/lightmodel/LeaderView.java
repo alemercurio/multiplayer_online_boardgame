@@ -26,16 +26,20 @@ public class LeaderView implements Observable {
 
         this.leaders = parser.fromJson(leaders,LeaderStack.class);
 
-        for(InvalidationListener observer : this.observers)
-            observer.invalidated(this);
+        synchronized(this.observers) {
+            for(InvalidationListener observer : this.observers)
+                observer.invalidated(this);
+        }
     }
 
     public void showChoices(List<LeaderCard> leaders) {
         this.leaders = new LeaderStack();
         this.leaders.addLeaders(leaders);
 
-        for(InvalidationListener observer : this.observers) {
-            observer.invalidated(this);
+        synchronized(this.observers) {
+            for(InvalidationListener observer : this.observers) {
+                observer.invalidated(this);
+            }
         }
     }
 
@@ -141,11 +145,15 @@ public class LeaderView implements Observable {
 
     @Override
     public void addListener(InvalidationListener invalidationListener) {
-        this.observers.add(invalidationListener);
+        synchronized(this.observers) {
+            this.observers.add(invalidationListener);
+        }
     }
 
     @Override
     public void removeListener(InvalidationListener invalidationListener) {
-        this.observers.remove(invalidationListener);
+        synchronized(this.observers) {
+            this.observers.remove(invalidationListener);
+        }
     }
 }
