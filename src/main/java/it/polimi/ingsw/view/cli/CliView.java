@@ -310,7 +310,7 @@ public class CliView implements View {
                     this.showError(Error.UNKNOWN_ERROR);
                     return;
                 }
-                System.out.print("\t>> " + actionData[1] + " takes this resources ");
+                System.out.print("\t>> " + actionData[1] + " takes these resources ");
                 Screen.print(ResourcePack.fromString(actionData[2]));
                 System.out.println(" from the market.");
                 break;

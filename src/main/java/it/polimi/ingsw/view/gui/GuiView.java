@@ -1,11 +1,18 @@
 package it.polimi.ingsw.view.gui;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import it.polimi.ingsw.controller.Action;
+import it.polimi.ingsw.model.cards.Color;
 import it.polimi.ingsw.model.cards.LeaderCard;
 import it.polimi.ingsw.model.cards.StockPower;
 import it.polimi.ingsw.model.resources.Resource;
 import it.polimi.ingsw.model.resources.ResourcePack;
+import it.polimi.ingsw.model.singleplayer.SoloCross;
+import it.polimi.ingsw.model.singleplayer.SoloDiscard;
 import it.polimi.ingsw.model.vatican.Vatican;
+import it.polimi.ingsw.util.Screen;
 import it.polimi.ingsw.view.gui.controllers.*;
 import it.polimi.ingsw.view.gui.controllers.AdvantageSceneController;
 import it.polimi.ingsw.view.gui.controllers.LootSceneController;
@@ -264,6 +271,24 @@ public class GuiView implements View {
                     }
                 });
                 break;
+
+            case UNKNOWN_ERROR:
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Something strange happened!");
+                    alert.setHeaderText("An unknown error has occurred...");
+                    alert.setContentText("Let's hope it doesn't break anything!");
+
+                    try {
+                        ButtonType response = alert.showAndWait().get();
+                        if (response == ButtonType.OK) {
+                            alert.close();
+                        }
+                    } catch (NoSuchElementException e) {
+                        alert.close();
+                    }
+                });
+                break;
         }
     }
 
@@ -313,7 +338,162 @@ public class GuiView implements View {
 
     @Override
     public void showAction(String...actionData) {
+        Gson parser = new Gson();
+        Action action;
 
+        try { action = Action.valueOf(actionData[0]); }
+        catch(Exception e) {
+            this.showError(Error.UNKNOWN_ERROR);
+            return;
+        }
+
+        switch(action) {
+            case SOLO_ACTION:
+                if(actionData.length < 2) {
+                    this.showError(Error.UNKNOWN_ERROR);
+                    return;
+                }
+                showScene("/FXML/lorenzo.fxml");
+                System.out.print("\n>> Lorenzo il Magnifico: ");
+                JsonObject data = parser.fromJson(actionData[1], JsonElement.class).getAsJsonObject();
+                if(data.get("type").getAsString().equals("SoloCross"))
+                    Screen.print(parser.fromJson(data.get("description"), SoloCross.class));
+                else Screen.print(parser.fromJson(data.get("description"), SoloDiscard.class));
+                System.out.print("\n");
+                break;
+
+            case PLAY_LEADER:
+                if(actionData.length < 2) {
+                    this.showError(Error.UNKNOWN_ERROR);
+                    return;
+                }
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Enemy action!");
+                    alert.setHeaderText("Player: "+actionData[1]);
+                    alert.setContentText("Action: plays a Leader");
+
+                    try {
+                        ButtonType response = alert.showAndWait().get();
+                        if (response == ButtonType.OK) {
+                            alert.close();
+                        }
+                    } catch (NoSuchElementException e) {
+                        alert.close();
+                    }
+                });
+                break;
+
+            case DISCARD_LEADER:
+                if(actionData.length < 2) {
+                    this.showError(Error.UNKNOWN_ERROR);
+                    return;
+                }
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Enemy action!");
+                    alert.setHeaderText("Player: "+actionData[1]);
+                    alert.setContentText("Action: discards a Leader");
+
+                    try {
+                        ButtonType response = alert.showAndWait().get();
+                        if (response == ButtonType.OK) {
+                            alert.close();
+                        }
+                    } catch (NoSuchElementException e) {
+                        alert.close();
+                    }
+                });
+                break;
+
+            case BUY_DEVELOPMENT_CARD:
+                if(actionData.length < 4) {
+                    this.showError(Error.UNKNOWN_ERROR);
+                    return;
+                }
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Enemy action!");
+                    alert.setHeaderText("Player: "+actionData[1]);
+                    alert.setContentText("Action: buys a "+Color.valueOf(actionData[2])+actionData[3]+" Development Card");
+
+                    try {
+                        ButtonType response = alert.showAndWait().get();
+                        if (response == ButtonType.OK) {
+                            alert.close();
+                        }
+                    } catch (NoSuchElementException e) {
+                        alert.close();
+                    }
+                });
+                break;
+
+            case TAKE_RESOURCES:
+                if(actionData.length < 3) {
+                    this.showError(Error.UNKNOWN_ERROR);
+                    return;
+                }
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Enemy action!");
+                    alert.setHeaderText("Player: "+actionData[1]);
+                    alert.setContentText("Action: takes Resources -> "+ResourcePack.fromString(actionData[2]));
+
+                    try {
+                        ButtonType response = alert.showAndWait().get();
+                        if (response == ButtonType.OK) {
+                            alert.close();
+                        }
+                    } catch (NoSuchElementException e) {
+                        alert.close();
+                    }
+                });
+                break;
+
+            case WASTED_RESOURCES:
+                if(actionData.length < 3) {
+                    this.showError(Error.UNKNOWN_ERROR);
+                    return;
+                }
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Enemy action!");
+                    alert.setHeaderText("Player: "+actionData[1]);
+                    alert.setContentText("Action: wastes Resources -> "+ResourcePack.fromString(actionData[2]));
+
+                    try {
+                        ButtonType response = alert.showAndWait().get();
+                        if (response == ButtonType.OK) {
+                            alert.close();
+                        }
+                    } catch (NoSuchElementException e) {
+                        alert.close();
+                    }
+                });
+                break;
+
+            case ACTIVATE_PRODUCTION:
+                if(actionData.length < 2) {
+                    this.showError(Error.UNKNOWN_ERROR);
+                    return;
+                }
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Enemy action!");
+                    alert.setHeaderText("Player: "+actionData[1]);
+                    alert.setContentText("Action: activates Production");
+
+                    try {
+                        ButtonType response = alert.showAndWait().get();
+                        if (response == ButtonType.OK) {
+                            alert.close();
+                        }
+                    } catch (NoSuchElementException e) {
+                        alert.close();
+                    }
+                });
+                break;
+        }
     }
 
     @Override
