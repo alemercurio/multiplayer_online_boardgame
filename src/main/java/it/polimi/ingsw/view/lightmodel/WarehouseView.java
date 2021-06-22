@@ -138,8 +138,10 @@ public class WarehouseView extends Warehouse implements Observable {
     public void addStockPower(StockPower power) {
         this.stock.add(new LimitedStock(power.getType(),power.getLimit()));
 
-        for(InvalidationListener observer : this.observers)
-            observer.invalidated(this);
+        synchronized(this.observers) {
+            for(InvalidationListener observer : this.observers)
+                observer.invalidated(this);
+        }
     }
 
     public List<StockPower> getStockPower() {
@@ -297,8 +299,10 @@ public class WarehouseView extends Warehouse implements Observable {
         this.pendingResources.flush();
         this.pendingResources.add(pending);
 
-        for(InvalidationListener observer : this.observers)
-            observer.invalidated(this);
+        synchronized(this.observers) {
+            for(InvalidationListener observer : this.observers)
+                observer.invalidated(this);
+        }
 
         return true;
     }
@@ -345,11 +349,15 @@ public class WarehouseView extends Warehouse implements Observable {
 
     @Override
     public void addListener(InvalidationListener invalidationListener) {
-        this.observers.add(invalidationListener);
+        synchronized(this.observers) {
+            this.observers.add(invalidationListener);
+        }
     }
 
     @Override
     public void removeListener(InvalidationListener invalidationListener) {
-        this.observers.remove(invalidationListener);
+        synchronized(this.observers) {
+            this.observers.remove(invalidationListener);
+        }
     }
 }

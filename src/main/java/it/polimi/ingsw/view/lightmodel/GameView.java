@@ -29,8 +29,10 @@ public class GameView implements Observable {
     public void update(String state) {
         this.players = new Gson().fromJson(state,PlayerView[].class);
 
-        for(InvalidationListener observer : this.observers)
-            observer.invalidated(this);
+        synchronized(this.observers) {
+            for(InvalidationListener observer : this.observers)
+                observer.invalidated(this);
+        }
     }
 
     public int getCurrentPlayerID() {
@@ -65,8 +67,10 @@ public class GameView implements Observable {
                 return;
             }
 
-        for(InvalidationListener observer : this.observers)
-            observer.invalidated(this);
+        synchronized(this.observers) {
+            for(InvalidationListener observer : this.observers)
+                observer.invalidated(this);
+        }
     }
 
     public void printPlayers() {
@@ -114,11 +118,15 @@ public class GameView implements Observable {
 
     @Override
     public void addListener(InvalidationListener invalidationListener) {
-        this.observers.add(invalidationListener);
+        synchronized(this.observers) {
+            this.observers.add(invalidationListener);
+        }
     }
 
     @Override
     public void removeListener(InvalidationListener invalidationListener) {
-        this.observers.remove(invalidationListener);
+        synchronized(this.observers) {
+            this.observers.remove(invalidationListener);
+        }
     }
 }
