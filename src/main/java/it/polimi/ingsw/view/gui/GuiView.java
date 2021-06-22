@@ -23,6 +23,7 @@ import javafx.scene.control.ButtonType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 public class GuiView implements View {
 
@@ -141,7 +142,26 @@ public class GuiView implements View {
 
     @Override
     public void tell(String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Oops!");
+            alert.setHeaderText(message);
 
+            try {
+                ButtonType response = alert.showAndWait().get();
+                if (response == ButtonType.OK) {
+                    if(message.equals("No game available!")) {
+                        Platform.runLater(() -> guiApp.resetToMainMenu());
+                    }
+                    alert.close();
+                }
+            } catch (NoSuchElementException e) {
+                if(message.equals("No game available!")) {
+                    Platform.runLater(() -> guiApp.resetToMainMenu());
+                }
+                alert.close();
+            }
+        });
     }
 
     @Override
@@ -169,28 +189,81 @@ public class GuiView implements View {
 
     @Override
     public synchronized void showError(Error error) {
-        Platform.runLater(() -> {
-            if(error.compareTo(Error.INVALID_CARD_SELECTION)==0) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Not enough Resources");
-                alert.setHeaderText("You cannot buy this Card!");
-                alert.setContentText("Choose another one or change action.");
+        switch(error) {
+            case NICKNAME_TAKEN:
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Non valid nickname!");
+                    alert.setHeaderText("This nickname is already taken on the server.");
+                    alert.setContentText("Choose another.");
 
-                if(alert.showAndWait().get() == ButtonType.OK){
-                    alert.close();
-                }
-            }
-            if(error.compareTo(Error.INVALID_POSITION)==0) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Not valid position");
-                alert.setHeaderText("You cannot put this Card here!");
-                alert.setContentText("Its level is wrong for this positioning.");
+                    try {
+                        ButtonType response = alert.showAndWait().get();
+                        if (response == ButtonType.OK) {
+                            Platform.runLater(() -> guiApp.showNicknameField());
+                            alert.close();
+                        }
+                    } catch (NoSuchElementException e) {
+                        Platform.runLater(() -> guiApp.showNicknameField());
+                        alert.close();
+                    }
+                });
+                break;
 
-                if(alert.showAndWait().get() == ButtonType.OK){
-                    alert.close();
-                }
-            }
-        });
+            case INVALID_CARD_SELECTION:
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Not enough Resources");
+                    alert.setHeaderText("You cannot buy this Card!");
+                    alert.setContentText("Choose another one or change action.");
+
+                    try {
+                        ButtonType response = alert.showAndWait().get();
+                        if (response == ButtonType.OK) {
+                            alert.close();
+                        }
+                    } catch (NoSuchElementException e) {
+                        alert.close();
+                    }
+                });
+                break;
+
+            case INVALID_POSITION:
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Not valid position");
+                    alert.setHeaderText("You cannot put this Card here!");
+                    alert.setContentText("Its level is wrong for this positioning.");
+
+                    try {
+                        ButtonType response = alert.showAndWait().get();
+                        if (response == ButtonType.OK) {
+                            alert.close();
+                        }
+                    } catch (NoSuchElementException e) {
+                        alert.close();
+                    }
+                });
+                break;
+
+            case NOT_ENOUGH_RESOURCES:
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Not valid selection");
+                    alert.setHeaderText("You cannot perform this set of productions.");
+                    alert.setContentText("You do not have enough Resources.");
+
+                    try {
+                        ButtonType response = alert.showAndWait().get();
+                        if (response == ButtonType.OK) {
+                            alert.close();
+                        }
+                    } catch (NoSuchElementException e) {
+                        alert.close();
+                    }
+                });
+                break;
+        }
     }
 
     @Override
@@ -208,6 +281,7 @@ public class GuiView implements View {
 
     @Override
     public synchronized int selectNumberOfPlayer() {
+        Platform.runLater(() -> guiApp.setMenu(guiApp.nicknameChoice, guiApp.newGameMenuBox));
         try {
             while (!eventHandler.containsKey(ViewEvent.NUMBER_OF_PLAYERS)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
@@ -216,7 +290,7 @@ public class GuiView implements View {
 
     @Override
     public void gameStart() {
-        Platform.runLater(() -> guiApp.showScene("/FXML/gamestart.fxml"));
+        showScene("/FXML/gamestart.fxml");
     }
 
     @Override
@@ -272,7 +346,7 @@ public class GuiView implements View {
 
     @Override
     public synchronized String selectDevCardPosition() {
-        GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+        showScene("/FXML/playerboard.fxml");
         Platform.runLater(() -> GuiView.getGuiView().playerboard.positionCard(buyed));
         try {
             while (!eventHandler.containsKey(ViewEvent.DEVCARD_POSITION)) wait();

@@ -60,10 +60,10 @@ public class GuiApp extends Application {
 
     private Pane root = new AnchorPane();
     private VBox mainMenuBox = new VBox(-5);
-    private VBox newGameMenuBox = new VBox(-5);
+    public VBox newGameMenuBox = new VBox(-5);
     private VBox numPlayersMenuBox = new VBox(-5);
     private VBox soloModeChoice = new VBox(-5);
-    private VBox nicknameChoice = new VBox((-5));
+    public VBox nicknameChoice = new VBox((-5));
     private TextField nicknameField;
     private Line line;
 
@@ -219,6 +219,12 @@ public class GuiApp extends Application {
         root.getChildren().add(to);
     }
 
+    public void resetToMainMenu() {
+        removeFromRoot(nicknameChoice);
+        removeFromRoot(nicknameField);
+        root.getChildren().add(mainMenuBox);
+    }
+
     public void removeFromRoot(Object toRemove) {
         root.getChildren().remove(toRemove);
     }
@@ -239,12 +245,10 @@ public class GuiApp extends Application {
                 if(gameChoice.equals("join")) {
                     removeFromRoot(nicknameField);
                     GuiView.getGuiView().event(ViewEvent.NICKNAME, GuiView.getGuiView().nickname);
-                    showScene("/FXML/waitingscreen.fxml");
                 }
                 else if(gameChoice.equals("new")) {
                     removeFromRoot(nicknameField);
                     GuiView.getGuiView().event(ViewEvent.NICKNAME, GuiView.getGuiView().nickname);
-                    setMenu(nicknameChoice, newGameMenuBox);
                 }
             }
         } );
