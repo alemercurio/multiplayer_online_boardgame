@@ -27,7 +27,7 @@ import java.util.ResourceBundle;
 public class LeaderboardController implements Initializable, InvalidationListener {
 
     @FXML
-    Label current1, current2, current3, current4, player1, player2, player3, player4;
+    Label current1, current2, current3, current4, player1, player2, player3, player4, end;
 
     @FXML
     AnchorPane one, two, three, four;
@@ -44,11 +44,16 @@ public class LeaderboardController implements Initializable, InvalidationListene
     @FXML
     ImageView crown1, crown2, crown3, crown4;
 
+    @FXML
+    Button cancel;
+
     GameView players;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        GuiView.getGuiView().leaderboard = this;
         GuiView.getGuiView().players.addListener(this);
+        end.setVisible(false);
         current1.setVisible(false);
         current2.setVisible(false);
         current3.setVisible(false);
@@ -131,6 +136,15 @@ public class LeaderboardController implements Initializable, InvalidationListene
         stones.setText("" + resources.get(Resource.STONE));
         numPoints.setText(""+points);
         name.setText(nick);
+    }
+
+    public void endGame() {
+        cancel.setVisible(false);
+        end.setVisible(true);
+        current1.setVisible(false);
+        current2.setVisible(false);
+        current3.setVisible(false);
+        current4.setVisible(false);
     }
 
     @Override

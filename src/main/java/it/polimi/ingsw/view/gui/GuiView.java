@@ -47,6 +47,7 @@ public class GuiView implements View {
     public LootSceneController lootScene;
     public CardMarketController cardMarket;
     public ResourceMarketController resourceMarket;
+    public LeaderboardController leaderboard;
 
     public String nickname;
     public String currentPlayer;
@@ -447,7 +448,8 @@ public class GuiView implements View {
 
     @Override
     public void gameEnd() {
-
+        showScene("/FXML/leaderboard.fxml");
+        Platform.runLater(() -> leaderboard.endGame());
     }
 
     @Override
