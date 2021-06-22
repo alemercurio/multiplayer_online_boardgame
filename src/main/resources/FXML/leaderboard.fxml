@@ -321,7 +321,7 @@
             <Image url="@../PNG/punchboard/crown.png" />
          </image>
       </ImageView>
-      <Label fx:id="end" layoutX="207.0" layoutY="47.0" prefHeight="44.0" prefWidth="842.0" stylesheets="@../CSS/actionMenuButton.css" text="The Game Has Ended. Cheer Our Winner!">
+      <Label fx:id="end" layoutX="215.0" layoutY="47.0" prefHeight="44.0" prefWidth="842.0" stylesheets="@../CSS/actionMenuButton.css" text="The Game Has Ended. Cheer Our Winner!">
          <font>
             <Font size="38.0" />
          </font>

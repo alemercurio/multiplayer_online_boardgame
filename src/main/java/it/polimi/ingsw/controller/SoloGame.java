@@ -98,6 +98,7 @@ public class SoloGame extends Game {
     public void playSolo() {
         SoloAction action = this.lorenzo.playSoloAction();
         this.broadCast(MessageParser.message("action",Action.SOLO_ACTION,action));
+        this.broadCastFull(MessageParser.message("event",GameEvent.ROUND,player.getNickname()));
     }
 
     @Override

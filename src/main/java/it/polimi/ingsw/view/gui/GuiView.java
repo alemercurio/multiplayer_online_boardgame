@@ -38,6 +38,9 @@ public class GuiView implements View {
 
     private static GuiView guiView;
 
+    public boolean solo = false;
+    private boolean firstRound = true;
+
     public final GameView players = new GameView();
     public MarketView market = new MarketView();
     public LeaderView leaderStack = new LeaderView();
@@ -55,6 +58,7 @@ public class GuiView implements View {
     public CardMarketController cardMarket;
     public ResourceMarketController resourceMarket;
     public LeaderboardController leaderboard;
+    public LorenzoController lorenzo;
 
     public String nickname;
     public String currentPlayer;
@@ -354,12 +358,10 @@ public class GuiView implements View {
                     return;
                 }
                 showScene("/FXML/lorenzo.fxml");
-                System.out.print("\n>> Lorenzo il Magnifico: ");
                 JsonObject data = parser.fromJson(actionData[1], JsonElement.class).getAsJsonObject();
                 if(data.get("type").getAsString().equals("SoloCross"))
-                    Screen.print(parser.fromJson(data.get("description"), SoloCross.class));
-                else Screen.print(parser.fromJson(data.get("description"), SoloDiscard.class));
-                System.out.print("\n");
+                   Platform.runLater(() -> lorenzo.setAction(parser.fromJson(data.get("description"), SoloCross.class)));
+                else Platform.runLater(() -> lorenzo.setAction(parser.fromJson(data.get("description"), SoloDiscard.class)));
                 break;
 
             case PLAY_LEADER:
@@ -415,7 +417,7 @@ public class GuiView implements View {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Enemy action!");
                     alert.setHeaderText("Player: "+actionData[1]);
-                    alert.setContentText("Action: buys a "+Color.valueOf(actionData[2])+actionData[3]+" Development Card");
+                    alert.setContentText("Action: buys a Development Card");
 
                     try {
                         ButtonType response = alert.showAndWait().get();
@@ -437,7 +439,7 @@ public class GuiView implements View {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Enemy action!");
                     alert.setHeaderText("Player: "+actionData[1]);
-                    alert.setContentText("Action: takes Resources -> "+ResourcePack.fromString(actionData[2]));
+                    alert.setContentText("Action: takes Resources");
 
                     try {
                         ButtonType response = alert.showAndWait().get();
@@ -498,11 +500,22 @@ public class GuiView implements View {
 
     @Override
     public synchronized String selectAction() {
-        Platform.runLater(() -> {
-            guiApp.showScene("/FXML/playerboard.fxml");
-            this.playerboard.setActive();
-            this.playerboard.showMenu();
-        });
+        if(!solo) {
+            Platform.runLater(() -> {
+                guiApp.showScene("/FXML/playerboard.fxml");
+                this.playerboard.setActive();
+                this.playerboard.showMenu();
+            });
+        }
+        else if(firstRound) {
+            firstRound = false;
+            this.currentPlayer = players.players[0].getNickname();
+            Platform.runLater(() -> {
+                guiApp.showScene("/FXML/playerboard.fxml");
+                this.playerboard.setActive();
+                this.playerboard.showMenu();
+            });
+        }
         try {
             while (!eventHandler.containsKey(ViewEvent.ACTION)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }

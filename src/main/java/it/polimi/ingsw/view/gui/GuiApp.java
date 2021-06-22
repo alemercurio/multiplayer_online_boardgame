@@ -109,6 +109,7 @@ public class GuiApp extends Application {
             new Pair<String, Runnable>("Offline", () -> setSoloMode("off")),
             new Pair<String, Runnable>("Online", () -> {
                 setSoloMode("on");
+                GuiView.getGuiView().solo=true;
                 GuiView.getGuiView().event(ViewEvent.NUMBER_OF_PLAYERS, 1);
                 showScene("/FXML/waitingscreen.fxml");
             }),
