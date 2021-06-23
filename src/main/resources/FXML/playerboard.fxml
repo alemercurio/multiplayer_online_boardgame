@@ -10,6 +10,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.shape.Rectangle?>
@@ -252,5 +253,12 @@
       <Circle fx:id="deck2color2" fill="DODGERBLUE" layoutX="885.0" layoutY="612.0" radius="13.0" stroke="BLACK" strokeType="INSIDE" />
       <Circle fx:id="deck3color1" fill="DODGERBLUE" layoutX="1136.0" layoutY="573.0" radius="13.0" stroke="BLACK" strokeType="INSIDE" />
       <Circle fx:id="deck3color2" fill="DODGERBLUE" layoutX="1137.0" layoutY="611.0" radius="13.0" stroke="BLACK" strokeType="INSIDE" />
+      <Button fx:id="leaderDepots" layoutX="39.0" layoutY="615.0" mnemonicParsing="false" onAction="#showStockPower" prefHeight="22.0" prefWidth="204.0" stylesheets="@../CSS/actionMenuButton.css" text="Leader's Depots" visible="false" />
+      <Pane fx:id="powerDepot" layoutX="307.0" layoutY="438.0" visible="false">
+         <children>
+            <Rectangle fx:id="pendingArea1" arcHeight="5.0" arcWidth="5.0" fill="#30373c" height="193.0" stroke="BLACK" strokeType="INSIDE" width="177.0" />
+            <VBox fx:id="depots" alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="171.0" prefWidth="158.0" spacing="15.0" />
+         </children>
+      </Pane>
    </children>
 </AnchorPane>

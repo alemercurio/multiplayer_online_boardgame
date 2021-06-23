@@ -7,12 +7,14 @@ import it.polimi.ingsw.model.resources.ResourcePack;
 import it.polimi.ingsw.model.vatican.Vatican;
 import it.polimi.ingsw.view.ViewEvent;
 import it.polimi.ingsw.view.gui.GuiView;
+import it.polimi.ingsw.view.gui.util.ResourcePackView;
 import it.polimi.ingsw.view.lightmodel.*;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
@@ -20,6 +22,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.fxml.FXML;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -327,7 +330,6 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
         move(3);
     }
 
-
     public void done() {
         GuiView.getGuiView().event(ViewEvent.WAREHOUSE_CONFIG, warehouse.getConfig());
         pendingSceneOff();
@@ -430,6 +432,8 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     public void updateWarehouse() {
         warehouse = GuiView.getGuiView().warehouse;
         warehouseLocalUpdate();
+        this.updateStockPower();
+
         this.pendingSceneOn();
 
         strongbox = GuiView.getGuiView().strongbox;
@@ -476,6 +480,8 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
             thirdB.imageProperty().set(null);
             thirdC.imageProperty().set(null);
         }
+
+        this.updateStockPower();
 
         pending = warehouse.pendingResources;
         pendingCoins.setText("" + pending.get(Resource.COIN));
@@ -530,6 +536,7 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
             }
         }
     }
+
     public void horizontalTranslation() {
         TranslateTransition transition = new TranslateTransition();
         transition.setNode(marker);
@@ -581,7 +588,6 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     public void turnPope1() {
         pope2.setImage(new Image("/PNG/punchboard/pope_favor1_front.png"));
     }
-
     public void turnPope2() {
         pope3.setImage(new Image("/PNG/punchboard/pope_favor2_front.png"));
     }
@@ -668,5 +674,33 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
                 deck3color1.setFill(Color.web(deck3.get(1).getColor().getValue()));
             }
         }
+    }
+
+    // NEW
+
+    @FXML
+    private Button leaderDepots;
+
+    @FXML
+    private Pane powerDepot;
+
+    @FXML
+    private VBox depots;
+
+    private void updateStockPower() {
+        WarehouseView warehouse = GuiView.getGuiView().warehouse;
+        if(warehouse.hasStockPower()) {
+            Platform.runLater(() -> {
+                this.depots.getChildren().setAll(warehouse.getStockPowerView());
+                this.leaderDepots.setVisible(true);
+            });
+        }
+    }
+
+    @FXML
+    private void showStockPower() {
+        if(this.powerDepot.isVisible())
+            Platform.runLater(() -> powerDepot.setVisible(false));
+        else Platform.runLater(() -> powerDepot.setVisible(true));
     }
 }

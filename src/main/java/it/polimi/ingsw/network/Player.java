@@ -321,6 +321,8 @@ public class Player implements Runnable {
             switch(cmd) {
 
                 case "buyDevCard":
+                    this.playerBoard.addLeaderStock(new StockPower(2,Resource.COIN));
+                    this.playerBoard.storage.warehouse.stock(4,Resource.COIN,1);
                     endRound = this.buyDevelopmentCard();
                     if(endRound && this.receive().equals("leader")) this.leaderAction();
                     break;
