@@ -9,12 +9,13 @@ import javafx.beans.Observable;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PlayerBoardView implements Observable {
 
     public List<Resource> whitePower;
-    public ResourcePack discount = new ResourcePack(1,2);
+    private ResourcePack discount;
 
     private final List<InvalidationListener> observers = new ArrayList<>();
 

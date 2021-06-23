@@ -46,6 +46,14 @@ public class LeaderView implements Observable {
         return leaders;
     }
 
+    public List<LeaderCard> getInactive() {
+        return this.leaders.getInactiveLeader();
+    }
+
+    public List<LeaderCard> getActive() {
+        return this.leaders.getActiveLeader();
+    }
+
     // -----
 
     public void showChoices(List<LeaderCard> leaders) {

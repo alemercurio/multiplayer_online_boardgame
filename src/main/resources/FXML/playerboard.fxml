@@ -90,6 +90,7 @@
                         <MenuItem mnemonicParsing="false" onAction="#showResourceMarket" text="Market Tray" />
                         <MenuItem mnemonicParsing="false" onAction="#showCardMarket" text="Card Market" />
                         <MenuItem mnemonicParsing="false" onAction="#showProductions" text="Productions" />
+                        <MenuItem mnemonicParsing="false" onAction="#showLeaders" text="Leaders" />
                         <MenuItem mnemonicParsing="false" onAction="#showPlayers" text="Leaderboard" />
                     <MenuItem mnemonicParsing="false" text="Close" />
                   </items>
