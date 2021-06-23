@@ -285,19 +285,19 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     }
 
     public void move(int shelf) {
-        if(!moveStarted) {
-            if(warehouse.stock.get(shelf-1).getAvailable()>0) {
-                moveStarted = true;
-                source = shelf;
+        if(pendingArea.isVisible()) {
+            if (!moveStarted) {
+                if (warehouse.stock.get(shelf - 1).getAvailable() > 0) {
+                    moveStarted = true;
+                    source = shelf;
+                }
+            } else {
+                if (source == 0) {
+                    warehouse.move(shelf, moving, warehouse.pendingResources.get(moving));
+                } else warehouse.move(shelf, source, warehouse.stock.get(source - 1).getAvailable());
+                warehouseLocalUpdate();
+                moveStarted = false;
             }
-        }
-        else {
-            if(source==0) {
-                warehouse.move(shelf, moving, warehouse.pendingResources.get(moving));
-            }
-            else warehouse.move(shelf, source, warehouse.stock.get(source-1).getAvailable());
-            warehouseLocalUpdate();
-            moveStarted = false;
         }
     }
 
