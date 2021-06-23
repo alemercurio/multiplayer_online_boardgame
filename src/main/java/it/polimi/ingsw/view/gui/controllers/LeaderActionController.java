@@ -3,6 +3,7 @@ package it.polimi.ingsw.view.gui.controllers;
 import it.polimi.ingsw.model.cards.LeaderCard;
 import it.polimi.ingsw.view.ViewEvent;
 import it.polimi.ingsw.view.gui.GuiView;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -14,9 +15,7 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 public class LeaderActionController implements Initializable {
@@ -29,6 +28,8 @@ public class LeaderActionController implements Initializable {
 
     @FXML
     private Button play1,play2,discard1,discard2;
+
+    private boolean action = true;
 
     @FXML
     private void play1() {
@@ -63,36 +64,56 @@ public class LeaderActionController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         GuiView.getGuiView().leaderScene = this;
-        Map<LeaderCard,Boolean> leaders = GuiView.getGuiView().leaderStack.getLeader();
 
-        List<Image> images = new ArrayList<>();
-        int inactive = 0;
+        List<LeaderCard> inactiveLeaders = GuiView.getGuiView().leaderStack.getInactive();
+        List<LeaderCard> activeLeaders = GuiView.getGuiView().leaderStack.getActive();
 
-        for(Map.Entry<LeaderCard,Boolean> leader : leaders.entrySet()) {
-            Image image = GuiView.getGuiView().leaderStack.getImageForCard(leader.getKey());
-            if(leader.getValue()) {
-                ImageView img = new ImageView(image);
-                SepiaTone sepiaTone = new SepiaTone();
-                sepiaTone.setLevel(0.8);
+        LeaderCard leader;
+        SepiaTone sepiaTone = new SepiaTone();
+        sepiaTone.setLevel(0.8);
+
+        if(inactiveLeaders.isEmpty() && activeLeaders.isEmpty()) {
+            this.text.setText("You do not have any Leader left to play!");
+            this.leader1.setVisible(false);
+            this.leader2.setVisible(false);
+        }
+        else {
+            if(!inactiveLeaders.isEmpty()) {
+                leader = inactiveLeaders.remove(0);
+                ImageView img = new ImageView(GuiView.getGuiView().leaderStack.getImageForCard(leader));
                 img.setEffect(sepiaTone);
-                image = img.snapshot(null,null);
-                inactive++;
+                Image image = img.snapshot(null,null);
+                this.leader1.setFill(new ImagePattern(image));
+                this.play1.setVisible(true);
+                this.discard1.setVisible(true);
+            } else {
+                leader = activeLeaders.remove(0);
+                Image image = GuiView.getGuiView().leaderStack.getImageForCard(leader);
+                this.leader1.setFill(new ImagePattern(image));
             }
-            images.add(image);
-        }
 
-        if(inactive == 0) this.text.setText("You do not have any Leader left to play!");
-        if(images.size() >= 1) {
-            this.leader1.setFill(new ImagePattern(images.get(0)));
-            this.play1.setVisible(true);
-            this.discard1.setVisible(true);
+            if(!inactiveLeaders.isEmpty()) {
+                leader = inactiveLeaders.remove(0);
+                ImageView img = new ImageView(GuiView.getGuiView().leaderStack.getImageForCard(leader));
+                img.setEffect(sepiaTone);
+                Image image = img.snapshot(null,null);
+                this.leader2.setFill(new ImagePattern(image));
+                this.play2.setVisible(true);
+                this.discard2.setVisible(true);
+            } else if(!activeLeaders.isEmpty()) {
+                leader = activeLeaders.remove(0);
+                Image image = GuiView.getGuiView().leaderStack.getImageForCard(leader);
+                this.leader2.setFill(new ImagePattern(image));
+            } else {
+                this.leader2.setVisible(false);
+            }
         }
-        else this.leader1.setVisible(false);
-        if(images.size() >= 2) {
-            this.leader2.setFill(new ImagePattern(images.get(1)));
-            this.play2.setVisible(true);
-            this.discard2.setVisible(true);
-        }
-        else this.leader2.setVisible(false);
+    }
+
+    public void disableActions() {
+        this.play1.setVisible(false);
+        this.discard1.setVisible(false);
+        this.play2.setVisible(false);
+        this.discard2.setVisible(false);
     }
 }

@@ -3,7 +3,6 @@ package it.polimi.ingsw.view.gui;
 import com.google.gson.Gson;
 import it.polimi.ingsw.model.cards.LeaderCard;
 import it.polimi.ingsw.model.cards.StockPower;
-import it.polimi.ingsw.model.resources.Resource;
 import it.polimi.ingsw.model.resources.ResourcePack;
 import it.polimi.ingsw.model.vatican.Vatican;
 import it.polimi.ingsw.view.gui.controllers.*;
@@ -294,19 +293,17 @@ public class GuiView implements View {
 
     @Override
     public synchronized void showGatheredResources(ResourcePack gathered) {
-        if(gathered.get(Resource.VOID)>0 && playerBoard.hasWhitePower()) {
+        /*if(gathered.get(Resource.VOID)>0 && playerBoard.hasWhitePower()) {
             Platform.runLater(() -> {
                 guiApp.showScene("/FXML/loot.fxml");
                 lootScene.setPack(gathered);
             });
-        }
+        }*/
     }
 
     @Override
-    public ResourcePack selectWhite(int amount) {
-        Platform.runLater(() -> {
-            lootScene.askWhite(amount);
-        });
+    public synchronized ResourcePack selectWhite(int amount) {
+        this.resourceMarket.selectWhite(amount);
         try {
             while (!eventHandler.containsKey(ViewEvent.CONVERT_WHITE)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }

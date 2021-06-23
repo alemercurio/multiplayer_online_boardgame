@@ -35,7 +35,7 @@ import java.util.ResourceBundle;
 
 public class PlayerBoardSceneController implements Initializable, InvalidationListener {
 
-    boolean active;
+    private boolean active;
 
     private DevelopmentCardStackView cards;
     private int[] numCards = {0,0,0}; //[0] for position 1, [1] for position 2, [2] for position 3
@@ -345,6 +345,11 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
 
     public void showProductions() {
 
+    }
+
+    public void showLeaders() {
+        GuiView.getGuiView().showScene("/FXML/leaderaction.fxml");
+        Platform.runLater(() -> GuiView.getGuiView().leaderScene.disableActions());
     }
 
     public void showPlayers() {
