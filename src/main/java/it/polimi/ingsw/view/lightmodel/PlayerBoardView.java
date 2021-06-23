@@ -14,7 +14,7 @@ import java.util.List;
 public class PlayerBoardView implements Observable {
 
     public List<Resource> whitePower;
-    public ResourcePack discount;
+    public ResourcePack discount = new ResourcePack(1,2);
 
     private final List<InvalidationListener> observers = new ArrayList<>();
 
@@ -45,6 +45,11 @@ public class PlayerBoardView implements Observable {
     public boolean hasDiscount() {
         return (this.discount != null) && (!this.discount.isEmpty());
     }
+
+    public ResourcePack getDiscount() {
+        return discount.getCopy();
+    }
+
     @Override
     public void addListener(InvalidationListener invalidationListener) {
         synchronized(this.observers) {
