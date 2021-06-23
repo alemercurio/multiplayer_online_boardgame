@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.paint.RadialGradient?>
 <?import javafx.scene.paint.Stop?>
 <?import javafx.scene.shape.Circle?>
@@ -171,25 +168,5 @@
             <Font size="40.0" />
          </font>
       </Button>
-      <Pane fx:id="whiteConversion" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1280.0" visible="false">
-         <children>
-            <ImageView fitHeight="650.0" fitWidth="1280.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../PNG/filigrana.png" />
-               </image>
-            </ImageView>
-            <Label fx:id="conversionText" alignment="CENTER" layoutX="198.0" layoutY="120.0" prefHeight="150.0" prefWidth="883.0" text="You have taken some white marbles!" textAlignment="CENTER" wrapText="true">
-               <font>
-                  <Font size="50.0" />
-               </font>
-            </Label>
-            <Button fx:id="done" layoutX="584.0" layoutY="441.0" mnemonicParsing="false" onAction="#done" text="Done">
-               <font>
-                  <Font size="30.0" />
-               </font>
-            </Button>
-            <HBox fx:id="white" alignment="CENTER" layoutX="266.0" layoutY="236.0" prefHeight="180.0" prefWidth="752.0" />
-         </children>
-      </Pane>
    </children>
 </AnchorPane>

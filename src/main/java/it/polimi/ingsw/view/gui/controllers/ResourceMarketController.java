@@ -91,18 +91,6 @@ public class ResourceMarketController implements Initializable, InvalidationList
     @FXML
     private Button buttonRow2;
 
-    @FXML
-    private Pane whiteConversion;
-
-    @FXML
-    private HBox white;
-
-    @FXML
-    private Label conversionText;
-
-    @FXML
-    private Button done;
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
@@ -171,6 +159,7 @@ public class ResourceMarketController implements Initializable, InvalidationList
 
         SequentialTransition finalTransition = new SequentialTransition(firstStep, secondStep);
         finalTransition.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
             GuiView.getGuiView().event(ViewEvent.MARBLES, "column 1");
         }));
         finalTransition.play();
@@ -222,6 +211,7 @@ public class ResourceMarketController implements Initializable, InvalidationList
 
         SequentialTransition finalTransition = new SequentialTransition(firstStep, secondStep);
         finalTransition.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
             GuiView.getGuiView().event(ViewEvent.MARBLES, "column 2");
         }));
         finalTransition.play();
@@ -273,6 +263,7 @@ public class ResourceMarketController implements Initializable, InvalidationList
 
         SequentialTransition finalTransition = new SequentialTransition(firstStep, secondStep);
         finalTransition.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
             GuiView.getGuiView().event(ViewEvent.MARBLES, "column 3");
         }));
         finalTransition.play();
@@ -324,6 +315,7 @@ public class ResourceMarketController implements Initializable, InvalidationList
 
         SequentialTransition finalTransition = new SequentialTransition(firstStep, secondStep);
         finalTransition.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
             GuiView.getGuiView().event(ViewEvent.MARBLES, "column 4");
         }));
         finalTransition.play();
@@ -378,6 +370,7 @@ public class ResourceMarketController implements Initializable, InvalidationList
         SequentialTransition secondStep = new SequentialTransition(lastTransition1,lastTransition2);
         SequentialTransition last = new SequentialTransition(firstStep, secondStep);
         last.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
             GuiView.getGuiView().event(ViewEvent.MARBLES, "row 3");
         }));
         last.play();
@@ -433,6 +426,7 @@ public class ResourceMarketController implements Initializable, InvalidationList
         SequentialTransition secondStep = new SequentialTransition(lastTransition1,lastTransition2);
         SequentialTransition last = new SequentialTransition(firstStep, secondStep);
         last.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
             GuiView.getGuiView().event(ViewEvent.MARBLES, "row 2");
         }));
         last.play();
@@ -487,6 +481,7 @@ public class ResourceMarketController implements Initializable, InvalidationList
         SequentialTransition secondStep = new SequentialTransition(lastTransition1,lastTransition2);
         SequentialTransition last = new SequentialTransition(firstStep, secondStep);
         last.setOnFinished(e -> Platform.runLater(() -> {
+            GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
             GuiView.getGuiView().event(ViewEvent.MARBLES, "row 1");
         }));
         last.play();
@@ -562,27 +557,5 @@ public class ResourceMarketController implements Initializable, InvalidationList
         if (remaining.compareTo(Resource.FAITHPOINT) == 0) {
             pendingMarble.setFill(Color.RED);
         }
-    }
-
-    // NEW
-
-    private ResourcePackView.ResourcePicker resourcePicker;
-
-    public void selectWhite(int amount) {
-        Platform.runLater(() -> {
-            this.conversionText.setText("Use your power to get " + amount + " more resources!");
-            this.resourcePicker = new ResourcePackView.ResourcePicker(
-                    GuiView.getGuiView().playerBoard.whitePower,
-                    amount
-            );
-            this.white.getChildren().setAll(resourcePicker.get(70,20));
-            this.whiteConversion.setVisible(true);
-        });
-    }
-
-    @FXML
-    public void done() {
-        GuiView.getGuiView().event(ViewEvent.CONVERT_WHITE,this.resourcePicker.getSelected());
-        this.whiteConversion.setVisible(false);
     }
 }

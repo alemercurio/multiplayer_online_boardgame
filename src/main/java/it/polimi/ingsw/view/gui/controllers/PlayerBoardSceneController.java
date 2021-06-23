@@ -125,6 +125,11 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
         if(GuiView.getGuiView().nickname.equals(GuiView.getGuiView().currentPlayer)) {
             setActive();
         }
+
+        ImageView image = new ImageView("PNG/punchboard/closed_chest.png");
+        image.setFitWidth(50);
+        image.setFitHeight(50);
+        leaderDepots.setGraphic(image);
     }
 
     public void setBlank() {
@@ -240,8 +245,13 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
             pendingStones.setVisible(true);
             pendingShields.setVisible(true);
             pendingServants.setVisible(true);
-            if(GuiView.getGuiView().warehouse.hasStockPower())
+            if(GuiView.getGuiView().warehouse.hasStockPower()) {
                 powerDepot.setVisible(true);
+                ImageView image = new ImageView("PNG/punchboard/open_chest.png");
+                image.setFitWidth(50);
+                image.setFitHeight(50);
+                leaderDepots.setGraphic(image);
+            }
         }
     }
 
@@ -257,7 +267,13 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
         pendingStones.setVisible(false);
         pendingShields.setVisible(false);
         pendingServants.setVisible(false);
-        powerDepot.setVisible(false);
+        if(powerDepot.isVisible()) {
+            powerDepot.setVisible(false);
+            ImageView image = new ImageView("PNG/punchboard/closed_chest.png");
+            image.setFitWidth(50);
+            image.setFitHeight(50);
+            leaderDepots.setGraphic(image);
+        }
     }
 
     public void moveCoin() {
@@ -704,7 +720,19 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     @FXML
     private void showStockPower() {
         if(this.powerDepot.isVisible())
-            Platform.runLater(() -> powerDepot.setVisible(false));
-        else Platform.runLater(() -> powerDepot.setVisible(true));
+            Platform.runLater(() -> {
+                powerDepot.setVisible(false);
+                ImageView image = new ImageView("PNG/punchboard/closed_chest.png");
+                image.setFitWidth(50);
+                image.setFitHeight(50);
+                leaderDepots.setGraphic(image);
+            });
+        else Platform.runLater(() -> {
+            powerDepot.setVisible(true);
+            ImageView image = new ImageView("PNG/punchboard/open_chest.png");
+            image.setFitWidth(50);
+            image.setFitHeight(50);
+            leaderDepots.setGraphic(image);
+        });
     }
 }

@@ -1,77 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.controllers.LootSceneController">
+<AnchorPane prefHeight="650.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.controllers.LootSceneController">
    <children>
-      <AnchorPane layoutX="10.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1280.0">
-         <children>
-            <ImageView fitHeight="658.0" fitWidth="1292.0" layoutX="-10.0" layoutY="-7.0" pickOnBounds="true">
-               <image>
-                  <Image url="@../PNG/board/playerboardbw.png" />
-               </image>
-            </ImageView>
-            <Label alignment="CENTER" layoutX="294.0" layoutY="98.0" prefHeight="44.0" prefWidth="717.0" stylesheets="@../CSS/actionMenuButton.css" text="Use your power to get more loot!">
-               <font>
-                  <Font size="38.0" />
-               </font>
-            </Label>
-            <ImageView fx:id="coin" fitHeight="84.0" fitWidth="141.0" layoutX="138.0" layoutY="390.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../PNG/punchboard/coin.png" />
-               </image>
-            </ImageView>
-            <ImageView fx:id="shield" fitHeight="99.0" fitWidth="124.0" layoutX="439.0" layoutY="386.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../PNG/punchboard/shield.png" />
-               </image>
-            </ImageView>
-            <ImageView fx:id="servant" fitHeight="94.0" fitWidth="104.0" layoutX="728.0" layoutY="391.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../PNG/punchboard/servant.png" />
-               </image>
-            </ImageView>
-            <ImageView fx:id="stone" fitHeight="91.0" fitWidth="101.0" layoutX="1011.0" layoutY="392.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../PNG/punchboard/stone.png" />
-               </image>
-            </ImageView>
-            <TextField fx:id="numServantText" alignment="CENTER" editable="false" layoutX="763.0" layoutY="517.0" prefHeight="25.0" prefWidth="40.0" text="1">
-               <font>
-                  <Font name="Copperplate Gothic Light" size="12.0" />
-               </font>
-            </TextField>
-            <TextField fx:id="numShieldText" alignment="CENTER" editable="false" layoutX="465.0" layoutY="518.0" prefHeight="25.0" prefWidth="40.0" text="1">
-               <font>
-                  <Font name="Copperplate Gothic Light" size="12.0" />
-               </font>
-            </TextField>
-            <TextField fx:id="numCoinText" alignment="CENTER" editable="false" layoutX="169.0" layoutY="521.0" prefHeight="25.0" prefWidth="40.0" text="1">
-               <font>
-                  <Font name="Copperplate Gothic Light" size="12.0" />
-               </font>
-            </TextField>
-            <TextField fx:id="numStoneText" alignment="CENTER" editable="false" layoutX="1046.0" layoutY="516.0" prefHeight="25.0" prefWidth="40.0" text="1">
-               <font>
-                  <Font name="Copperplate Gothic Light" size="12.0" />
-               </font>
-            </TextField>
-            <ImageView fx:id="stone1" fitHeight="87.0" fitWidth="94.0" layoutX="597.0" layoutY="165.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../PNG/punchboard/question.png" />
-               </image>
-            </ImageView>
-            <TextField fx:id="numVoidText" alignment="CENTER" editable="false" layoutX="623.0" layoutY="272.0" prefHeight="25.0" prefWidth="40.0" text="1">
-               <font>
-                  <Font name="Copperplate Gothic Light" size="12.0" />
-               </font>
-            </TextField>
-         </children>
-      </AnchorPane>
+      <ImageView fitHeight="650.0" fitWidth="1324.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/room.png" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="650.0" fitWidth="1280.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/filigrana.png" />
+         </image>
+      </ImageView>
+      <Label fx:id="message" alignment="CENTER" layoutX="194.0" layoutY="151.0" prefHeight="93.0" prefWidth="880.0" text="Use your power to get more resources!" textAlignment="CENTER" wrapText="true">
+         <font>
+            <Font size="50.0" />
+         </font>
+      </Label>
+      <HBox fx:id="white" alignment="CENTER" layoutX="236.0" layoutY="251.0" prefHeight="157.0" prefWidth="794.0" />
+      <Button layoutX="581.0" layoutY="429.0" mnemonicParsing="false" onAction="#done" text="Done">
+         <font>
+            <Font size="30.0" />
+         </font>
+      </Button>
    </children>
 </AnchorPane>
