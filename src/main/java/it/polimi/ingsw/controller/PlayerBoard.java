@@ -36,7 +36,7 @@ public class PlayerBoard
         this.devCards = new DevelopmentCardStack();
 
         this.factory = new Factory();
-        this.factory.addProductionPower(baseProduction);
+        this.addProduction(baseProduction);
 
         this.faithTrack = faithTrack;
         this.player.send(MessageParser.message("update","faith:track",this.faithTrack));

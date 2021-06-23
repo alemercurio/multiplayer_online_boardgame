@@ -218,7 +218,7 @@ public class ProductionSceneController implements Initializable, InvalidationLis
     private Pane reqResources;
 
     @FXML
-    private Button done;
+    private Button activate,done;
 
     @FXML
     private Label first_row,second_row;
@@ -228,6 +228,9 @@ public class ProductionSceneController implements Initializable, InvalidationLis
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        GuiView.getGuiView().productionScene = this;
+        GuiView.getGuiView().factory.addListener(this);
+
         this.productions.setItems(this.factory);
         this.productions.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         this.productions.setCellFactory(listView -> new ListCell<>() {
@@ -238,9 +241,6 @@ public class ProductionSceneController implements Initializable, InvalidationLis
                 else setGraphic(ProductionView.getView(production));
             }
         });
-
-        GuiView.getGuiView().productionScene = this;
-        GuiView.getGuiView().factory.addListener(this);
     }
 
     @FXML
@@ -297,6 +297,11 @@ public class ProductionSceneController implements Initializable, InvalidationLis
         GuiView.getGuiView().event(ViewEvent.PRODUCTION, "back");
         GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
         Platform.runLater(() -> GuiView.getGuiView().playerboard.showMenu());
+    }
+
+    public void disableActions() {
+        this.activate.setDisable(true);
+        this.productions.setMouseTransparent(true);
     }
 
     @Override
