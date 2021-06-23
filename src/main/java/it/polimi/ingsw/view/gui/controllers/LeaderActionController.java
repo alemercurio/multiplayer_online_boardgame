@@ -59,6 +59,7 @@ public class LeaderActionController implements Initializable {
     private void back() {
         GuiView.getGuiView().event(ViewEvent.LEADER_ACTION, "back");
         GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+        Platform.runLater(() -> GuiView.getGuiView().playerboard.showMenu());
     }
 
     @Override

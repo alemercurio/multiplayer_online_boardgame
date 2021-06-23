@@ -240,6 +240,8 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
             pendingStones.setVisible(true);
             pendingShields.setVisible(true);
             pendingServants.setVisible(true);
+            if(GuiView.getGuiView().warehouse.hasStockPower())
+                powerDepot.setVisible(true);
         }
     }
 
@@ -255,6 +257,7 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
         pendingStones.setVisible(false);
         pendingShields.setVisible(false);
         pendingServants.setVisible(false);
+        powerDepot.setVisible(false);
     }
 
     public void moveCoin() {
@@ -346,7 +349,8 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     }
 
     public void showProductions() {
-
+        GuiView.getGuiView().showScene("/FXML/production.fxml");
+        Platform.runLater(() -> GuiView.getGuiView().productionScene.disableActions());
     }
 
     public void showLeaders() {

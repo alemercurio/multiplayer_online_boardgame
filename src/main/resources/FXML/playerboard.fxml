@@ -138,7 +138,7 @@
             <Image url="@../PNG/punchboard/stone.png" />
          </image>
       </ImageView>
-      <Label fx:id="pendingBar" alignment="CENTER" layoutX="289.0" layoutY="192.0" prefHeight="42.0" prefWidth="209.0" stylesheets="@../CSS/actionMenuButton.css" text="Pending Resources" textAlignment="CENTER">
+      <Label fx:id="pendingBar" alignment="CENTER" layoutX="302.0" layoutY="192.0" prefHeight="42.0" prefWidth="184.0" stylesheets="@../CSS/actionMenuButton.css" text="Pending Resources" textAlignment="CENTER">
          <font>
             <Font name="Copperplate Gothic Bold" size="18.0" />
          </font>
@@ -257,7 +257,12 @@
       <Pane fx:id="powerDepot" layoutX="307.0" layoutY="438.0" visible="false">
          <children>
             <Rectangle fx:id="pendingArea1" arcHeight="5.0" arcWidth="5.0" fill="#30373c" height="193.0" stroke="BLACK" strokeType="INSIDE" width="177.0" />
-            <VBox fx:id="depots" alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="171.0" prefWidth="158.0" spacing="15.0" />
+            <VBox fx:id="depots" alignment="CENTER" layoutX="10.0" layoutY="51.0" prefHeight="130.0" prefWidth="158.0" spacing="15.0" />
+            <Label fx:id="pendingBar1" alignment="CENTER" prefHeight="42.0" prefWidth="177.0" stylesheets="@../CSS/actionMenuButton.css" text="Leader Depot" textAlignment="CENTER">
+               <font>
+                  <Font name="Copperplate Gothic Bold" size="18.0" />
+               </font>
+            </Label>
          </children>
       </Pane>
    </children>
