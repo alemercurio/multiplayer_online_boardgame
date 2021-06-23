@@ -225,7 +225,7 @@ public class GuiView implements View {
             case INVALID_CARD_SELECTION:
                 Platform.runLater(() -> {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Not enough Resources");
+                    alert.setTitle("Oops!");
                     alert.setHeaderText("You cannot buy this Card!");
                     alert.setContentText("Choose another one or change action.");
 
@@ -268,9 +268,11 @@ public class GuiView implements View {
                     try {
                         ButtonType response = alert.showAndWait().get();
                         if (response == ButtonType.OK) {
+                            GuiView.getGuiView().factory.clear();
                             alert.close();
                         }
                     } catch (NoSuchElementException e) {
+                        GuiView.getGuiView().factory.clear();
                         alert.close();
                     }
                 });
@@ -583,6 +585,7 @@ public class GuiView implements View {
         Platform.runLater(() -> {
             guiApp.showScene("/FXML/playerboard.fxml");
             playerboard.invalidated(this.warehouse);
+            playerboard.pendingSceneOn();
         });
         try {
             while (!eventHandler.containsKey(ViewEvent.WAREHOUSE_CONFIG)) wait();

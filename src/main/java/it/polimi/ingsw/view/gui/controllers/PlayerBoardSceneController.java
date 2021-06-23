@@ -222,22 +222,20 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     }
 
     public void pendingSceneOn() {
-        if(!warehouse.pendingResources.isEmpty()) {
-            actionMenu.setVisible(false);
-            menuToggler.setVisible(false);
-            show.setVisible(false);
-            pendingBar.setVisible(true);
-            pendingArea.setVisible(true);
-            pendingDone.setVisible(true);
-            coin.setVisible(true);
-            stone.setVisible(true);
-            shield.setVisible(true);
-            servant.setVisible(true);
-            pendingCoins.setVisible(true);
-            pendingStones.setVisible(true);
-            pendingShields.setVisible(true);
-            pendingServants.setVisible(true);
-        }
+        actionMenu.setVisible(false);
+        menuToggler.setVisible(false);
+        show.setVisible(false);
+        pendingBar.setVisible(true);
+        pendingArea.setVisible(true);
+        pendingDone.setVisible(true);
+        coin.setVisible(true);
+        stone.setVisible(true);
+        shield.setVisible(true);
+        servant.setVisible(true);
+        pendingCoins.setVisible(true);
+        pendingStones.setVisible(true);
+        pendingShields.setVisible(true);
+        pendingServants.setVisible(true);
     }
 
     public void pendingSceneOff() {
@@ -368,29 +366,35 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     }
 
     public void put1() {
-        GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "1");
-        buyed.setVisible(false);
-        numCards[0]+=1;
-        if(numCards[0]>1) {
-            bookmark1.setVisible(true);
+        if(buyed.isVisible()) {
+            GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "1");
+            buyed.setVisible(false);
+            numCards[0] += 1;
+            if (numCards[0] > 1) {
+                bookmark1.setVisible(true);
+            }
         }
     }
 
     public void put2() {
-        GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "2");
-        buyed.setVisible(false);
-        numCards[1]+=1;
-        if(numCards[1]>1) {
-            bookmark2.setVisible(true);
+        if(buyed.isVisible()) {
+            GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "2");
+            buyed.setVisible(false);
+            numCards[1] += 1;
+            if (numCards[1] > 1) {
+                bookmark2.setVisible(true);
+            }
         }
     }
 
     public void put3() {
-        GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "3");
-        buyed.setVisible(false);
-        numCards[2]+=1;
-        if(numCards[2]>1) {
-            bookmark3.setVisible(true);
+        if(buyed.isVisible()) {
+            GuiView.getGuiView().event(ViewEvent.DEVCARD_POSITION, "3");
+            buyed.setVisible(false);
+            numCards[2] += 1;
+            if (numCards[2] > 1) {
+                bookmark3.setVisible(true);
+            }
         }
     }
 
@@ -426,7 +430,7 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     public void updateWarehouse() {
         warehouse = GuiView.getGuiView().warehouse;
         warehouseLocalUpdate();
-        this.pendingSceneOn();
+        if(!warehouse.pendingResources.isEmpty()) this.pendingSceneOn();
 
         strongbox = GuiView.getGuiView().strongbox;
         storedCoins.setText("" + strongbox.get(Resource.COIN));

@@ -218,6 +218,7 @@ public class GuiApp extends Application {
     public void setMenu(VBox from, VBox to) {
         root.getChildren().remove(from);
         root.getChildren().add(to);
+        removeFromRoot(nicknameField);
     }
 
     public void resetToMainMenu() {
