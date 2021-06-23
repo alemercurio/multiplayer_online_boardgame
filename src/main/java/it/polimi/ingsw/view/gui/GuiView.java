@@ -303,7 +303,8 @@ public class GuiView implements View {
 
     @Override
     public synchronized ResourcePack selectWhite(int amount) {
-        this.resourceMarket.selectWhite(amount);
+        this.showScene("/FXML/loot.fxml");
+        Platform.runLater(() -> this.lootScene.selectWhite(amount));
         try {
             while (!eventHandler.containsKey(ViewEvent.CONVERT_WHITE)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
