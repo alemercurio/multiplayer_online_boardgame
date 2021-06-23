@@ -72,6 +72,7 @@ public class GameStartSceneController implements Initializable, InvalidationList
         chosen.add(index);
         if(chosen.size()==2) {
             int[] array = chosen.stream().mapToInt(i->i).toArray();
+            GuiView.getGuiView().leaderStack.removeListener(this);
             GuiView.getGuiView().event(ViewEvent.KEEP_LEADERS, array);
         }
     }

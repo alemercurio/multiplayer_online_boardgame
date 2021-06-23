@@ -23,6 +23,7 @@ import javafx.scene.control.ButtonType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class GuiView implements View {
 
@@ -46,10 +47,11 @@ public class GuiView implements View {
     public LootSceneController lootScene;
     public CardMarketController cardMarket;
     public ResourceMarketController resourceMarket;
+    public ProductionSceneController productionScene;
+    public LeaderActionController leaderScene;
 
     public String nickname;
     public String currentPlayer;
-    public ProductionSceneController productionScene;
 
     private final Map<ViewEvent,Object> eventHandler = new HashMap<>();
 
@@ -225,6 +227,7 @@ public class GuiView implements View {
         try {
             while (!eventHandler.containsKey(ViewEvent.KEEP_LEADERS)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
+        this.enableLeaderUpdate();
         return (int[]) eventHandler.remove(ViewEvent.KEEP_LEADERS);
     }
 
@@ -256,6 +259,7 @@ public class GuiView implements View {
 
     @Override
     public synchronized String selectLeaderAction() {
+        this.showScene("/FXML/leaderaction.fxml");
         try {
             while (!eventHandler.containsKey(ViewEvent.LEADER_ACTION)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
@@ -277,7 +281,6 @@ public class GuiView implements View {
         try {
             while (!eventHandler.containsKey(ViewEvent.DEVCARD_POSITION)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
-        Platform.runLater(() -> GuiView.getGuiView().playerboard.notYourTurn());
         return (String) eventHandler.remove(ViewEvent.DEVCARD_POSITION);
     }
 
@@ -367,14 +370,42 @@ public class GuiView implements View {
     }
 
     @Override
-    public boolean playLeaderAction() {
-        return false;
+    public synchronized boolean playLeaderAction() {
+        Platform.runLater(() -> {
+            Alert playLeader = new Alert(Alert.AlertType.NONE);
+            playLeader.setTitle("Leader Action");
+            playLeader.setContentText("Do you want to play or discard a Leader?");
+
+            ButtonType yes = new ButtonType("Yes");
+            ButtonType no = new ButtonType("No");
+
+            playLeader.getButtonTypes().setAll(yes,no);
+
+            Optional<ButtonType> result = playLeader.showAndWait();
+            if(result.isPresent()) {
+                GuiView.getGuiView().event(ViewEvent.PLAY_LEADER,result.get() == yes);
+            } else GuiView.getGuiView().event(ViewEvent.PLAY_LEADER,false);
+
+            playerboard.notYourTurn();
+        });
+        try {
+            while (!eventHandler.containsKey(ViewEvent.PLAY_LEADER)) wait();
+        } catch (InterruptedException ignored) { /* Should not happen */ }
+        return (Boolean) eventHandler.remove(ViewEvent.PLAY_LEADER);
     }
 
     @Override
     public void gameEnd() {
 
     }
+
+    // ------- NEW ----------
+    boolean leaderUpdate = false;
+
+    public void enableLeaderUpdate() {
+        this.leaderUpdate = true;
+    }
+    // ------------------------
 
     @Override
     public void update(String target, String state) {
@@ -415,9 +446,9 @@ public class GuiView implements View {
                 this.strongbox = new Gson().fromJson(state,ResourcePack.class);
                 break;
 
-            /*case "leaders":
-                this.leaderStack.update(state);
-                break;*/
+            case "leaders":
+                if(this.leaderUpdate) this.leaderStack.update(state);
+                break;
 
             case "market:res":
                 this.market.updateResourceMarket(state);

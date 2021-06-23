@@ -10,7 +10,9 @@ import javafx.beans.Observable;
 import javafx.scene.image.Image;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LeaderView implements Observable {
 
@@ -18,7 +20,6 @@ public class LeaderView implements Observable {
     private final List<InvalidationListener> observers = new ArrayList<>();
 
     public void update(String leaders) {
-
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(Power.class,new LeaderCard.PowerReader());
         builder.enableComplexMapKeySerialization();
@@ -31,6 +32,21 @@ public class LeaderView implements Observable {
                 observer.invalidated(this);
         }
     }
+
+    // NEW
+
+    public Map<LeaderCard,Boolean> getLeader() {
+        Map<LeaderCard,Boolean> leaders = new HashMap<>();
+        for(LeaderCard card : this.leaders.getActiveLeader()) {
+            leaders.put(card,false);
+        }
+        for(LeaderCard card : this.leaders.getInactiveLeader()) {
+            leaders.put(card,true);
+        }
+        return leaders;
+    }
+
+    // -----
 
     public void showChoices(List<LeaderCard> leaders) {
         this.leaders = new LeaderStack();

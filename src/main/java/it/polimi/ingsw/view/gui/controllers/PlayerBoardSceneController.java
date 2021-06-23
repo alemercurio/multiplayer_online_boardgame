@@ -331,7 +331,6 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     public void done() {
         GuiView.getGuiView().event(ViewEvent.WAREHOUSE_CONFIG, warehouse.getConfig());
         pendingSceneOff();
-        Platform.runLater(() -> GuiView.getGuiView().playerboard.notYourTurn());
     }
 
     public void showResourceMarket() {
@@ -400,7 +399,7 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     }
 
     public void leaderAction() {
-
+        GuiView.getGuiView().event(ViewEvent.ACTION, "leader");
     }
 
     public void updateCards() {
