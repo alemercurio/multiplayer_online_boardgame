@@ -30,8 +30,10 @@ public class FactoryView implements Observable {
         Type listOfProductions = new TypeToken<List<Production>>() {}.getType();
         this.productions = parser.fromJson(productions,listOfProductions);
 
-        for(InvalidationListener observer : this.observers)
-            observer.invalidated(this);
+        synchronized(this.observers) {
+            for(InvalidationListener observer : this.observers)
+                observer.invalidated(this);
+        }
     }
 
     public void setActive(Integer index) {
@@ -44,8 +46,7 @@ public class FactoryView implements Observable {
             this.setActive(index);
     }
 
-    public void setInactive(Integer index)
-    {
+    public void setInactive(Integer index) {
         this.active.remove(index);
     }
 
@@ -108,12 +109,16 @@ public class FactoryView implements Observable {
 
     @Override
     public void addListener(InvalidationListener invalidationListener) {
-        this.observers.add(invalidationListener);
-        invalidationListener.invalidated(this);
+        synchronized(this.observers) {
+            this.observers.add(invalidationListener);
+            invalidationListener.invalidated(this);
+        }
     }
 
     @Override
     public void removeListener(InvalidationListener invalidationListener) {
-        this.observers.remove(invalidationListener);
+        synchronized(this.observers) {
+            this.observers.remove(invalidationListener);
+        }
     }
 }

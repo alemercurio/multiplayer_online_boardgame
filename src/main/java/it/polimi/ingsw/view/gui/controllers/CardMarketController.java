@@ -3,6 +3,7 @@ package it.polimi.ingsw.view.gui.controllers;
 import it.polimi.ingsw.model.cards.Color;
 import it.polimi.ingsw.model.cards.DevelopmentCard;
 import it.polimi.ingsw.view.ViewEvent;
+import it.polimi.ingsw.view.gui.util.ResourcePackView;
 import it.polimi.ingsw.view.lightmodel.DevelopmentCardView;
 import it.polimi.ingsw.view.gui.GuiView;
 import javafx.application.Platform;
@@ -16,10 +17,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -30,15 +28,12 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 public class CardMarketController implements Initializable, InvalidationListener {
+
     @FXML
     private VBox chosenCard;
 
-
     @FXML
     private ImageView cardImg;
-
-    @FXML
-    private ScrollPane scroll;
 
     @FXML
     private AnchorPane marketPane;
@@ -49,11 +44,13 @@ public class CardMarketController implements Initializable, InvalidationListener
     @FXML
     private Button cancelButton, buyButton;
 
+    @FXML
+    private HBox discount;
+
     Stage stage;
 
     private Map<Color, List<DevelopmentCard>> cardsMatrix;
     private List<DevelopmentCardView> cards = new ArrayList<>();
-    private Image image;
     private CardListener listener;
 
     private DevelopmentCardView cardToBuy;
@@ -83,7 +80,7 @@ public class CardMarketController implements Initializable, InvalidationListener
     }
 
     private void setChosenCard(DevelopmentCardView cardView) {
-        image = new Image(getClass().getResourceAsStream(cardView.getImgSrc()));
+        Image image = new Image(getClass().getResourceAsStream(cardView.getImgSrc()));
         cardImg.setImage(image);
         chosenCard.setStyle("-fx-background-color: #" + cardView.getColor() + ";\n" +
                 "    -fx-background-radius: 30;");
@@ -95,6 +92,16 @@ public class CardMarketController implements Initializable, InvalidationListener
         GuiView.getGuiView().cardMarket = this;
         GuiView.getGuiView().market.addListener(this);
         this.invalidated(GuiView.getGuiView().market);
+
+        if(GuiView.getGuiView().playerBoard.hasDiscount()) {
+            this.discount.setPrefHeight(30);
+            this.discount.setSpacing(7);
+            this.discount.getChildren().addAll(
+                    new Label("Your discount: "),
+                    ResourcePackView.get(GuiView.getGuiView().playerBoard.getDiscount(), 30,10)
+            );
+        }
+
         cards.addAll(getData());
         if (cards.size() > 0) {
             setChosenCard(cards.get(0));

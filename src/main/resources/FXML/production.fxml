@@ -31,7 +31,7 @@
                </image>
             </ImageView>
             <ListView fx:id="productions" layoutX="124.0" layoutY="78.0" prefHeight="350.0" prefWidth="500.0" />
-            <Button layoutX="193.0" layoutY="444.0" mnemonicParsing="false" onAction="#activate" prefHeight="46.0" prefWidth="115.0" text="Activate">
+            <Button fx:id="activate" layoutX="193.0" layoutY="444.0" mnemonicParsing="false" onAction="#activate" prefHeight="46.0" prefWidth="115.0" text="Activate">
                <font>
                   <Font size="20.0" />
                </font>

@@ -10,8 +10,16 @@ import it.polimi.ingsw.model.resources.Resource;
 import it.polimi.ingsw.model.resources.ResourcePack;
 import it.polimi.ingsw.model.resources.Warehouse;
 import it.polimi.ingsw.util.Screen;
+import it.polimi.ingsw.view.gui.GuiView;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.Font;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -138,8 +146,14 @@ public class WarehouseView extends Warehouse implements Observable {
     public void addStockPower(StockPower power) {
         this.stock.add(new LimitedStock(power.getType(),power.getLimit()));
 
-        for(InvalidationListener observer : this.observers)
-            observer.invalidated(this);
+        synchronized(this.observers) {
+            for(InvalidationListener observer : this.observers)
+                observer.invalidated(this);
+        }
+    }
+
+    public boolean hasStockPower() {
+        return (this.stock.size() > 3);
     }
 
     public List<StockPower> getStockPower() {
@@ -153,6 +167,47 @@ public class WarehouseView extends Warehouse implements Observable {
         }
 
         return stockPowers;
+    }
+
+    public List<Node> getStockPowerView() {
+        List<Node> nodes = new ArrayList<>();
+
+        for(int i = 3; i < this.stock.size(); i++) {
+            LimitedStock shelf = this.stock.get(i);
+
+            HBox hBox = new HBox();
+            hBox.setAlignment(Pos.CENTER);
+            hBox.setSpacing(10);
+
+            ImageView resImage = new ImageView(shelf.getResource().getImage());
+            resImage.setFitHeight(40);
+            resImage.setFitWidth(40);
+
+            Label label = new Label("(" + shelf.getAvailable() + "/" + shelf.size + ")");
+            label.setId("amount");
+            label.setFont(new Font(28));
+            label.setStyle("-fx-text-fill: white;");
+
+            hBox.getChildren().addAll(resImage,label);
+
+            int index = i + 1;
+            hBox.setOnMouseClicked(event -> {
+                GuiView.getGuiView().playerboard.move(index);
+            });
+
+            nodes.add(hBox);
+        }
+        return nodes;
+    }
+
+    public ResourcePack getStockPowerResources() {
+        ResourcePack resources = new ResourcePack();
+        for(int i = 3; i < this.stock.size(); i++) {
+            LimitedStock shelf = this.stock.get(i);
+            if(!shelf.getResource().isSpecial())
+                resources.add(shelf.getResource(),shelf.getAvailable());
+        }
+        return resources;
     }
 
     public int stock(int destination, Resource resource, int amount) {
@@ -297,8 +352,10 @@ public class WarehouseView extends Warehouse implements Observable {
         this.pendingResources.flush();
         this.pendingResources.add(pending);
 
-        for(InvalidationListener observer : this.observers)
-            observer.invalidated(this);
+        synchronized(this.observers) {
+            for(InvalidationListener observer : this.observers)
+                observer.invalidated(this);
+        }
 
         return true;
     }
@@ -345,11 +402,15 @@ public class WarehouseView extends Warehouse implements Observable {
 
     @Override
     public void addListener(InvalidationListener invalidationListener) {
-        this.observers.add(invalidationListener);
+        synchronized(this.observers) {
+            this.observers.add(invalidationListener);
+        }
     }
 
     @Override
     public void removeListener(InvalidationListener invalidationListener) {
-        this.observers.remove(invalidationListener);
+        synchronized(this.observers) {
+            this.observers.remove(invalidationListener);
+        }
     }
 }
