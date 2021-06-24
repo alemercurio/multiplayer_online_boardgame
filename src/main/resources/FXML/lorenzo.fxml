@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.controllers.LorenzoController">
+   <children>
+      <ImageView fx:id="board" fitHeight="662.0" fitWidth="1290.0" layoutX="-19.0" layoutY="-12.0" pickOnBounds="true">
+         <image>
+            <Image url="@../PNG/board/playerboard.png" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="229.0" fitWidth="250.0" layoutX="37.0" layoutY="269.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/lorenzoface.png" />
+         </image>
+      </ImageView>
+      <AnchorPane fx:id="display" layoutX="294.0" layoutY="184.0">
+         <children>
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#b58a36" height="427.0" layoutX="5.0" layoutY="4.0" stroke="BLACK" strokeType="INSIDE" width="932.0" />
+            <Label alignment="CENTER" layoutX="5.0" layoutY="4.0" prefHeight="42.0" prefWidth="933.0" stylesheets="@../CSS/actionMenuButton.css" text="It is now the turn of Lorenzo! Behold his power... You will finally bow in the end." textAlignment="CENTER">
+               <font>
+                  <Font name="Copperplate Gothic Bold" size="18.0" />
+               </font>
+            </Label>
+            <ImageView fx:id="action" fitHeight="181.0" fitWidth="191.0" layoutX="374.0" layoutY="98.0" pickOnBounds="true" preserveRatio="true" />
+            <Button layoutX="296.0" layoutY="319.0" mnemonicParsing="false" onMouseClicked="#showInfo" prefHeight="54.0" prefWidth="131.0" stylesheets="@../CSS/actionMenuButton.css" text="Info" />
+            <Button layoutX="520.0" layoutY="319.0" mnemonicParsing="false" onMouseClicked="#proceed" prefHeight="54.0" prefWidth="131.0" stylesheets="@../CSS/actionMenuButton.css" text="Proceed">
+               <font>
+                  <Font size="48.0" />
+               </font>
+            </Button>
+            <ImageView fx:id="info" fitHeight="200.0" fitWidth="373.0" layoutX="14.0" layoutY="81.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../PNG/info.png" />
+               </image>
+            </ImageView>
+         </children>
+      </AnchorPane>
+      <ImageView fx:id="marker" fitHeight="58.0" fitWidth="42.0" layoutX="36.0" layoutY="112.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../PNG/punchboard/croce.png" />
+         </image>
+      </ImageView>
+   </children>
+</AnchorPane>

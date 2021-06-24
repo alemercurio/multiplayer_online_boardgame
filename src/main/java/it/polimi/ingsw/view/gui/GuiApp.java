@@ -31,8 +31,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class GuiApp extends Application {
-    private static Stage window;
-    private static Scene mainMenu;
+    public static Stage window;
+    public static Scene mainMenu;
     private static Scene waitingScene;
     private static Client client;
 
@@ -60,10 +60,10 @@ public class GuiApp extends Application {
 
     private Pane root = new AnchorPane();
     private VBox mainMenuBox = new VBox(-5);
-    private VBox newGameMenuBox = new VBox(-5);
+    public VBox newGameMenuBox = new VBox(-5);
     private VBox numPlayersMenuBox = new VBox(-5);
     private VBox soloModeChoice = new VBox(-5);
-    private VBox nicknameChoice = new VBox((-5));
+    public VBox nicknameChoice = new VBox((-5));
     private TextField nicknameField;
     private Line line;
 
@@ -81,10 +81,9 @@ public class GuiApp extends Application {
                 setMenu(mainMenuBox, nicknameChoice);
                 showNicknameField();
             }),
-            new Pair<String, Runnable>("Options", () -> {}),
-            new Pair<String, Runnable>("Bonus Content", () -> {}),
-            new Pair<String, Runnable>("Rules", () -> {}),
-            new Pair<String, Runnable>("Credits", () -> {}),
+            new Pair<String, Runnable>("Info", () -> showScene("/FXML/info.fxml")),
+            new Pair<String, Runnable>("Rules", () -> showScene("/FXML/rules.fxml")),
+            new Pair<String, Runnable>("Credits", () -> showScene("/FXML/credits.fxml")),
             new Pair<String, Runnable>("Exit", () -> {
                 GuiView.getGuiView().event(ViewEvent.GAMEMODE, "esc");
                 Platform.exit();
@@ -109,6 +108,7 @@ public class GuiApp extends Application {
             new Pair<String, Runnable>("Offline", () -> setSoloMode("off")),
             new Pair<String, Runnable>("Online", () -> {
                 setSoloMode("on");
+                GuiView.getGuiView().solo=true;
                 GuiView.getGuiView().event(ViewEvent.NUMBER_OF_PLAYERS, 1);
                 showScene("/FXML/waitingscreen.fxml");
             }),
@@ -217,6 +217,13 @@ public class GuiApp extends Application {
     public void setMenu(VBox from, VBox to) {
         root.getChildren().remove(from);
         root.getChildren().add(to);
+        removeFromRoot(nicknameField);
+    }
+
+    public void resetToMainMenu() {
+        removeFromRoot(nicknameChoice);
+        removeFromRoot(nicknameField);
+        root.getChildren().add(mainMenuBox);
     }
 
     public void removeFromRoot(Object toRemove) {
@@ -239,12 +246,10 @@ public class GuiApp extends Application {
                 if(gameChoice.equals("join")) {
                     removeFromRoot(nicknameField);
                     GuiView.getGuiView().event(ViewEvent.NICKNAME, GuiView.getGuiView().nickname);
-                    showScene("/FXML/waitingscreen.fxml");
                 }
                 else if(gameChoice.equals("new")) {
                     removeFromRoot(nicknameField);
                     GuiView.getGuiView().event(ViewEvent.NICKNAME, GuiView.getGuiView().nickname);
-                    setMenu(nicknameChoice, newGameMenuBox);
                 }
             }
         } );

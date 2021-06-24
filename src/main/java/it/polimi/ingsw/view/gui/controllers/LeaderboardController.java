@@ -27,7 +27,7 @@ import java.util.ResourceBundle;
 public class LeaderboardController implements Initializable, InvalidationListener {
 
     @FXML
-    Label current1, current2, current3, current4, player1, player2, player3, player4;
+    Label current1, current2, current3, current4, player1, player2, player3, player4, end;
 
     @FXML
     AnchorPane one, two, three, four;
@@ -44,11 +44,16 @@ public class LeaderboardController implements Initializable, InvalidationListene
     @FXML
     ImageView crown1, crown2, crown3, crown4;
 
+    @FXML
+    Button cancel;
+
     GameView players;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        GuiView.getGuiView().leaderboard = this;
         GuiView.getGuiView().players.addListener(this);
+        end.setVisible(false);
         current1.setVisible(false);
         current2.setVisible(false);
         current3.setVisible(false);
@@ -125,20 +130,40 @@ public class LeaderboardController implements Initializable, InvalidationListene
             name=player4;
         }
 
-        coins.setText("" + resources.get(Resource.COIN));
-        servants.setText("" + resources.get(Resource.SERVANT));
-        shields.setText("" + resources.get(Resource.SHIELD));
-        stones.setText("" + resources.get(Resource.STONE));
-        numPoints.setText(""+points);
-        name.setText(nick);
+        if(points!=-1) {
+            coins.setText("" + resources.get(Resource.COIN));
+            servants.setText("" + resources.get(Resource.SERVANT));
+            shields.setText("" + resources.get(Resource.SHIELD));
+            stones.setText("" + resources.get(Resource.STONE));
+            numPoints.setText("" + points);
+            name.setText(nick);
+        }
+        else {
+            coins.setText("∞");
+            servants.setText("∞");
+            shields.setText("∞");
+            stones.setText("∞");
+            numPoints.setText("X");
+            name.setText("Il Magnifico");
+        }
+    }
+
+    public void endGame() {
+        cancel.setVisible(false);
+        end.setVisible(true);
+        current1.setVisible(false);
+        current2.setVisible(false);
+        current3.setVisible(false);
+        current4.setVisible(false);
     }
 
     @Override
     public void invalidated(Observable observable) {
         this.players = GuiView.getGuiView().players;
 
-        int i = 1;
+        int i=1;
         int maxPoints=0;
+        int leaderMarker=0;
         String leader = "";
         for(PlayerView player : players.players) {
             if(i==1) {
@@ -166,9 +191,14 @@ public class LeaderboardController implements Initializable, InvalidationListene
                 i++;
             }
 
-            if(player.getVictoryPoints()>maxPoints) {
+            int points = player.getVictoryPoints();
+            if(points>maxPoints) {
                 maxPoints = player.getVictoryPoints();
                 leader = player.getNickname();
+                leaderMarker = player.getFaithMarker();
+            }
+            else if(points==-1) {
+                if(player.getFaithMarker()>leaderMarker) leader = "Il Magnifico";
             }
             if(GuiView.getGuiView().currentPlayer!=null) {
                 if (GuiView.getGuiView().currentPlayer.equals(player1.getText())) current1.setVisible(true);

@@ -69,9 +69,15 @@ public class CardMarketController implements Initializable, InvalidationListener
             for(Color color : Color.values()) {
                 DevelopmentCard card = cardsMatrix.get(color).get(i);
                 cardView = new DevelopmentCardView();
-                cardView.setImgSrc(card.getPathForCard());
+                if(card!=null) {
+                    cardView.setImgSrc(card.getPathForCard());
+                    cardView.setLevel(card.getLevel());
+                }
+                else {
+                    cardView.setImgSrc("/PNG/cardback/LeaderCardBack.png");
+                    cardView.setLevel(0);
+                }
                 cardView.setColor(color.getValue());
-                cardView.setLevel(card.getLevel());
                 cards.add(cardView);
             }
         }

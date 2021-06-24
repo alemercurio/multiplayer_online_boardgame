@@ -16,7 +16,7 @@
             <Image url="@../PNG/board/playerboardbw.png" />
          </image>
       </ImageView>
-      <Button layoutX="1042.0" layoutY="45.0" mnemonicParsing="false" onAction="#cancel" prefHeight="38.0" prefWidth="99.0" stylesheets="@../CSS/actionMenuButton.css" text="Cancel">
+      <Button fx:id="cancel" layoutX="1042.0" layoutY="45.0" mnemonicParsing="false" onAction="#cancel" prefHeight="38.0" prefWidth="99.0" stylesheets="@../CSS/actionMenuButton.css" text="Cancel">
          <font>
             <Font size="40.0" />
          </font>
@@ -321,5 +321,10 @@
             <Image url="@../PNG/punchboard/crown.png" />
          </image>
       </ImageView>
+      <Label fx:id="end" layoutX="215.0" layoutY="47.0" prefHeight="44.0" prefWidth="842.0" stylesheets="@../CSS/actionMenuButton.css" text="The Game Has Ended. Cheer Our Winner!">
+         <font>
+            <Font size="38.0" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>
