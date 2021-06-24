@@ -81,8 +81,8 @@ public class GuiApp extends Application {
                 setMenu(mainMenuBox, nicknameChoice);
                 showNicknameField();
             }),
-            new Pair<String, Runnable>("Info", () -> {}),
-            new Pair<String, Runnable>("Rules", () -> {}),
+            new Pair<String, Runnable>("Info", () -> showScene("/FXML/info.fxml")),
+            new Pair<String, Runnable>("Rules", () -> showScene("/FXML/rules.fxml")),
             new Pair<String, Runnable>("Credits", () -> showScene("/FXML/credits.fxml")),
             new Pair<String, Runnable>("Exit", () -> {
                 GuiView.getGuiView().event(ViewEvent.GAMEMODE, "esc");
