@@ -10,7 +10,9 @@ import javafx.beans.Observable;
 import javafx.scene.image.Image;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LeaderView implements Observable {
 
@@ -18,7 +20,6 @@ public class LeaderView implements Observable {
     private final List<InvalidationListener> observers = new ArrayList<>();
 
     public void update(String leaders) {
-
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(Power.class,new LeaderCard.PowerReader());
         builder.enableComplexMapKeySerialization();
@@ -26,16 +27,43 @@ public class LeaderView implements Observable {
 
         this.leaders = parser.fromJson(leaders,LeaderStack.class);
 
-        for(InvalidationListener observer : this.observers)
-            observer.invalidated(this);
+        synchronized(this.observers) {
+            for(InvalidationListener observer : this.observers)
+                observer.invalidated(this);
+        }
     }
+
+    // NEW
+
+    public Map<LeaderCard,Boolean> getLeader() {
+        Map<LeaderCard,Boolean> leaders = new HashMap<>();
+        for(LeaderCard card : this.leaders.getActiveLeader()) {
+            leaders.put(card,false);
+        }
+        for(LeaderCard card : this.leaders.getInactiveLeader()) {
+            leaders.put(card,true);
+        }
+        return leaders;
+    }
+
+    public List<LeaderCard> getInactive() {
+        return this.leaders.getInactiveLeader();
+    }
+
+    public List<LeaderCard> getActive() {
+        return this.leaders.getActiveLeader();
+    }
+
+    // -----
 
     public void showChoices(List<LeaderCard> leaders) {
         this.leaders = new LeaderStack();
         this.leaders.addLeaders(leaders);
 
-        for(InvalidationListener observer : this.observers) {
-            observer.invalidated(this);
+        synchronized(this.observers) {
+            for(InvalidationListener observer : this.observers) {
+                observer.invalidated(this);
+            }
         }
     }
 
@@ -141,11 +169,15 @@ public class LeaderView implements Observable {
 
     @Override
     public void addListener(InvalidationListener invalidationListener) {
-        this.observers.add(invalidationListener);
+        synchronized(this.observers) {
+            this.observers.add(invalidationListener);
+        }
     }
 
     @Override
     public void removeListener(InvalidationListener invalidationListener) {
-        this.observers.remove(invalidationListener);
+        synchronized(this.observers) {
+            this.observers.remove(invalidationListener);
+        }
     }
 }

@@ -493,7 +493,7 @@ public class CliView implements View {
 
         if(this.playerBoard.hasDiscount()) {
             System.out.print("\n>> You have the following discount: ");
-            Screen.print(this.playerBoard.discount);
+            Screen.print(this.playerBoard.getDiscount());
             System.out.print("\n\n");
         }
 

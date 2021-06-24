@@ -28,8 +28,10 @@ public class FaithView implements Observable {
         this.spaces = parser.fromJson(vaticanData.get("track"),Vatican.Space[].class);
         this.popeSpaces = parser.fromJson(vaticanData.get("reportSections"),Vatican.ReportSection[].class);
 
-        for(InvalidationListener observer : this.observers)
-            observer.invalidated(this);
+        synchronized(this.observers) {
+            for(InvalidationListener observer : this.observers)
+                observer.invalidated(this);
+        }
     }
 
     private void setConfig(JsonObject configData) {
@@ -37,8 +39,10 @@ public class FaithView implements Observable {
         Vatican.State[] states = parser.fromJson(configData.get("popeFavours"),Vatican.State[].class);
         for(int i = 0; i < states.length; i++) this.popeSpaces[i].setState(states[i]);
 
-        for(InvalidationListener observer : this.observers)
-            observer.invalidated(this);
+        synchronized(this.observers) {
+            for(InvalidationListener observer : this.observers)
+                observer.invalidated(this);
+        }
     }
 
     public void update(String state) {
@@ -129,11 +133,15 @@ public class FaithView implements Observable {
 
     @Override
     public void addListener(InvalidationListener invalidationListener) {
-        this.observers.add(invalidationListener);
+        synchronized(this.observers) {
+            this.observers.add(invalidationListener);
+        }
     }
 
     @Override
     public void removeListener(InvalidationListener invalidationListener) {
-        this.observers.remove(invalidationListener);
+        synchronized(this.observers) {
+            this.observers.remove(invalidationListener);
+        }
     }
 }

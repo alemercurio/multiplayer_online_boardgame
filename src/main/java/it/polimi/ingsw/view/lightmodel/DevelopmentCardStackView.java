@@ -34,8 +34,10 @@ public class DevelopmentCardStackView implements Observable {
     public void update(String state) {
         this.developmentCards = new Gson().fromJson(state,DevelopmentCardStack.class);
 
-        for(InvalidationListener observer : this.observers)
-            observer.invalidated(this);
+        synchronized(this.observers) {
+            for(InvalidationListener observer : this.observers)
+                observer.invalidated(this);
+        }
     }
 
     public Image getImageForCard(DevelopmentCard card) {
@@ -66,11 +68,15 @@ public class DevelopmentCardStackView implements Observable {
 
     @Override
     public void addListener(InvalidationListener invalidationListener) {
-        this.observers.add(invalidationListener);
+        synchronized(this.observers) {
+            this.observers.add(invalidationListener);
+        }
     }
 
     @Override
     public void removeListener(InvalidationListener invalidationListener) {
-        this.observers.remove(invalidationListener);
+        synchronized(this.observers) {
+            this.observers.remove(invalidationListener);
+        }
     }
 }

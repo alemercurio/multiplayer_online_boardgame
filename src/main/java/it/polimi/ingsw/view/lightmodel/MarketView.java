@@ -38,7 +38,7 @@ public class MarketView implements Observable {
         this.decksMap = new HashMap<>();
     }
 
-    public synchronized void updateResourceMarket(String state) {
+    public void updateResourceMarket(String state) {
 
         Gson parser = new Gson();
         JsonElement element = parser.fromJson(state,JsonElement.class);
@@ -47,34 +47,38 @@ public class MarketView implements Observable {
         this.marketTray = parser.fromJson(jsonObj.get("marketTray"),Resource[][].class);
         this.remaining = parser.fromJson(jsonObj.get("remaining"),Resource.class);
 
-        for(InvalidationListener observer : this.observers)
-            observer.invalidated(this);
+        synchronized(this.observers) {
+            for(InvalidationListener observer : this.observers)
+                observer.invalidated(this);
+        }
     }
 
-    public synchronized void updateCardMarket(String state) {
+    public void updateCardMarket(String state) {
         Type decksMapType = new TypeToken<Map<Color,List<DevelopmentCard>>>() {}.getType();
         this.decksMap = new Gson().fromJson(state,decksMapType);
 
-        for(InvalidationListener observer : this.observers)
-            observer.invalidated(this);
+        synchronized(this.observers) {
+            for(InvalidationListener observer : this.observers)
+                observer.invalidated(this);
+        }
     }
 
-    public synchronized Resource[][] getMarketTray() {
+    public Resource[][] getMarketTray() {
         Resource[][] tray = new Resource[3][4];
         for(int i = 0; i < 3;i++)
             System.arraycopy(marketTray[i], 0, tray[i], 0, 4);
         return tray;
     }
 
-    public synchronized Resource getRemaining() {
+    public Resource getRemaining() {
         return remaining;
     }
 
-    public synchronized Map<Color,List<DevelopmentCard>> getDecksMap() {
+    public Map<Color,List<DevelopmentCard>> getDecksMap() {
         return Collections.unmodifiableMap(decksMap);
     }
 
-    public synchronized void printResourceMarket() {
+    public void printResourceMarket() {
 
         for(int i = 0; i < this.marketTray.length; i++) {
 
@@ -96,7 +100,7 @@ public class MarketView implements Observable {
         System.out.print("\n");
     }
 
-    public synchronized void printCardMarket() {
+    public void printCardMarket() {
 
         for(Color color : Color.values())
         {
@@ -121,11 +125,15 @@ public class MarketView implements Observable {
 
     @Override
     public void addListener(InvalidationListener invalidationListener) {
-        this.observers.add(invalidationListener);
+        synchronized(this.observers) {
+            this.observers.add(invalidationListener);
+        }
     }
 
     @Override
     public void removeListener(InvalidationListener invalidationListener) {
-        this.observers.remove(invalidationListener);
+        synchronized(this.observers) {
+            this.observers.remove(invalidationListener);
+        }
     }
 }

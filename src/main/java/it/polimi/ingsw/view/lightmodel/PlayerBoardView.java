@@ -9,12 +9,13 @@ import javafx.beans.Observable;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PlayerBoardView implements Observable {
 
     public List<Resource> whitePower;
-    public ResourcePack discount;
+    private ResourcePack discount;
 
     private final List<InvalidationListener> observers = new ArrayList<>();
 
@@ -23,12 +24,19 @@ public class PlayerBoardView implements Observable {
         Type listOfResources = new TypeToken<List<Resource>>() {}.getType();
         this.whitePower = parser.fromJson(whitePower,listOfResources);
 
-        for(InvalidationListener observer : this.observers)
-            observer.invalidated(this);
+        synchronized(this.observers) {
+            for(InvalidationListener observer : this.observers)
+                observer.invalidated(this);
+        }
     }
 
     public void updateDiscount(String discount) {
         this.discount = ResourcePack.fromString(discount);
+
+        synchronized(this.observers) {
+            for(InvalidationListener observer : this.observers)
+                observer.invalidated(this);
+        }
     }
 
     public boolean hasWhitePower() {
@@ -38,13 +46,22 @@ public class PlayerBoardView implements Observable {
     public boolean hasDiscount() {
         return (this.discount != null) && (!this.discount.isEmpty());
     }
+
+    public ResourcePack getDiscount() {
+        return discount.getCopy();
+    }
+
     @Override
     public void addListener(InvalidationListener invalidationListener) {
-        this.observers.add(invalidationListener);
+        synchronized(this.observers) {
+            this.observers.add(invalidationListener);
+        }
     }
 
     @Override
     public void removeListener(InvalidationListener invalidationListener) {
-        this.observers.remove(invalidationListener);
+        synchronized(this.observers) {
+            this.observers.remove(invalidationListener);
+        }
     }
 }
