@@ -352,6 +352,7 @@ public class PlayerBoardSceneController implements Initializable, InvalidationLi
     public void done() {
         GuiView.getGuiView().event(ViewEvent.WAREHOUSE_CONFIG, warehouse.getConfig());
         pendingSceneOff();
+        this.showMenu();
     }
 
     public void showResourceMarket() {

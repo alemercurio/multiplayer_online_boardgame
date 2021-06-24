@@ -292,14 +292,7 @@ public class GuiView implements View {
     }
 
     @Override
-    public synchronized void showGatheredResources(ResourcePack gathered) {
-        /*if(gathered.get(Resource.VOID)>0 && playerBoard.hasWhitePower()) {
-            Platform.runLater(() -> {
-                guiApp.showScene("/FXML/loot.fxml");
-                lootScene.setPack(gathered);
-            });
-        }*/
-    }
+    public synchronized void showGatheredResources(ResourcePack gathered) { }
 
     @Override
     public synchronized ResourcePack selectWhite(int amount) {

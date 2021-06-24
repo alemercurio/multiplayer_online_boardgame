@@ -29,30 +29,32 @@ public class LeaderActionController implements Initializable {
     @FXML
     private Button play1,play2,discard1,discard2;
 
-    private boolean action = true;
-
     @FXML
     private void play1() {
         GuiView.getGuiView().event(ViewEvent.LEADER_ACTION, "play 1");
         GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+        Platform.runLater(() -> GuiView.getGuiView().playerboard.showMenu());
     }
 
     @FXML
     private void play2() {
         GuiView.getGuiView().event(ViewEvent.LEADER_ACTION, "play 2");
         GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+        Platform.runLater(() -> GuiView.getGuiView().playerboard.showMenu());
     }
 
     @FXML
     private void discard1() {
         GuiView.getGuiView().event(ViewEvent.LEADER_ACTION, "discard 1");
         GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+        Platform.runLater(() -> GuiView.getGuiView().playerboard.showMenu());
     }
 
     @FXML
     private void discard2() {
         GuiView.getGuiView().event(ViewEvent.LEADER_ACTION, "discard 2");
         GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+        Platform.runLater(() -> GuiView.getGuiView().playerboard.showMenu());
     }
 
     @FXML
