@@ -31,8 +31,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class GuiApp extends Application {
-    private static Stage window;
-    private static Scene mainMenu;
+    public static Stage window;
+    public static Scene mainMenu;
     private static Scene waitingScene;
     private static Client client;
 
@@ -81,10 +81,9 @@ public class GuiApp extends Application {
                 setMenu(mainMenuBox, nicknameChoice);
                 showNicknameField();
             }),
-            new Pair<String, Runnable>("Options", () -> {}),
-            new Pair<String, Runnable>("Bonus Content", () -> {}),
+            new Pair<String, Runnable>("Info", () -> {}),
             new Pair<String, Runnable>("Rules", () -> {}),
-            new Pair<String, Runnable>("Credits", () -> {}),
+            new Pair<String, Runnable>("Credits", () -> showScene("/FXML/credits.fxml")),
             new Pair<String, Runnable>("Exit", () -> {
                 GuiView.getGuiView().event(ViewEvent.GAMEMODE, "esc");
                 Platform.exit();
