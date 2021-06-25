@@ -50,7 +50,35 @@ To run the tests and compile the software:
 2. Install [Maven](https://maven.apache.org/install.html)
 3. Clone this repository
 4. In the cloned repo folder, run:
-```bash
-mvn package
-```
-
+    ```bash
+    mvn package
+    ```
+5. Go to the newly created ```shade``` folder, where you will find the three jar files: 
+    - ```server.jar```, to run the server
+    - ```cli.jar```, to run the client in CLI mode
+    - ```gui.jar```, to run the client in GUI mode
+6. First, someone needs to launch the server: in the terminal, inside the shade folder, run:
+    ```bash
+    java -jar server.jar
+    ```
+    You should see a message like this:
+    ```bash
+    (SERVER) >> Server ready on port 2703
+    ```
+    with a variable port number (a free port is picked up randomly). You will need this later to connect.
+7. You can now run the clients:
+    - GUI: 
+       ```bash
+       java -jar gui.jar
+       ```
+       or double-click on the jar file.
+    - CLI:
+       ```bash
+       java -jar cli.jar
+       ```
+8. Insert the IP address of the server and port number it is running on, separated by a whitespace. If your input is correct, you should see a message like this:
+   ```bash
+    >> Successfully connected...
+    ```
+   (If you launched the GUI with the double-click method, you will not see this message. Do not worry, if no error shows up, you are connected.)
+9. Have fun! :smile:
