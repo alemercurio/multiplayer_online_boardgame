@@ -147,5 +147,63 @@ public class LeaderCardTest {
 
         assertEquals(card1.toString(), deck.get(0).toString());
         assertEquals(card2.toString(), deck.get(1).toString());
+
+        List<LeaderCard> emptyDeck = LeaderCard.getLeaderCardDeck("Gesù è Signore e Salva");
+        assertEquals(0,emptyDeck.size());
+    }
+
+    @Test
+    public void testGetPower() {
+        ResourcePack rp1_cost = new ResourcePack(0,0,3,0,0);
+        ResourcePack rp2_cost = new ResourcePack(1,1,1,0,0);
+        ResourcePack rp3_cost = new ResourcePack(2,2,0,0,0);
+        ResourcePack rp4_cost = new ResourcePack(2,0,1,0,0);
+        ResourcePack discount = new ResourcePack(0,2,0,0,0);
+
+        ColorPack colorPack1 = new ColorPack();
+        colorPack1.addColor(Color.GREEN, 1);
+        colorPack1.addColor(Color.GREEN, 1);
+        colorPack1.addColor(Color.GREEN, 2);
+        colorPack1.addColor(Color.BLUE, 1);
+        colorPack1.addColor(Color.BLUE, 1);
+        colorPack1.addColor(Color.BLUE, 2);
+        colorPack1.addColor(Color.PURPLE, 3);
+
+        ColorPack colorPack2 = new ColorPack();
+        colorPack2.addColor(Color.PURPLE, 1);
+        colorPack2.addColor(Color.GREEN, 1);
+
+        ColorPack colorPack3 = new ColorPack();
+        colorPack3.addColor(Color.PURPLE, 1);
+        colorPack3.addColor(Color.BLUE, 3);
+
+        ColorPack colorPack4 = new ColorPack();
+        colorPack4.addColor(Color.PURPLE, 3);
+        colorPack4.addColor(Color.GREEN, 1);
+
+        ResourcePack rp1_input = new ResourcePack(0,0,3,0,0);
+        ResourcePack rp1_output = new ResourcePack(1,1,0,4,0);
+        Production p1 = new Production(rp1_input, rp1_output);
+
+        ProductionPower power1 = new ProductionPower(p1);
+        StockPower power2 = new StockPower(2, Resource.SERVANT);
+        String stock = power2.toString();
+        VoidPower power3 = new VoidPower(Resource.COIN);
+        DiscountPower power4 = new DiscountPower(discount);
+
+        LeaderCard leader1 = new LeaderCard(2, rp1_cost, colorPack1, power1);
+        LeaderCard leader2 = new LeaderCard(3, rp2_cost, colorPack2, power2);
+        LeaderCard leader3 = new LeaderCard(1, rp3_cost, colorPack3, power3);
+        LeaderCard leader4 = new LeaderCard(1, rp4_cost, colorPack4, power4);
+
+        assertEquals(power1, leader1.getPower());
+        assertEquals(p1, power1.getProduction());
+        assertEquals(power2, leader2.getPower());
+        assertEquals(stock,power2.toString());
+        assertEquals(power3, leader3.getPower());
+        assertEquals(power4, leader4.getPower());
+        assertEquals(Resource.COIN,power3.getResource());
+        assertEquals("/PNG/punchboard/coin.png", Resource.COIN.getImage());
+        assertEquals(discount,power4.getDiscount());
     }
 }

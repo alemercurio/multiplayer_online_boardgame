@@ -5,12 +5,14 @@ import it.polimi.ingsw.model.cards.DevelopmentCard;
 
 import org.junit.Test;
 
+import java.lang.reflect.GenericArrayType;
+
 import static org.junit.Assert.*;
 
 public class MarketBoardTest {
 
     @Test
-    public void takeRow() {
+    public void testTakeRow() {
         MarketBoard market = new MarketBoard();
 
         for(int j=0; j<10; j++) {
@@ -28,14 +30,14 @@ public class MarketBoardTest {
                             occurrences++;
                         }
                     }
-                    assertEquals(current, occurrences);
+                    assertEquals(0, occurrences);
                 }
             }
         }
     }
 
     @Test
-    public void takeColumn() {
+    public void testTakeColumn() {
         MarketBoard market = new MarketBoard();
 
         for(int j=0; j<10; j++) {
@@ -56,7 +58,7 @@ public class MarketBoardTest {
                             occurrences++;
                         }
                     }
-                    assertEquals(current, occurrences);
+                    assertEquals(0, occurrences);
                 }
             }
         }
@@ -110,14 +112,11 @@ public class MarketBoardTest {
             assertEquals(2, blueCard.getLevel());
             assertEquals(2, yellowCard.getLevel());
             assertEquals(3, purpleCard.getLevel());
+            market.discard(Color.GREEN,1);
+            assertNotNull(market.getDevelopmentCard(1,Color.GREEN));
 
         } catch (NoSuchDevelopmentCardException e) {
             fail();
         }
-
-        assertEquals('2', market.getCardMarketView().charAt(24));
-        assertEquals('3', market.getCardMarketView().charAt(16));
-        assertEquals('3', market.getCardMarketView().charAt(18));
-        assertEquals('3', market.getCardMarketView().charAt(10));
     }
 }
