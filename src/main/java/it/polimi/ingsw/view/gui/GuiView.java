@@ -4,14 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.controller.Action;
-import it.polimi.ingsw.model.cards.Color;
 import it.polimi.ingsw.model.cards.LeaderCard;
 import it.polimi.ingsw.model.cards.StockPower;
 import it.polimi.ingsw.model.resources.ResourcePack;
 import it.polimi.ingsw.model.singleplayer.SoloCross;
 import it.polimi.ingsw.model.singleplayer.SoloDiscard;
 import it.polimi.ingsw.model.vatican.Vatican;
-import it.polimi.ingsw.util.Screen;
 import it.polimi.ingsw.view.gui.controllers.*;
 import it.polimi.ingsw.view.gui.controllers.AdvantageSceneController;
 import it.polimi.ingsw.view.gui.controllers.LootSceneController;
@@ -45,7 +43,7 @@ public class GuiView implements View {
     public MarketView market = new MarketView();
     public LeaderView leaderStack = new LeaderView();
     public DevelopmentCardStackView devCardStack = new DevelopmentCardStackView();
-    public DevelopmentCardView buyed = new DevelopmentCardView();
+    public DevelopmentCardView bought = new DevelopmentCardView();
     public FactoryView factory = new FactoryView();
     public WarehouseView warehouse = new WarehouseView();
     public ResourcePack strongbox = new ResourcePack();
@@ -546,7 +544,7 @@ public class GuiView implements View {
     @Override
     public synchronized String selectDevCardPosition() {
         showScene("/FXML/playerboard.fxml");
-        Platform.runLater(() -> GuiView.getGuiView().playerboard.positionCard(buyed));
+        Platform.runLater(() -> GuiView.getGuiView().playerboard.positionCard(bought));
         try {
             while (!eventHandler.containsKey(ViewEvent.DEVCARD_POSITION)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }

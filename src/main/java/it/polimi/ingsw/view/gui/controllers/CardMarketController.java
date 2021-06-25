@@ -156,7 +156,7 @@ public class CardMarketController implements Initializable, InvalidationListener
     }
 
     public void buyCard() {
-        GuiView.getGuiView().buyed = cardToBuy;
+        GuiView.getGuiView().bought = cardToBuy;
         GuiView.getGuiView().event(ViewEvent.DEVCARD, ""+Color.toColorFromValue(cardToBuy.getColor()).getAlias()+cardToBuy.getLevel());
     }
 
