@@ -2,6 +2,7 @@ package it.polimi.ingsw.view.gui;
 
 import it.polimi.ingsw.network.Client;
 import it.polimi.ingsw.util.Screen;
+import javafx.application.Platform;
 
 import java.io.IOException;
 import java.util.Scanner;
@@ -22,8 +23,9 @@ public class Launcher {
             Scanner connectionInfo = new Scanner(selection);
             try {
                 client.setMessageManager(connectionInfo.next(),connectionInfo.nextInt(),GuiView.getGuiView());
-            } catch (IOException e) {
-                Screen.printError("Server unavailable...");
+                GuiView.getGuiView().serverStatus=true;
+            } catch (Exception e) {
+                GuiView.getGuiView().tell("Server unavailable!");
                 return;
             }
         }

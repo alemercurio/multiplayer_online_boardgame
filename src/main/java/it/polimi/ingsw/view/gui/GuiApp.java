@@ -11,6 +11,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -29,6 +30,7 @@ import javafx.util.Pair;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class GuiApp extends Application {
     public static Stage window;
@@ -48,14 +50,24 @@ public class GuiApp extends Application {
         GuiView.getGuiView().setGuiApp(this);
         window = primaryStage;
         try {
-            Scene scene = new Scene(createContent());
-            mainMenu = scene;
-            primaryStage.setTitle("Master of Renaissance");
-            primaryStage.setScene(scene);
-            primaryStage.show();
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Welcome!");
+            dialog.setHeaderText("You are now connecting to a server to play 'Master of Renaissance'!");
+            dialog.setContentText("Please enter the IP address and port number of the server:");
+
+            Optional<String> result = dialog.showAndWait();
+            if (result.isPresent()) {
+                GuiView.getGuiView().event(ViewEvent.CONNECTION_INFO, result.get());
+            }
         } catch (Exception e) {
             e.printStackTrace();
+            Platform.exit();
         }
+        Scene scene = new Scene(createContent());
+        mainMenu = scene;
+        primaryStage.setTitle("Master of Renaissance");
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
     private Pane root = new AnchorPane();

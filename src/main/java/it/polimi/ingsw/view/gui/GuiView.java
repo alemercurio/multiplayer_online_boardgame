@@ -23,6 +23,10 @@ import it.polimi.ingsw.view.ViewEvent;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.input.KeyCode;
+import javafx.scene.text.Font;
 
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +40,7 @@ public class GuiView implements View {
 
     private static GuiView guiView;
 
+    public boolean serverStatus = false;
     public boolean solo = false;
     private boolean firstRound = true;
 
@@ -164,11 +169,17 @@ public class GuiView implements View {
                     if(message.equals("No game available!")) {
                         Platform.runLater(() -> guiApp.resetToMainMenu());
                     }
+                    else if(message.equals("Server unavailable!")) {
+                        Platform.exit();
+                    }
                     alert.close();
                 }
             } catch (NoSuchElementException e) {
                 if(message.equals("No game available!")) {
                     Platform.runLater(() -> guiApp.resetToMainMenu());
+                }
+                else if(message.equals("Server unavailable!")) {
+                    Platform.exit();
                 }
                 alert.close();
             }
@@ -176,13 +187,11 @@ public class GuiView implements View {
     }
 
     @Override
-    public String selectConnection() {
-        return "127.0.0.1 2703";
-
-        /*try {
+    public synchronized String selectConnection() {
+        try {
             while (!eventHandler.containsKey(ViewEvent.CONNECTION_INFO)) wait();
-        } catch (InterruptedException ignored) { /* Should not happen */ /*}
-        return (String) eventHandler.remove(ViewEvent.CONNECTION_INFO);*/
+        } catch (InterruptedException ignored) { /* Should not happen */ }
+        return (String) eventHandler.remove(ViewEvent.CONNECTION_INFO);
     }
 
     @Override
