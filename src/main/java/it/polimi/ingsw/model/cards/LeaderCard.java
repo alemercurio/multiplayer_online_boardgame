@@ -6,9 +6,7 @@ import com.google.gson.stream.JsonReader;
 import it.polimi.ingsw.controller.PlayerBoard;
 import it.polimi.ingsw.model.resources.ResourcePack;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +38,7 @@ public class LeaderCard extends Card {
      * @return a list of all the LeaderCards.
      */
     public static List<LeaderCard> getLeaderCardDeck(String filePath) {
-        File file = new File(filePath);
+        InputStream data = LeaderCard.class.getClassLoader().getResourceAsStream(filePath);
 
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(Power.class,new LeaderCard.PowerReader());
@@ -50,11 +48,10 @@ public class LeaderCard extends Card {
         Type leaderCardType = new TypeToken<List<LeaderCard>>() {}.getType();
 
         try {
-            FileReader leaderCard = new FileReader(file);
+            InputStreamReader leaderCard = new InputStreamReader(data);
             JsonReader reader = new JsonReader(leaderCard);
             return parser.fromJson(reader,leaderCardType);
-        }
-        catch (FileNotFoundException e) {
+        } catch (Exception e) {
             return new ArrayList<>();
         }
     }

@@ -3,6 +3,7 @@ package it.polimi.ingsw.network;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import it.polimi.ingsw.controller.LocalPlayer;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.resources.*;
 import it.polimi.ingsw.util.MessageManager;
@@ -21,6 +22,7 @@ public class Client implements Runnable {
 
     private View view;
     private MessageManager message;
+    private boolean isConnected = true;
 
     public void setMessageManager(String ip, int port, View view) throws IOException {
         this.message = new MessageManager(ip, port, view);
@@ -38,23 +40,25 @@ public class Client implements Runnable {
         if(args.length != 2) {
 
             String selection = client.view.selectConnection();
-
             if(selection.equals("esc")) return;
 
             Scanner connectionInfo = new Scanner(selection);
             try {
                 client.message = new MessageManager(connectionInfo.next(),connectionInfo.nextInt(),client.view);
+                client.isConnected = true;
             } catch (IOException e) {
-                Screen.printError("Server unavailable...");
-                return;
+                client.view.showError(Error.SERVER_OFFLINE);
+                client.message = new MessageManager(client.view);
+                client.isConnected = false;
             }
         }
         else {
             try {
                 client.message = new MessageManager(args[0],Integer.parseInt(args[1]),client.view);
             } catch (IOException e) {
-                Screen.printError("Server unavailable...");
-                return;
+                client.view.showError(Error.SERVER_OFFLINE);
+                client.message = new MessageManager(client.view);
+                client.isConnected = false;
             }
         }
 
@@ -70,12 +74,13 @@ public class Client implements Runnable {
 
         mp.parse(this.message.receive());
         if(!mp.getOrder().equals("welcome")) {
-            System.out.println(">> Unable to be welcomed..");
+            this.view.showError(Error.UNABLE_TO_BE_WELCOMED);
             return;
         }
         else {
             this.view.setID(mp.getIntParameter(0));
-            System.out.println(">> Successfully connected..");
+            // TODO: remove
+            //System.out.println(">> Successfully connected..");
         }
 
         this.login();
@@ -93,20 +98,21 @@ public class Client implements Runnable {
 
             switch(msg) {
                 case "new":
-                    this.newGame();
+                    if(this.isConnected) this.newGame();
+                    else this.view.showError(Error.UNABLE_TO_PLAY_ONLINE);
+                    break;
+                case "new:offline":
+                    this.newLocalGame();
                     break;
                 case "join":
-                    this.joinGame();
+                    if(this.isConnected) this.joinGame();
+                    else this.view.showError(Error.UNABLE_TO_PLAY_ONLINE);
                     break;
             }
 
         } while(!msg.equals("esc"));
 
-        try {
-            this.message.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        this.message.close();
     }
 
     public void login() {
@@ -137,11 +143,12 @@ public class Client implements Runnable {
         }
 
         this.message.send(MessageParser.message("setNumPlayer",this.view.selectNumberOfPlayer()));
-
         answer = this.message.receive();
-        while(answer.equals("invalidNumPlayer")) {
+
+        while(answer.equals("InvalidNumPlayer")) {
             this.view.showError(Error.INVALID_NUMBER_OF_PLAYER);
             this.message.send(MessageParser.message("setNumPlayer",this.view.selectNumberOfPlayer()));
+            answer = this.message.receive();
         }
 
         if(!answer.equals("WAIT")) this.view.showError(Error.UNKNOWN_ERROR);
@@ -149,12 +156,25 @@ public class Client implements Runnable {
         this.playGame();
     }
 
+    public void newLocalGame() {
+        this.message.setOffline();
+        this.message.send("NewGame");
+        this.playGame();
+        this.message.setOnline();
+    }
+
     public void joinGame() {
         this.message.send("JoinGame");
 
-        if(!this.message.receive().equals("OK")) {
-            this.view.tell("No game available!");
-        } else this.playGame();
+        String answer = this.message.receive();
+
+        if(answer.equals("waiting")) {
+            this.view.tell("Please, wait for other players to join!");
+            answer = this.message.receive();
+        }
+
+        if(answer.equals("Joined")) this.playGame();
+        else view.showError(Error.UNKNOWN_ERROR);
     }
 
     public void selectLeader() {

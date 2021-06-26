@@ -18,11 +18,12 @@ public class LorenzoIlMagnifico {
 
     /**
      * Constructs the single player opponent LorenzoIlMagnifico.
+     * @param game the Game where LorenzoIlMagnifico plays as an opponent.
      * @param faithTrack the FaithTrack of LorenzoIlMagnifico.
      * @param market the reference to the MarketBoard.
      * @param deck the full stack of SoloAction tokens available for LorenzoIlMagnifico.
      */
-    public LorenzoIlMagnifico(SoloGame game, FaithTrack faithTrack, MarketBoard market, SoloActionDeck deck) {
+    public LorenzoIlMagnifico(Game game, FaithTrack faithTrack, MarketBoard market, SoloActionDeck deck) {
         this.faithTrack = faithTrack;
         this.market = market;
         this.deck = deck;

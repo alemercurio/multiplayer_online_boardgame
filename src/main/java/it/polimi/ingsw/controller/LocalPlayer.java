@@ -1,42 +1,43 @@
-package it.polimi.ingsw.network;
+package it.polimi.ingsw.controller;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import it.polimi.ingsw.controller.*;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.resources.*;
-import it.polimi.ingsw.model.vatican.*;
+import it.polimi.ingsw.model.vatican.FaithTrack;
+import it.polimi.ingsw.network.DisconnectedPlayerException;
+import it.polimi.ingsw.network.Talkie;
+import it.polimi.ingsw.util.MessageBridge;
 import it.polimi.ingsw.util.MessageParser;
 import it.polimi.ingsw.view.lightmodel.PlayerView;
-import it.polimi.ingsw.util.Screen;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.reflect.Type;
-import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
-public class Player implements Runnable, Talkie {
-    private int ID;
+public class LocalPlayer implements Runnable,Talkie {
+
+    private final int ID;
     private String nickname;
-    private final Socket socket;
-    private final Scanner messageIn;
-    private final PrintWriter messageOut;
+    private final MessageBridge.Port port;
 
-    private Game game;
+    private LocalSoloGame game;
     private PlayerBoard playerBoard;
-    private final AtomicBoolean isActive = new AtomicBoolean(false);
     private boolean hasEnded;
 
-    public Player(int ID,Socket client) throws IOException {
+    public LocalPlayer(int ID) {
         this.ID = ID;
-        this.socket = client;
-        this.messageIn = new Scanner(this.socket.getInputStream());
-        this.messageOut = new PrintWriter(this.socket.getOutputStream());
+        this.nickname = null;
+        this.port = MessageBridge.getBridge().get();
+        this.hasEnded = false;
+    }
+
+    public LocalPlayer(int ID,String nickname) {
+        this.ID = ID;
+        this.nickname = nickname;
+        this.port = MessageBridge.getBridge().get();
+        this.hasEnded = false;
     }
 
     public int getID() {
@@ -47,94 +48,36 @@ public class Player implements Runnable, Talkie {
         return this.nickname;
     }
 
-    public void setForGame(FaithTrack faithTrack,MarketBoard market) {
+    public void setForGame(FaithTrack faithTrack, MarketBoard market) {
         this.playerBoard = new PlayerBoard(this,market,faithTrack);
+    }
+
+    public void init() {
+        this.send(MessageParser.message("welcome",this.ID));
+        this.login();
+        this.send("noLeftGame");
     }
 
     @Override
     public void run() {
         String msg;
-        this.send(MessageParser.message("welcome",this.ID));
-
-        this.login();
-
-        if(PlayerController.getPlayerController().hasLeftGame(this.nickname)) {
-            this.send("resumeGame?");
-            MessageParser mp = new MessageParser();
-            mp.parse(this.receive());
-
-            if(mp.getOrder().equals("resume")) {
-                if(Boolean.parseBoolean(mp.getStringParameter(0))) {
-                    PlayerController.getPlayerController().resumeGame(this.nickname).resumePlayer(this);
-                    this.runSoloGame();
-                }
-            }
-            else this.send("InvalidOption");
-        } else this.send("noLeftGame");
-
+        if(this.nickname == null) this.init();
         do {
             msg = receive();
-            switch(msg) {
-                case "JoinGame":
-                    this.joinGame();
-                    this.playGame();
-                    break;
-                case "NewGame":
-                    this.newGame();
-                    if(this.game.isSinglePlayer()) this.playSoloGame();
-                    else this.playGame();
-                    break;
-                default:
-                    this.send("UnknownCommand");
-                    break;
-            }
-
-            this.isActive.set(false);
-            this.hasEnded = false;
-
+            if(msg.equals("NewGame")) {
+                this.game = new LocalSoloGame(this);
+                this.hasEnded = false;
+                this.play();
+            } else this.send("UnknownCommand");
         } while(!msg.equals("esc"));
-    }
-
-    public void send(String message) {
-        try {
-            this.messageOut.println(message);
-            this.messageOut.flush();
-        } catch(Exception e) {
-            throw new DisconnectedPlayerException(this);
-        }
-    }
-
-    public String receive() {
-        while(true) {
-            String received;
-            try { received = this.messageIn.nextLine(); }
-            catch(Exception e) { throw new DisconnectedPlayerException(this); }
-            if(received.equals("alive")) {
-                this.disconnectCounter.set(3);
-                this.game.isAlive(this);
-            }
-            else return received;
-        }
-    }
-
-    public void close() {
-        this.messageIn.close();
-        this.messageOut.close();
-        try {
-            this.socket.close();
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
     }
 
     public void login() {
         MessageParser mp = new MessageParser();
-        PlayerController pc = PlayerController.getPlayerController();
-
         do {
             mp.parse(this.receive());
             if(mp.getOrder().equals("login") && mp.getNumberOfParameters() == 1) {
-                if(pc.registerNickname(mp.getStringParameter(0))) {
+                if(!mp.getStringParameter(0).equals("Lorenzo il Magnifico")) {
                     this.nickname = mp.getStringParameter(0);
                     this.send("OK");
                 } else this.send("nameAlreadyTaken");
@@ -142,55 +85,19 @@ public class Player implements Runnable, Talkie {
         } while(this.nickname == null);
     }
 
-    private void newGame() {
-        String msg;
-        MessageParser mp = new MessageParser();
-
-        this.send("OK");
-
-        // Set Number of Players
-        msg = this.receive();
-        mp.parse(msg);
-        while(!mp.getOrder().equals("setNumPlayer")
-                || mp.getNumberOfParameters() != 1
-                || mp.getIntParameter(0) < 0
-                || mp.getIntParameter(0) > 4)  {
-            this.send("InvalidNumPlayer");
-            System.out.println("invalid");
-            msg = this.receive();
-            mp.parse(msg);
-        }
-
-        this.game = Game.newGame(this,this.nickname,mp.getIntParameter(0));
-        this.send("WAIT");
+    public void send(String message) {
+        this.port.send(message);
     }
 
-    private void joinGame() {
-        this.game = Game.join(this);
-        if(this.game == null) {
-            this.isActive.set(false);
-            this.send("waiting");
-            synchronized(this.isActive) {
-                while(!this.isActive.get()) {
-                    try {
-                        this.isActive.wait();
-                    } catch(InterruptedException ignored) { }
-                }
-            }
-        }
-        this.isActive.set(false);
-        this.send("Joined");
+    public String receive() {
+        return this.port.receive();
     }
 
-    public void hasJoined(Game game) {
-        synchronized(this.isActive) {
-            this.game = game;
-            this.isActive.set(true);
-            this.isActive.notifyAll();
-        }
+    public void close() {
+        this.port.close();
     }
 
-    // Round Management
+    // Game Management
 
     public PlayerView getPlayerStat() {
         return new PlayerView(this.ID,this.nickname,
@@ -199,30 +106,18 @@ public class Player implements Runnable, Talkie {
                 this.playerBoard.countPoints());
     }
 
-    public void setActive() {
-        this.isActive.set(true);
-    }
-
     public synchronized void setHasEnded() {
         this.hasEnded = true;
     }
 
-    public void playSoloGame() {
-
-        ((SoloGame) this.game).start();
-
-        try {
-            this.selectLeader(this.game.getLeaders());
-            this.initialAdvantage();
-        } catch(DisconnectedPlayerException e) {
-            return;
-        }
-
+    public void play() {
+        this.game.start();
+        this.selectLeader(this.game.getLeaders());
+        this.initialAdvantage();
         this.runSoloGame();
     }
 
     private void runSoloGame() {
-        ((SoloGame) this.game).setInitialised();
         try {
             while(!this.hasEnded) {
                 this.playRound();
@@ -277,62 +172,8 @@ public class Player implements Runnable, Talkie {
     }
 
     public void initialAdvantage() {
-
-        MessageParser mp = new MessageParser();
-        ResourcePack advantage = this.game.getAdvantage(this);
-
-        this.send(MessageParser.message("advantage",advantage));
-
-        if(!advantage.isEmpty()) {
-
-            int white = this.playerBoard.storeResources(advantage);
-            this.send(MessageParser.message("convert",white));
-
-            boolean toRepeat;
-            do {
-                mp.parse(this.receive());
-                if(mp.getOrder().equals("selected")) {
-
-                    ResourcePack selected = mp.getObjectParameter(0,ResourcePack.class);
-                    if(selected.get(Resource.VOID) == 0 && selected.get(Resource.FAITHPOINT) == 0 && selected.size() == white) {
-
-                        this.playerBoard.storage.warehouse.add(selected);
-                        this.send("OK");
-                        toRepeat = false;
-
-                    } else {
-
-                        this.send("KO");
-                        toRepeat = true;
-
-                    }
-
-                } else {
-
-                    this.send("InvalidOption");
-                    toRepeat = true;
-
-                }
-            } while(toRepeat);
-
-            this.send(MessageParser.message("update","WHConfig",this.playerBoard.storage.warehouse.getConfig()));
-            this.send("setWarehouse");
-
-            while(true) {
-                mp.parse(this.receive());
-                if(mp.getOrder().equals("config"))
-                {
-                    if(this.playerBoard.storage.warehouse.update(mp.getStringParameter(0))) {
-
-                        this.playerBoard.storage.warehouse.done();
-                        this.send(MessageParser.message("update","WHConfig",this.playerBoard.storage.warehouse.getConfig()));
-                        this.send("OK");
-                        return;
-
-                    } else this.send("KO");
-                } else this.send("InvalidOption");
-            }
-        } else this.send("OK");
+        this.send(MessageParser.message("advantage",new ResourcePack()));
+        this.send("OK");
     }
 
     public void playRound() {
@@ -367,21 +208,6 @@ public class Player implements Runnable, Talkie {
 
                 case "leader":
                     this.leaderAction();
-                    endRound = false;
-                    break;
-
-                // TODO: remove
-                case "test":
-                    Screen.printError(this.nickname + " is cheating!");
-                    this.playerBoard.storage.strongbox.add(new ResourcePack(10,10,10,10));
-                    this.playerBoard.factory.addProductionPower(new Production(
-                            new ResourcePack(2),
-                            new ResourcePack(0,2,0,0,0,6)));
-                    this.playerBoard.addWhite(Resource.COIN);
-                    this.playerBoard.addWhite(Resource.SHIELD);
-                    this.playerBoard.addDiscount(new ResourcePack(10,10,10,10));
-                    this.playerBoard.addLeaderStock(new StockPower(2,Resource.COIN));
-                    this.send(MessageParser.message("update","strongbox",this.playerBoard.storage.strongbox));
                     endRound = false;
                     break;
             }
@@ -674,79 +500,5 @@ public class Player implements Runnable, Talkie {
                 return selected;
             }
         }
-    }
-
-
-    // NEW
-
-    private final AtomicInteger disconnectCounter = new AtomicInteger(3);
-
-    public boolean isDisconnected() {
-        return (this.disconnectCounter.get() < 0);
-    }
-
-    public void reduceDisconnectCounter() {
-        if(disconnectCounter.get() == 0) {
-            this.game.hasDisconnected(this);
-            this.close();
-            disconnectCounter.set(-1);
-        }
-        else if(disconnectCounter.get() > 0) this.disconnectCounter.decrementAndGet();
-    }
-
-    private void idle() {
-        while(!this.isActive.get()) {
-            String received;
-            try { received = this.messageIn.nextLine(); }
-            catch(Exception e) { throw new DisconnectedPlayerException(this); }
-
-            if(received.equals("alive")) {
-                this.disconnectCounter.set(3);
-                this.game.isAlive(this);
-            } else System.out.println("(GAME) >> " + this.nickname + " sent \"" + received + "\" while it was not permitted...");
-        }
-    }
-
-    public void playGame() {
-
-        try {
-            this.idle();
-
-            this.selectLeader(this.game.getLeaders());
-            this.initialAdvantage();
-
-            this.isActive.set(false);
-
-            this.game.waitForOtherPlayer();
-            this.idle();
-
-            while(!this.hasEnded) {
-                this.idle();
-
-                if(!this.hasEnded) {
-                    this.playRound();
-                    this.isActive.set(false);
-                    this.game.nextPlayer();
-                }
-            }
-        } catch(DisconnectedPlayerException disconnected) {
-            if(this.isActive.get()) this.game.nextPlayer();
-        }
-
-    }
-
-    public void resume(Player oldPlayer) {
-        if(this.nickname.equals(oldPlayer.nickname)) {
-            this.ID = oldPlayer.ID;
-            this.send(MessageParser.message("update","playerID",this.ID));
-            this.game = oldPlayer.game;
-            this.playerBoard = oldPlayer.playerBoard;
-            this.playerBoard.setPlayer(this);
-            this.isActive.set(false);
-        }
-    }
-
-    public void updateAll() {
-        this.playerBoard.updateAll();
     }
 }

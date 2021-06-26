@@ -4,6 +4,7 @@ import it.polimi.ingsw.network.Player;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.vatican.FaithTrack;
 import it.polimi.ingsw.model.resources.*;
+import it.polimi.ingsw.network.Talkie;
 import it.polimi.ingsw.util.MessageParser;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import java.util.List;
 public class PlayerBoard
 {
     private final MarketBoard market;
-    private Player player;
+    private Talkie player;
     public final Storage storage;
     public final LeaderStack leaders;
     public final DevelopmentCardStack devCards;
@@ -27,7 +28,7 @@ public class PlayerBoard
             new ResourcePack().add(Resource.VOID,2),
             new ResourcePack().add(Resource.VOID,1));
 
-    public PlayerBoard(Player player, MarketBoard market,FaithTrack faithTrack)
+    public PlayerBoard(Talkie player, MarketBoard market, FaithTrack faithTrack)
     {
         this.market = market;
         this.player = player;
