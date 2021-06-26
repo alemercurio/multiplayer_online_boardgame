@@ -20,34 +20,14 @@
     -fx-effect: dropShadow(three-pass-box,rgba(0,0,0,0.1), 10.0 , 0.0 , 0.0 ,10.0);
 }
 
-.chosen-fruit-card{
+.chosen-card{
     -fx-background-color: #F16C31;
-    -fx-background-radius: 25;
-}
-
-.comboBox{
-    -fx-background-color: rgba(255,255,255,0.3);
     -fx-background-radius: 30;
 }
 
 .add-btn{
     -fx-background-color: #FFFFFF;
     -fx-background-radius: 100;
-}
-
-.free-delivery-card{
-    -fx-background-color: #D3D3D3;
-    -fx-background-radius: 30;
-}
-
-.shopping-online-card{
-    -fx-background-color: #BAEAC3;
-    -fx-background-radius: 30;
-}
-
-.fruit-item{
-    -fx-background-color: #FFFFFF;
-    -fx-background-radius: 30;
 }
 
 .backGround{
@@ -75,10 +55,6 @@
 
 .backGroundFlorence{
     -fx-background-image: url("/PNG/board/florence.png");
-    /*-fx-background-repeat: stretch;
-    -fx-background-size: 100% 100%;
-    -fx-background-position: center center;
-    -fx-effect: dropshadow(three-pass-box, black, 30, 0.5, 0, 0);*/
 }
 
 .backGroundMarbles{
@@ -92,4 +68,58 @@
 
 .invisibleButton{
     -fx-opacity: 0;
+}
+
+.alertStyle{
+    -fx-background-color: linear-gradient(#191d22 100%, #191d22 100%);
+}
+
+.alertStyle *.header-panel{
+    -fx-background-color: linear-gradient(#1f2429 20%, #191d22 100%);
+}
+.alertStyle *.header-panel *.label{
+    -fx-font-size: 20px;
+    -fx-font-family: "Copperplate Gothic Light";
+    -fx-text-fill: linear-gradient(white, #d7a508);
+    -fx-text-alignment: center;
+}
+
+.alertStyle > *.label-panel{
+    -fx-background-color: linear-gradient(#191d22 100%, #38424b 100%);
+}
+.alertStyle > *.label.content{
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Copperplate Gothic Light";
+    -fx-text-alignment: center;
+    -fx-text-fill: linear-gradient(white, #d7a508);
+}
+.alertStyle > *.button-bar {
+    -fx-background-color: linear-gradient(#191d22 100%, #1f2429 20%);
+
+}
+
+.alertStyle .button{
+    -fx-background-color: #090a0c,
+    linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
+    linear-gradient(#20262b, #191d22);
+    -fx-background-radius: 5, 4, 3, 5;
+    -fx-background-insets: 0, 1, 2, 0;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.6), 5, 0.0, 0, 1);
+    -fx-font-family: "Copperplate Gothic Light";
+    -fx-text-fill: linear-gradient(white, #d7a508);
+    -fx-font-size: 20px;
+    -fx-padding: 10 20 10 20;
+}
+.alertStyle .button:hover{
+    -fx-background-color: #d7a508,
+    linear-gradient(#38424b 0%, #1f2429 20%, #191d22 100%),
+    linear-gradient(#20262b, #191d22);
+    /*radial-gradient(center 50% 0%, radius 100%, rgba(114, 131, 148, 0.9), rgba(255, 255, 255, 0));*/
+    -fx-background-radius: 5, 4, 3, 5;
+    -fx-background-insets: 0, 1, 2, 0;
+    -fx-font-family: "Copperplate Gothic Light";
+    -fx-text-fill: linear-gradient(white, #d7a508);
+    -fx-font-size: 20px;
+    -fx-padding: 10 20 10 20;
 }
