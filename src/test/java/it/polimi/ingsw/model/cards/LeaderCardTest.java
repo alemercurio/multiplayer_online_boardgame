@@ -129,7 +129,7 @@ public class LeaderCardTest {
 
     @Test
     public void testGetLeaderCardDeck() {
-        List<LeaderCard> deck = LeaderCard.getLeaderCardDeck("src/test/resources/JSON/LeaderCardTest.json");
+        List<LeaderCard> deck = LeaderCard.getLeaderCardDeck("JSON/LeaderCardTest.json");
 
         ResourcePack requiredRes1 = new ResourcePack();
         ColorPack requiredCards1 = new ColorPack();

@@ -9,8 +9,8 @@ import static org.junit.Assert.*;
 
 public class SoloActionDeckTest {
 
-    private final String SAShuffleTest = "src/test/resources/JSON/SoloActionTest.json";
-    private final String SANoShuffleTest = "src/test/resources/JSON/SoloActionNoShuffleTest.json";
+    private final String SAShuffleTest = "JSON/SoloActionTest.json";
+    private final String SANoShuffleTest = "JSON/SoloActionNoShuffleTest.json";
     private SoloActionDeck soloDeck;
 
     @Test

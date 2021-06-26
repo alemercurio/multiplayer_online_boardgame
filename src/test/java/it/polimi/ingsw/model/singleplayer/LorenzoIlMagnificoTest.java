@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 
 public class LorenzoIlMagnificoTest {
 
-    private final String SANoShuffleTest = "src/test/resources/JSON/SoloActionNoShuffleTest.json";
+    private final String SANoShuffleTest = "JSON/SoloActionNoShuffleTest.json";
 
     private class FaithStub extends FaithTrack
     {
