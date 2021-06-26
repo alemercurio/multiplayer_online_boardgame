@@ -30,6 +30,8 @@ public interface View {
 
     String selectNickname();
 
+    String getNickname();
+
     boolean selectResume();
 
     int selectNumberOfPlayer();

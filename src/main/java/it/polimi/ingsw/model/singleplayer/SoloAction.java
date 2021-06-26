@@ -2,10 +2,9 @@ package it.polimi.ingsw.model.singleplayer;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import it.polimi.ingsw.model.cards.LeaderCard;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,25 +31,23 @@ public abstract class SoloAction {
      * @return a list of SoloActions.
      */
     public static List<SoloAction> getSoloActionDeck(String filePath) {
+        InputStream soloActionData = SoloAction.class.getClassLoader().getResourceAsStream(filePath);
+
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(SoloAction.class, new SoloAction.SoloReader());
         Gson parser = builder.create();
         Type listOfSoloAction = new TypeToken<List<SoloAction>>() {}.getType();
 
-        File soloActionData = new File(filePath);
         List<SoloAction> solo;
-
-        if(soloActionData.exists()) {
-            try {
-                FileReader fr = new FileReader(soloActionData);
-                solo = parser.fromJson(fr,listOfSoloAction);
-                fr.close();
-                return solo;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            InputStreamReader fr = new InputStreamReader(soloActionData);
+            solo = parser.fromJson(fr,listOfSoloAction);
+            fr.close();
+            return solo;
+        } catch (Exception e) {
+            solo = new ArrayList<>();
         }
-        return new ArrayList<>();
+        return solo;
     }
 
     /**

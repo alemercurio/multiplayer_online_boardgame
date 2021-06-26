@@ -27,6 +27,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyCode;
 import javafx.scene.text.Font;
+import javafx.scene.control.DialogPane;
+import javafx.scene.control.Label;
+import javafx.scene.layout.Region;
 
 import java.util.HashMap;
 import java.util.List;
@@ -94,6 +97,15 @@ public class GuiView implements View {
                     join.setHeaderText("A player is joining!");
                     join.setContentText(eventData);
 
+                    //automatic resizing
+                    join.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
+
+                    // alert styling
+                    DialogPane dialogPane = join.getDialogPane();
+                    dialogPane.getStylesheets().add(
+                            getClass().getResource("/CSS/style.css").toExternalForm());
+                    dialogPane.getStyleClass().add("alertStyle");
+
                     if (join.showAndWait().get() == ButtonType.OK) {
                         join.close();
                     }
@@ -105,6 +117,13 @@ public class GuiView implements View {
                     Alert disconnect = new Alert(Alert.AlertType.WARNING);
                     disconnect.setTitle("Disconnect");
                     disconnect.setHeaderText(eventData + " has disconnected from the game.");
+                    //automatic resizing
+                    disconnect.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
+                    // alert styling
+                    DialogPane dialogPane = disconnect.getDialogPane();
+                    dialogPane.getStylesheets().add(
+                            getClass().getResource("/CSS/style.css").toExternalForm());
+                    dialogPane.getStyleClass().add("alertStyle");
 
                     if (disconnect.showAndWait().get() == ButtonType.OK) {
                         disconnect.close();
@@ -117,6 +136,14 @@ public class GuiView implements View {
                     Alert favour = new Alert(Alert.AlertType.INFORMATION);
                     favour.setTitle("Pope's Favour");
                     favour.setHeaderText("Pope's Favour activated!");
+
+                    //automatic resizing
+                    favour.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
+                    // alert styling
+                    DialogPane dialogPane = favour.getDialogPane();
+                    dialogPane.getStylesheets().add(
+                            getClass().getResource("/CSS/style.css").toExternalForm());
+                    dialogPane.getStyleClass().add("alertStyle");
 
                     if (favour.showAndWait().get() == ButtonType.OK) {
                         favour.close();
@@ -162,6 +189,14 @@ public class GuiView implements View {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Oops!");
             alert.setHeaderText(message);
+
+            //automatic resizing
+            alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
+            // alert styling
+            DialogPane dialogPane = alert.getDialogPane();
+            dialogPane.getStylesheets().add(
+                    getClass().getResource("/CSS/style.css").toExternalForm());
+            dialogPane.getStyleClass().add("alertStyle");
 
             try {
                 ButtonType response = alert.showAndWait().get();
@@ -217,6 +252,14 @@ public class GuiView implements View {
                     alert.setHeaderText("This nickname is already taken on the server.");
                     alert.setContentText("Choose another.");
 
+                    //automatic resizing
+                    alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
+                    // alert styling
+                    DialogPane dialogPane = alert.getDialogPane();
+                    dialogPane.getStylesheets().add(
+                            getClass().getResource("/CSS/style.css").toExternalForm());
+                    dialogPane.getStyleClass().add("alertStyle");
+
                     try {
                         ButtonType response = alert.showAndWait().get();
                         if (response == ButtonType.OK) {
@@ -237,6 +280,14 @@ public class GuiView implements View {
                     alert.setHeaderText("You cannot buy this Card!");
                     alert.setContentText("Choose another one or change action.");
 
+                    //automatic resizing
+                    alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
+                    // alert styling
+                    DialogPane dialogPane = alert.getDialogPane();
+                    dialogPane.getStylesheets().add(
+                            getClass().getResource("/CSS/style.css").toExternalForm());
+                    dialogPane.getStyleClass().add("alertStyle");
+
                     try {
                         ButtonType response = alert.showAndWait().get();
                         if (response == ButtonType.OK) {
@@ -255,6 +306,14 @@ public class GuiView implements View {
                     alert.setHeaderText("You cannot put this Card here!");
                     alert.setContentText("Its level is wrong for this positioning.");
 
+                    //automatic resizing
+                    alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
+                    // alert styling
+                    DialogPane dialogPane = alert.getDialogPane();
+                    dialogPane.getStylesheets().add(
+                            getClass().getResource("/CSS/style.css").toExternalForm());
+                    dialogPane.getStyleClass().add("alertStyle");
+
                     try {
                         ButtonType response = alert.showAndWait().get();
                         if (response == ButtonType.OK) {
@@ -272,6 +331,14 @@ public class GuiView implements View {
                     alert.setTitle("Not valid selection");
                     alert.setHeaderText("You cannot perform this set of productions.");
                     alert.setContentText("You do not have enough Resources.");
+
+                    //automatic resizing
+                    alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
+                    // alert styling
+                    DialogPane dialogPane = alert.getDialogPane();
+                    dialogPane.getStylesheets().add(
+                            getClass().getResource("/CSS/style.css").toExternalForm());
+                    dialogPane.getStyleClass().add("alertStyle");
 
                     try {
                         ButtonType response = alert.showAndWait().get();
@@ -293,6 +360,14 @@ public class GuiView implements View {
                     alert.setHeaderText("An unknown error has occurred...");
                     alert.setContentText("Let's hope it doesn't break anything!");
 
+                    //automatic resizing
+                    alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
+                    // alert styling
+                    DialogPane dialogPane = alert.getDialogPane();
+                    dialogPane.getStylesheets().add(
+                            getClass().getResource("/CSS/style.css").toExternalForm());
+                    dialogPane.getStyleClass().add("alertStyle");
+
                     try {
                         ButtonType response = alert.showAndWait().get();
                         if (response == ButtonType.OK) {
@@ -312,6 +387,11 @@ public class GuiView implements View {
             while (!eventHandler.containsKey(ViewEvent.NICKNAME)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }
         return (String) eventHandler.remove(ViewEvent.NICKNAME);
+    }
+
+    @Override
+    public String getNickname() {
+        return this.players.getNickname(this.players.getCurrentPlayerID());
     }
 
     @Override
@@ -386,6 +466,14 @@ public class GuiView implements View {
                     alert.setHeaderText("Player: "+actionData[1]);
                     alert.setContentText("Action: plays a Leader");
 
+                    //automatic resizing
+                    alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
+                    // alert styling
+                    DialogPane dialogPane = alert.getDialogPane();
+                    dialogPane.getStylesheets().add(
+                            getClass().getResource("/CSS/style.css").toExternalForm());
+                    dialogPane.getStyleClass().add("alertStyle");
+
                     try {
                         ButtonType response = alert.showAndWait().get();
                         if (response == ButtonType.OK) {
@@ -407,6 +495,14 @@ public class GuiView implements View {
                     alert.setTitle("Enemy action!");
                     alert.setHeaderText("Player: "+actionData[1]);
                     alert.setContentText("Action: discards a Leader");
+
+                    //automatic resizing
+                    alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
+                    // alert styling
+                    DialogPane dialogPane = alert.getDialogPane();
+                    dialogPane.getStylesheets().add(
+                            getClass().getResource("/CSS/style.css").toExternalForm());
+                    dialogPane.getStyleClass().add("alertStyle");
 
                     try {
                         ButtonType response = alert.showAndWait().get();
@@ -430,6 +526,14 @@ public class GuiView implements View {
                     alert.setHeaderText("Player: "+actionData[1]);
                     alert.setContentText("Action: buys a Development Card");
 
+                    //automatic resizing
+                    alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
+                    // alert styling
+                    DialogPane dialogPane = alert.getDialogPane();
+                    dialogPane.getStylesheets().add(
+                            getClass().getResource("/CSS/style.css").toExternalForm());
+                    dialogPane.getStyleClass().add("alertStyle");
+
                     try {
                         ButtonType response = alert.showAndWait().get();
                         if (response == ButtonType.OK) {
@@ -451,6 +555,14 @@ public class GuiView implements View {
                     alert.setTitle("Enemy action!");
                     alert.setHeaderText("Player: "+actionData[1]);
                     alert.setContentText("Action: takes Resources");
+
+                    //automatic resizing
+                    alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
+                    // alert styling
+                    DialogPane dialogPane = alert.getDialogPane();
+                    dialogPane.getStylesheets().add(
+                            getClass().getResource("/CSS/style.css").toExternalForm());
+                    dialogPane.getStyleClass().add("alertStyle");
 
                     try {
                         ButtonType response = alert.showAndWait().get();
@@ -474,6 +586,14 @@ public class GuiView implements View {
                     alert.setHeaderText("Player: "+actionData[1]);
                     alert.setContentText("Action: wastes Resources -> "+ResourcePack.fromString(actionData[2]));
 
+                    //automatic resizing
+                    alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
+                    // alert styling
+                    DialogPane dialogPane = alert.getDialogPane();
+                    dialogPane.getStylesheets().add(
+                            getClass().getResource("/CSS/style.css").toExternalForm());
+                    dialogPane.getStyleClass().add("alertStyle");
+
                     try {
                         ButtonType response = alert.showAndWait().get();
                         if (response == ButtonType.OK) {
@@ -495,6 +615,14 @@ public class GuiView implements View {
                     alert.setTitle("Enemy action!");
                     alert.setHeaderText("Player: "+actionData[1]);
                     alert.setContentText("Action: activates Production");
+
+                    //automatic resizing
+                    alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
+                    // alert styling
+                    DialogPane dialogPane = alert.getDialogPane();
+                    dialogPane.getStylesheets().add(
+                            getClass().getResource("/CSS/style.css").toExternalForm());
+                    dialogPane.getStyleClass().add("alertStyle");
 
                     try {
                         ButtonType response = alert.showAndWait().get();
@@ -649,6 +777,14 @@ public class GuiView implements View {
             ButtonType no = new ButtonType("No");
 
             playLeader.getButtonTypes().setAll(yes,no);
+
+            // automatic resizing
+            playLeader.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
+            // alert styling
+            DialogPane dialogPane = playLeader.getDialogPane();
+            dialogPane.getStylesheets().add(
+                    getClass().getResource("/CSS/style.css").toExternalForm());
+            dialogPane.getStyleClass().add("alertStyle");
 
             Optional<ButtonType> result = playLeader.showAndWait();
             if(result.isPresent()) {

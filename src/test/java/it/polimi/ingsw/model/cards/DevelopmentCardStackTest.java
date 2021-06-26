@@ -5,6 +5,7 @@ import it.polimi.ingsw.model.resources.ResourcePack;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -50,6 +51,7 @@ public class DevelopmentCardStackTest {
         assertEquals(stack.getDevCard(1), devCard1);
 
         // check that the exception NonPositionableCardException is correctly thrown because it's not possible to append in the stack a not level 1 card at an empty position
+        // add cards
         assertTrue(testStoreDevCardThrowsException(stack, devCard2, 2));
         assertTrue(testStoreDevCardThrowsException(stack, devCard3, 2));
         assertTrue(testStoreDevCardThrowsException(stack, devCard2, 3));
@@ -119,6 +121,7 @@ public class DevelopmentCardStackTest {
         assertEquals(stack.getDevCard(1), devCard3);
 
         assertNull(stack.getDevCard(2));
+        assertNull(stack.getDevCard(5));
     }
 
     @Test
@@ -353,29 +356,183 @@ public class DevelopmentCardStackTest {
         DevelopmentCard devCard7 = new DevelopmentCard(2, rp7_cost, Color.PURPLE,3, p7);
 
         DevelopmentCardStack stack = new DevelopmentCardStack();
+
+        //empty stack
         assertTrue(stack.canBeStored(devCard1,1));
-        assertTrue(stack.canBeStored(devCard1,2));
-        assertTrue(stack.canBeStored(devCard1,3));
-        assertTrue(stack.canBeStored(devCard2,1));
-        assertTrue(stack.canBeStored(devCard2,2));
-        assertTrue(stack.canBeStored(devCard2,3));
-        assertTrue(stack.canBeStored(devCard3,1));
-        assertTrue(stack.canBeStored(devCard3,2));
-        assertTrue(stack.canBeStored(devCard3,3));
         assertFalse(stack.canBeStored(devCard4,1));
-        assertFalse(stack.canBeStored(devCard5,2));
+        assertFalse(stack.canBeStored(devCard7,1));
+        assertTrue(stack.canBeStored(devCard1));
+        assertFalse(stack.canBeStored(devCard4));
+        assertFalse(stack.canBeStored(devCard7));
+        assertTrue(stack.canBeStored(1,1));
+        assertFalse(stack.canBeStored(2,1));
+        assertFalse(stack.canBeStored(3,1));
 
-        testStoreDevCardThrowsException(stack, devCard1, 1);
-        testStoreDevCardThrowsException(stack, devCard2, 2);
+        // level 1 card at the top of the first stack
+        testStoreDevCardThrowsException(stack,devCard1,1);
         assertTrue(stack.canBeStored(devCard4,1));
-        assertTrue(stack.canBeStored(devCard5,2));
-        assertFalse(stack.canBeStored(devCard6,1));
+        assertTrue(stack.canBeStored(2,1));
+        assertTrue(stack.canBeStored(devCard4));
+        assertFalse(stack.canBeStored(devCard7,1));
+        assertTrue(stack.canBeStored(2,1));
+        assertFalse(stack.canBeStored(3,1));
+
+        // level 2 card at the top of the first stack
+        testStoreDevCardThrowsException(stack,devCard4,1);
+        assertTrue(stack.canBeStored(devCard7,1));
+        assertTrue(stack.canBeStored(3,1));
+        assertTrue(stack.canBeStored(devCard6)); // level 3 card
+
+        // other stacks
+        assertTrue(stack.canBeStored(devCard1,2));
+        assertTrue(stack.canBeStored(devCard2,3));
         assertFalse(stack.canBeStored(devCard7,2));
+        assertFalse(stack.canBeStored(devCard6,3));
 
+        testStoreDevCardThrowsException(stack,devCard1,2);
+        testStoreDevCardThrowsException(stack,devCard2,3);
+        assertTrue(stack.canBeStored(devCard4,2));
+        assertTrue(stack.canBeStored(devCard4,3));
+        assertFalse(stack.canBeStored(devCard6,2));
+        assertFalse(stack.canBeStored(devCard7,3));
+        assertFalse(stack.canBeStored(devCard1,2));
+        assertFalse(stack.canBeStored(devCard1,3));
 
-        testStoreDevCardThrowsException(stack, devCard4, 1);
-        testStoreDevCardThrowsException(stack, devCard5, 2);
-        assertTrue(stack.canBeStored(devCard6,1));
-        assertTrue(stack.canBeStored(devCard7,2));
+        testStoreDevCardThrowsException(stack,devCard6,2);
+        testStoreDevCardThrowsException(stack,devCard7,3);
+        testStoreDevCardThrowsException(stack, devCard2, 2);
+        assertFalse(stack.canBeStored(devCard4,1));
+        assertFalse(stack.canBeStored(devCard1,2));
+        assertFalse(stack.canBeStored(devCard6,3));
+        assertFalse(stack.canBeStored(devCard7,3));
+
+    }
+
+    @Test
+    public void testGetDevCardDeck()  {
+
+        String stackState;
+        ResourcePack rp1_input = new ResourcePack(0,0,3,0,0);
+        ResourcePack rp2_input = new ResourcePack(1,0,2,0,0);
+        ResourcePack rp3_input = new ResourcePack(1,4,3,0,0);
+        ResourcePack rp4_input = new ResourcePack(1,0,3,0,0);
+        ResourcePack rp5_input = new ResourcePack(1,4,3,0,0);
+        ResourcePack rp6_input = new ResourcePack(1,0,3,0,0);
+
+        ResourcePack rp1_output = new ResourcePack(1,1,0,4,0);
+        ResourcePack rp2_output = new ResourcePack(0,2,0,3,0);
+        ResourcePack rp3_output = new ResourcePack(0,0,0,1,1);
+        ResourcePack rp4_output = new ResourcePack(0,7,0,1,0);
+        ResourcePack rp5_output = new ResourcePack(0,0,0,3,0);
+        ResourcePack rp6_output = new ResourcePack(0,0,0,0,1);
+
+        Production p1 = new Production(rp1_input, rp1_output);
+        Production p2 = new Production(rp2_input, rp2_output);
+        Production p3 = new Production(rp3_input, rp3_output);
+        Production p4 = new Production(rp4_input, rp4_output);
+        Production p5 = new Production(rp5_input, rp5_output);
+        Production p6 = new Production(rp6_input, rp6_output);
+
+        ResourcePack rp1_cost = new ResourcePack(0,0,3,0,0);
+        ResourcePack rp2_cost = new ResourcePack(1,1,1,0,0);
+        ResourcePack rp3_cost = new ResourcePack(2,2,0,0,0);
+        ResourcePack rp4_cost = new ResourcePack(2,2,0,0,0);
+        ResourcePack rp5_cost = new ResourcePack(2,0,1,1,0);
+        ResourcePack rp6_cost = new ResourcePack(0,0,0,4,0);
+
+        DevelopmentCard devCard1 = new DevelopmentCard(3, rp1_cost, Color.BLUE,1, p1);
+        DevelopmentCard devCard2 = new DevelopmentCard(2, rp2_cost, Color.GREEN,1, p2);
+        DevelopmentCard devCard3 = new DevelopmentCard(1, rp3_cost, Color.YELLOW,1, p3);
+        DevelopmentCard devCard4 = new DevelopmentCard(3, rp4_cost, Color.PURPLE,2, p4);
+        DevelopmentCard devCard5 = new DevelopmentCard(4, rp5_cost, Color.BLUE,2, p5);
+        DevelopmentCard devCard6 = new DevelopmentCard(1, rp6_cost, Color.GREEN,3, p6);
+
+        DevelopmentCardStack stack = new DevelopmentCardStack();
+        stackState = stack.toString();
+
+        assertNull(stack.getDevCardDeck(1));
+        assertNull(stack.getDevCardDeck(2));
+        assertNull(stack.getDevCardDeck(3));
+
+        //add cards
+        testStoreDevCardThrowsException(stack,devCard1,1);
+        testStoreDevCardThrowsException(stack,devCard2,2);
+        testStoreDevCardThrowsException(stack,devCard4,2);
+        testStoreDevCardThrowsException(stack,devCard3,3);
+        testStoreDevCardThrowsException(stack,devCard5,3);
+        testStoreDevCardThrowsException(stack,devCard6,3);
+
+        assertNotEquals(stackState, stack.toString());
+
+        List<DevelopmentCard> devStack1 = new LinkedList<>();
+        List<DevelopmentCard> devStack2 = new LinkedList<>();
+        List<DevelopmentCard> devStack3 = new LinkedList<>();
+
+        devStack1.add(devCard1);
+        devStack2.add(devCard4);
+        devStack2.add(devCard2);
+        devStack3.add(devCard6);
+        devStack3.add(devCard5);
+        devStack3.add(devCard3);
+
+        assertEquals(devStack1,stack.getDevCardDeck(1));
+        assertEquals(devStack2,stack.getDevCardDeck(2));
+        assertEquals(devStack3,stack.getDevCardDeck(3));
+        assertNull(stack.getDevCardDeck(4));
+    }
+
+    @Test
+    public void testGetPoints()  {
+        ResourcePack rp1_input = new ResourcePack(0,0,3,0,0);
+        ResourcePack rp2_input = new ResourcePack(1,0,2,0,0);
+        ResourcePack rp3_input = new ResourcePack(1,4,3,0,0);
+        ResourcePack rp4_input = new ResourcePack(1,0,3,0,0);
+        ResourcePack rp5_input = new ResourcePack(1,4,3,0,0);
+        ResourcePack rp6_input = new ResourcePack(1,0,3,0,0);
+
+        ResourcePack rp1_output = new ResourcePack(1,1,0,4,0);
+        ResourcePack rp2_output = new ResourcePack(0,2,0,3,0);
+        ResourcePack rp3_output = new ResourcePack(0,0,0,1,1);
+        ResourcePack rp4_output = new ResourcePack(0,7,0,1,0);
+        ResourcePack rp5_output = new ResourcePack(0,0,0,3,0);
+        ResourcePack rp6_output = new ResourcePack(0,0,0,0,1);
+
+        Production p1 = new Production(rp1_input, rp1_output);
+        Production p2 = new Production(rp2_input, rp2_output);
+        Production p3 = new Production(rp3_input, rp3_output);
+        Production p4 = new Production(rp4_input, rp4_output);
+        Production p5 = new Production(rp5_input, rp5_output);
+        Production p6 = new Production(rp6_input, rp6_output);
+
+        ResourcePack rp1_cost = new ResourcePack(0,0,3,0,0);
+        ResourcePack rp2_cost = new ResourcePack(1,1,1,0,0);
+        ResourcePack rp3_cost = new ResourcePack(2,2,0,0,0);
+        ResourcePack rp4_cost = new ResourcePack(2,2,0,0,0);
+        ResourcePack rp5_cost = new ResourcePack(2,0,1,1,0);
+        ResourcePack rp6_cost = new ResourcePack(0,0,0,4,0);
+
+        DevelopmentCard devCard1 = new DevelopmentCard(3, rp1_cost, Color.BLUE,1, p1);
+        DevelopmentCard devCard2 = new DevelopmentCard(2, rp2_cost, Color.GREEN,1, p2);
+        DevelopmentCard devCard3 = new DevelopmentCard(1, rp3_cost, Color.YELLOW,1, p3);
+        DevelopmentCard devCard4 = new DevelopmentCard(3, rp4_cost, Color.PURPLE,2, p4);
+        DevelopmentCard devCard5 = new DevelopmentCard(4, rp5_cost, Color.BLUE,2, p5);
+        DevelopmentCard devCard6 = new DevelopmentCard(7, rp6_cost, Color.GREEN,3, p6);
+
+        DevelopmentCardStack stack = new DevelopmentCardStack();
+        assertEquals(0,stack.getPoints());
+
+        testStoreDevCardThrowsException(stack,devCard1,1);
+        assertEquals(3,stack.getPoints());
+
+        testStoreDevCardThrowsException(stack,devCard2,2);
+        testStoreDevCardThrowsException(stack,devCard3,3);
+        assertEquals(6,stack.getPoints());
+
+        testStoreDevCardThrowsException(stack,devCard4,2);
+        testStoreDevCardThrowsException(stack,devCard5,3);
+        assertEquals(13,stack.getPoints());
+
+        testStoreDevCardThrowsException(stack,devCard6,3);
+        assertEquals(20,stack.getPoints());
     }
 }

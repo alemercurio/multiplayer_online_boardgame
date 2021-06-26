@@ -3,6 +3,9 @@ package it.polimi.ingsw.controller;
 public enum Error {
 
     UNKNOWN_ERROR("Something bad happened..."),
+    SERVER_OFFLINE("Server unavailable..."),
+    UNABLE_TO_PLAY_ONLINE("Since you are not connected, you cannot play online!"),
+    UNABLE_TO_BE_WELCOMED("Unable to be welcomed..."),
     UNABLE_TO_START_A_NEW_GAME("Something went wrong..."),
     NICKNAME_TAKEN("Name already taken!"),
     INVALID_NICKNAME("Please, choose another name!"),
@@ -19,7 +22,6 @@ public enum Error {
     INVALID_COLUMN("Please choose a column between 1 and 4."),
     INVALID_ROW_OR_COLUMN("Please type 'row' or 'column', or 'back' to change action."),
     UNABLE_TO_PLAY_LEADER("You cannot play this Leader!");
-
 
     private final String message;
 

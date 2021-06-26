@@ -51,22 +51,33 @@ public class FactoryTest
     public void testDiscardProductionPower() {
         ResourcePack input1 = new ResourcePack(1); //1 coin
         ResourcePack input2 = new ResourcePack(1); //1 coin
+        ResourcePack input3 = new ResourcePack(1,1,1); //1 coin
+
         ResourcePack output1 = new ResourcePack(0,0,1,1); //1 servant, 1 shield
         ResourcePack output2 = new ResourcePack(0,0,1,1); //1 servant, 1 shield
+        ResourcePack output3 = new ResourcePack(8,2,1,1); //1 servant, 1 shield
         ResourcePack requirements = new ResourcePack().add(input1).add(input2);
 
         Production p1 = new Production(input1,output1);
         Production p2 = new Production(input2,output2);
+        Production p3 = new Production(input3,output3);
 
         Factory f = new Factory();
         f.addProductionPower(p1);
         f.addProductionPower(p2);
         f.setActiveProduction(0,1); //set both to active
 
+        String factoryState = f.toString();
+        f.discardProductionPower(p3);
+        assertEquals(factoryState, f.toString()); // nothing changed
+
         assertEquals(f.productionRequirements(), requirements);
-        f.discardProductionPower(p2); //discard trough Production parameter
+        f.discardProductionPower(p2); //discard through Production parameter
+        assertNotEquals(factoryState, f.toString());
+        factoryState = f.toString();
         assertEquals(f.productionRequirements(), input1); //Productions are equals, only one is discarded
-        f.discardProductionPower(0); //discard trough index
+        f.discardProductionPower(0); //discard through index
+        assertNotEquals(factoryState, f.toString());
         assertTrue(f.productionRequirements().isEmpty());
     }
 
@@ -111,6 +122,23 @@ public class FactoryTest
         f.setActiveProduction(0,1,2,3,4,5,6,7,8,9);
         assertEquals(f.productionRequirements(), requirements);
         assertEquals(f.productionChain(), products);
+    }
+
+    @Test
+    public void testSetActiveProduction() {
+        Factory f = new Factory();
+        ResourcePack requirements = new ResourcePack();
+        ResourcePack products = new ResourcePack();
+        ResourcePack input = new ResourcePack(1, 1); //1 coin, 1 stone
+        ResourcePack output = new ResourcePack(0, 0, 3); //3 servants
+
+        requirements.add(input);
+        products.add(output);
+
+        Production p = new Production(input,output);
+        f.addProductionPower(p);
+        f.setActiveProduction(0);
+        assertEquals(output, f.productionChain());
     }
 }
 

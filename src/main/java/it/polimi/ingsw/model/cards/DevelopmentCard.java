@@ -7,9 +7,7 @@ import it.polimi.ingsw.model.resources.Production;
 import it.polimi.ingsw.model.resources.ResourcePack;
 import javafx.scene.image.Image;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,16 +44,15 @@ public class DevelopmentCard extends Card {
      * @return a list of all the DevelopmentCards.
      */
     public static List<DevelopmentCard> getDevelopmentCardDeck(String filePath) {
-        File file = new File(filePath);
+        InputStream data = DevelopmentCard.class.getClassLoader().getResourceAsStream(filePath);
         Gson parser = new Gson();
         Type devCardType = new TypeToken<List<DevelopmentCard>>() {}.getType();
 
         try {
-            FileReader devCard = new FileReader(file);
+            InputStreamReader devCard = new InputStreamReader(data);
             JsonReader reader = new JsonReader(devCard);
             return parser.fromJson(reader,devCardType);
-        }
-        catch (FileNotFoundException e) {
+        } catch (Exception e) {
             return new ArrayList<>();
         }
     }
