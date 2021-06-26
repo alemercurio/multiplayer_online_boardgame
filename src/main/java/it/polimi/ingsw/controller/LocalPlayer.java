@@ -33,13 +33,6 @@ public class LocalPlayer implements Runnable,Talkie {
         this.hasEnded = false;
     }
 
-    public LocalPlayer(int ID,String nickname) {
-        this.ID = ID;
-        this.nickname = nickname;
-        this.port = MessageBridge.getBridge().get();
-        this.hasEnded = false;
-    }
-
     public int getID() {
         return this.ID;
     }
@@ -52,16 +45,14 @@ public class LocalPlayer implements Runnable,Talkie {
         this.playerBoard = new PlayerBoard(this,market,faithTrack);
     }
 
-    public void init() {
-        this.send(MessageParser.message("welcome",this.ID));
-        this.login();
-        this.send("noLeftGame");
-    }
-
     @Override
     public void run() {
         String msg;
-        if(this.nickname == null) this.init();
+
+        this.send(MessageParser.message("welcome",this.ID));
+        this.login();
+        this.send("noLeftGame");
+
         do {
             msg = receive();
             if(msg.equals("NewGame")) {

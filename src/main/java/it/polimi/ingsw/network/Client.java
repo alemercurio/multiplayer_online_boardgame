@@ -40,16 +40,25 @@ public class Client implements Runnable {
         if(args.length != 2) {
 
             String selection = client.view.selectConnection();
-            if(selection.equals("esc")) return;
+            switch(selection) {
 
-            Scanner connectionInfo = new Scanner(selection);
-            try {
-                client.message = new MessageManager(connectionInfo.next(),connectionInfo.nextInt(),client.view);
-                client.isConnected = true;
-            } catch (IOException e) {
-                client.view.showError(Error.SERVER_OFFLINE);
-                client.message = new MessageManager(client.view);
-                client.isConnected = false;
+                case "esc":
+                    return;
+
+                case "offline":
+                    client.message = new MessageManager(client.view);
+                    client.isConnected = false;
+                    break;
+
+                default:
+                    Scanner connectionInfo = new Scanner(selection);
+                    try {
+                        client.message = new MessageManager(connectionInfo.next(),connectionInfo.nextInt(),client.view);
+                        client.isConnected = true;
+                    } catch (IOException e) {
+                        client.view.showError(Error.SERVER_OFFLINE);
+                        return;
+                    }
             }
         }
         else {
@@ -57,8 +66,7 @@ public class Client implements Runnable {
                 client.message = new MessageManager(args[0],Integer.parseInt(args[1]),client.view);
             } catch (IOException e) {
                 client.view.showError(Error.SERVER_OFFLINE);
-                client.message = new MessageManager(client.view);
-                client.isConnected = false;
+                return;
             }
         }
 
@@ -99,10 +107,7 @@ public class Client implements Runnable {
             switch(msg) {
                 case "new":
                     if(this.isConnected) this.newGame();
-                    else this.view.showError(Error.UNABLE_TO_PLAY_ONLINE);
-                    break;
-                case "new:offline":
-                    this.newLocalGame();
+                    else this.newLocalGame();
                     break;
                 case "join":
                     if(this.isConnected) this.joinGame();
@@ -157,10 +162,8 @@ public class Client implements Runnable {
     }
 
     public void newLocalGame() {
-        this.message.setOffline();
         this.message.send("NewGame");
         this.playGame();
-        this.message.setOnline();
     }
 
     public void joinGame() {

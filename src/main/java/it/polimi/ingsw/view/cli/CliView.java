@@ -121,7 +121,7 @@ public class CliView implements View {
         System.out.println("\t\t~ Master of Renaissance ~");
         Screen.reset();
 
-        System.out.println("\tTo use this game online features you should specifify the IP Address and port of the server.");
+        System.out.println("\tTo use this game's online features you should specifify the IP Address and port of the server.");
         System.out.println("\tBut do not worry! You can do it now or use \"offline\" instead: ");
 
         while(true) {
@@ -130,6 +130,7 @@ public class CliView implements View {
             String selection = input.nextLine();
             if(Pattern.matches("(?:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})[ ]*[0-9]{1,5})|esc",selection))
                 return selection;
+            else if(selection.equals("offline")) return "offline";
             else Screen.printError("Invalid expression.. please try again!");
 
         }
@@ -142,21 +143,15 @@ public class CliView implements View {
 
     @Override
     public String selectGame() {
-
         Scanner input = new Scanner(System.in);
-
         while(true) {
-
-            System.out.print("(new|join)(? offline) >> ");
-
+            System.out.print("(new|join) >> ");
             String msg = input.nextLine();
-
             if(msg.equals("esc")) {
                 System.out.println(">> Thank you for playing with us! :)");
                 return msg;
             }
             else if(msg.equals("new") || msg.equals("join")) return msg;
-            else if(msg.equals("new offline")) return "new:offline";
         }
     }
 
