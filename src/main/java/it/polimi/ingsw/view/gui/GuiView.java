@@ -308,6 +308,11 @@ public class GuiView implements View {
     }
 
     @Override
+    public String getNickname() {
+        return this.players.getNickname(this.players.getCurrentPlayerID());
+    }
+
+    @Override
     public boolean selectResume() {
         return false;
     }

@@ -121,8 +121,8 @@ public class CliView implements View {
         System.out.println("\t\t~ Master of Renaissance ~");
         Screen.reset();
 
-        System.out.println("\tTo use this game you should specifify the IP Address and port of the server.");
-        System.out.println("\tBut do not worry! You can do it now: ");
+        System.out.println("\tTo use this game online features you should specifify the IP Address and port of the server.");
+        System.out.println("\tBut do not worry! You can do it now or use \"offline\" instead: ");
 
         while(true) {
 
@@ -147,15 +147,16 @@ public class CliView implements View {
 
         while(true) {
 
-            System.out.print("(new|join) >> ");
+            System.out.print("(new|join)(? offline) >> ");
 
             String msg = input.nextLine();
 
             if(msg.equals("esc")) {
-                System.out.println(">> Ciao e a presto! :)");
+                System.out.println(">> Thank you for playing with us! :)");
                 return msg;
             }
             else if(msg.equals("new") || msg.equals("join")) return msg;
+            else if(msg.equals("new offline")) return "new:offline";
         }
     }
 
@@ -169,6 +170,11 @@ public class CliView implements View {
         Scanner input = new Scanner(System.in);
         System.out.print("\tChoose a nickname! << ");
         return input.nextLine();
+    }
+
+    @Override
+    public String getNickname() {
+        return this.players.getNickname(this.players.getCurrentPlayerID());
     }
 
     @Override
