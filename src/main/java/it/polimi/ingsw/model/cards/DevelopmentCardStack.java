@@ -135,6 +135,14 @@ public class DevelopmentCardStack {
     }
 
     /**
+     * Returns the amount of DevelopmentCards stored in the current DevelopmentCardStack.
+     * @return the amount of Cards in the current Stack.
+     */
+    public int getDevCardNumber() {
+        return this.devCards.stream().mapToInt(LinkedList::size).reduce(Integer::sum).orElse(0);
+    }
+
+    /**
      * Returns the amount of victory points given by the DevelopmentCards
      * stored in the current DevelopmentCardStack.
      * @return the amount of victory points.

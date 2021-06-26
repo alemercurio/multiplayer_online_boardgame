@@ -171,10 +171,10 @@ public class LocalPlayer implements Runnable,Talkie {
 
         String cmd;
         this.send("PLAY");
-        boolean endRound = true;
+        boolean endRound;
 
         do {
-
+            endRound = false;
             cmd = this.receive();
             switch(cmd) {
 
@@ -289,6 +289,9 @@ public class LocalPlayer implements Runnable,Talkie {
                         this.playerBoard.buyDevCard(cardLevel,cardColor,cmd.getIntParameter(0));
                         if(!this.game.isSinglePlayer())
                             this.game.broadCast(MessageParser.message("action",Action.BUY_DEVELOPMENT_CARD,this.nickname,cardColor,cardLevel));
+                        if(this.playerBoard.devCards.getDevCardNumber() == 7) {
+                            this.game.endGame();
+                        }
                     } catch (NonPositionableCardException | NoSuchDevelopmentCardException | NonConsumablePackException ignored) {
                         /* this should never happen */
                     }
