@@ -4,14 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import it.polimi.ingsw.controller.Action;
-import it.polimi.ingsw.model.cards.Color;
 import it.polimi.ingsw.model.cards.LeaderCard;
 import it.polimi.ingsw.model.cards.StockPower;
 import it.polimi.ingsw.model.resources.ResourcePack;
 import it.polimi.ingsw.model.singleplayer.SoloCross;
 import it.polimi.ingsw.model.singleplayer.SoloDiscard;
 import it.polimi.ingsw.model.vatican.Vatican;
-import it.polimi.ingsw.util.Screen;
 import it.polimi.ingsw.view.gui.controllers.*;
 import it.polimi.ingsw.view.gui.controllers.AdvantageSceneController;
 import it.polimi.ingsw.view.gui.controllers.LootSceneController;
@@ -25,6 +23,10 @@ import it.polimi.ingsw.view.ViewEvent;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.input.KeyCode;
+import javafx.scene.text.Font;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
@@ -41,6 +43,7 @@ public class GuiView implements View {
 
     private static GuiView guiView;
 
+    public boolean serverStatus = false;
     public boolean solo = false;
     private boolean firstRound = true;
 
@@ -48,7 +51,7 @@ public class GuiView implements View {
     public MarketView market = new MarketView();
     public LeaderView leaderStack = new LeaderView();
     public DevelopmentCardStackView devCardStack = new DevelopmentCardStackView();
-    public DevelopmentCardView buyed = new DevelopmentCardView();
+    public DevelopmentCardView bought = new DevelopmentCardView();
     public FactoryView factory = new FactoryView();
     public WarehouseView warehouse = new WarehouseView();
     public ResourcePack strongbox = new ResourcePack();
@@ -201,11 +204,17 @@ public class GuiView implements View {
                     if(message.equals("No game available!")) {
                         Platform.runLater(() -> guiApp.resetToMainMenu());
                     }
+                    else if(message.equals("Server unavailable!")) {
+                        Platform.exit();
+                    }
                     alert.close();
                 }
             } catch (NoSuchElementException e) {
                 if(message.equals("No game available!")) {
                     Platform.runLater(() -> guiApp.resetToMainMenu());
+                }
+                else if(message.equals("Server unavailable!")) {
+                    Platform.exit();
                 }
                 alert.close();
             }
@@ -213,13 +222,11 @@ public class GuiView implements View {
     }
 
     @Override
-    public String selectConnection() {
-        return "127.0.0.1 2703";
-
-        /*try {
+    public synchronized String selectConnection() {
+        try {
             while (!eventHandler.containsKey(ViewEvent.CONNECTION_INFO)) wait();
-        } catch (InterruptedException ignored) { /* Should not happen */ /*}
-        return (String) eventHandler.remove(ViewEvent.CONNECTION_INFO);*/
+        } catch (InterruptedException ignored) { /* Should not happen */ }
+        return (String) eventHandler.remove(ViewEvent.CONNECTION_INFO);
     }
 
     @Override
@@ -674,7 +681,7 @@ public class GuiView implements View {
     @Override
     public synchronized String selectDevCardPosition() {
         showScene("/FXML/playerboard.fxml");
-        Platform.runLater(() -> GuiView.getGuiView().playerboard.positionCard(buyed));
+        Platform.runLater(() -> GuiView.getGuiView().playerboard.positionCard(bought));
         try {
             while (!eventHandler.containsKey(ViewEvent.DEVCARD_POSITION)) wait();
         } catch (InterruptedException ignored) { /* Should not happen */ }

@@ -14,7 +14,7 @@ public class Server
         ServerSocket server = new ServerSocket(port);
         int playerCount = 0;
 
-        System.out.println("(SERVER) >> Server Ready");
+        System.out.println("(SERVER) >> Server ready on port "+server.getLocalPort());
         while(true)
         {
             Socket client = server.accept();
@@ -28,8 +28,9 @@ public class Server
     {
         Server server = new Server();
         try {
-            server.startServer(2703);
+            server.startServer(0);
         } catch (IOException e) {
+            e.printStackTrace();
             System.out.println("(SERVER) >> Unable to start server...");
         }
     }
