@@ -4,12 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import it.polimi.ingsw.controller.Game;
+import it.polimi.ingsw.model.cards.LeaderCard;
 import it.polimi.ingsw.util.MessageParser;
 import it.polimi.ingsw.controller.GameEvent;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -190,19 +189,19 @@ public class Vatican {
         this.game = game;
         this.faithTracks = new ArrayList<>();
 
-        File file = new File(filePath);
+        InputStream data = Vatican.class.getClassLoader().getResourceAsStream(filePath);
         ReportSection[] gotReportSections;
         Space[] gotTrack;
 
         try {
-            FileReader fr = new FileReader(file);
-            JsonObject vaticanData = JsonParser.parseReader(fr).getAsJsonObject();
+            InputStreamReader vaticanStream = new InputStreamReader(data);
+            JsonObject vaticanData = JsonParser.parseReader(vaticanStream).getAsJsonObject();
 
             Gson parser = new Gson();
             gotTrack = parser.fromJson(vaticanData.get("track"), Space[].class);
             gotReportSections = parser.fromJson(vaticanData.get("popeSpaces"), ReportSection[].class);
 
-            fr.close();
+            vaticanStream.close();
         } catch (IOException e) {
             gotTrack = null;
             gotReportSections = null;

@@ -23,7 +23,7 @@ public abstract class Game {
     private static final List<LeaderCard> leaders = LeaderCard.getLeaderCardDeck("JSON/LeaderCard.json");
 
     public Game() {
-        this.vatican = new Vatican(this,"src/main/resources/JSON/Vatican.json");
+        this.vatican = new Vatican(this,"JSON/Vatican.json");
         this.market = new MarketBoard(this);
     }
 

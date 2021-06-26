@@ -6,7 +6,7 @@ import org.junit.*;
 import static org.junit.Assert.*;
 
 public class FaithTrackTest {
-    String filePath = "src/main/resources/JSON/Vatican.json";
+    String filePath = "JSON/Vatican.json";
     Vatican vatican;
     FaithTrack our,other,another;
 
