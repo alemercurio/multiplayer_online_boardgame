@@ -16,10 +16,11 @@ import java.util.*;
  */
 public abstract class Game {
     protected static final List<MultiGame> newGames = new LinkedList<>();
+    protected static final List<Player> waitingRoom = new LinkedList<>();
 
     protected final Vatican vatican;
     public final MarketBoard market;
-    private static final List<LeaderCard> leaders = LeaderCard.getLeaderCardDeck("src/main/resources/JSON/LeaderCard.json");
+    private static final List<LeaderCard> leaders = LeaderCard.getLeaderCardDeck("JSON/LeaderCard.json");
 
     public Game() {
         this.vatican = new Vatican(this,"src/main/resources/JSON/Vatican.json");
@@ -32,16 +33,17 @@ public abstract class Game {
         return !Game.newGames.isEmpty();
     }
 
-    public synchronized static Game newGame(int numPlayer) {
-        MultiGame game = new MultiGame(numPlayer);
-        Game.newGames.add(game);
-        return game;
-    }
-
     public synchronized static Game newGame(Player creator, String nickname, int numPlayer) {
         if(numPlayer > 1) {
             MultiGame game = new MultiGame(creator,numPlayer);
-            Game.newGames.add(game);
+            int playerCount = 1;
+            while(!Game.waitingRoom.isEmpty() && playerCount < numPlayer) {
+                Player otherPlayer = Game.waitingRoom.remove(0);
+                otherPlayer.hasJoined(game);
+                game.addPlayer(otherPlayer);
+                playerCount++;
+            }
+            if(playerCount < numPlayer) Game.newGames.add(game);
             return game;
         }
         else {
@@ -54,8 +56,21 @@ public abstract class Game {
             MultiGame game = Game.newGames.get(0);
             game.addPlayer(player);
             return game;
+        } else {
+            if(Game.waitingRoom.size() == 3) {
+                MultiGame game = new MultiGame(4);
+                for(int i = 0; i < 3; i++) {
+                    Player otherPlayer = Game.waitingRoom.remove(0);
+                    otherPlayer.hasJoined(game);
+                    game.addPlayer(otherPlayer);
+                }
+                game.addPlayer(player);
+                return game;
+            } else {
+                Game.waitingRoom.add(player);
+                return null;
+            }
         }
-        else return null;
     }
 
     // Non static methods

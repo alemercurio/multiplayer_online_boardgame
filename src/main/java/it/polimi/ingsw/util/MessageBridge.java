@@ -22,10 +22,7 @@ public class MessageBridge {
                         this.messageIn.wait();
                     } catch(InterruptedException ignored) { }
                 }
-                String msg = this.messageIn.remove(0);
-                System.out.println(">>> < " + msg);
-                return msg;
-                //return this.messageIn.remove(0);
+                return this.messageIn.remove(0);
             }
         }
 

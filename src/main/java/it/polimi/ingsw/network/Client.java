@@ -143,11 +143,12 @@ public class Client implements Runnable {
         }
 
         this.message.send(MessageParser.message("setNumPlayer",this.view.selectNumberOfPlayer()));
-
         answer = this.message.receive();
-        while(answer.equals("invalidNumPlayer")) {
+
+        while(answer.equals("InvalidNumPlayer")) {
             this.view.showError(Error.INVALID_NUMBER_OF_PLAYER);
             this.message.send(MessageParser.message("setNumPlayer",this.view.selectNumberOfPlayer()));
+            answer = this.message.receive();
         }
 
         if(!answer.equals("WAIT")) this.view.showError(Error.UNKNOWN_ERROR);
@@ -165,9 +166,15 @@ public class Client implements Runnable {
     public void joinGame() {
         this.message.send("JoinGame");
 
-        if(!this.message.receive().equals("OK")) {
-            this.view.tell("No game available!");
-        } else this.playGame();
+        String answer = this.message.receive();
+
+        if(answer.equals("waiting")) {
+            this.view.tell("Please, wait for other players to join!");
+            answer = this.message.receive();
+        }
+
+        if(answer.equals("Joined")) this.playGame();
+        else view.showError(Error.UNKNOWN_ERROR);
     }
 
     public void selectLeader() {
@@ -243,8 +250,7 @@ public class Client implements Runnable {
 
         String answer;
 
-        do { answer = this.message.receive();
-            System.out.println(">> ++++ " + answer);} while(!answer.equals("GameStart"));
+        do { answer = this.message.receive(); } while(!answer.equals("GameStart"));
         this.view.gameStart();
 
         this.selectLeader();

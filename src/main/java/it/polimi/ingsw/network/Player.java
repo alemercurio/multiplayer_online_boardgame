@@ -76,7 +76,8 @@ public class Player implements Runnable, Talkie {
             msg = receive();
             switch(msg) {
                 case "JoinGame":
-                    if(this.joinGame()) this.playGame();
+                    this.joinGame();
+                    this.playGame();
                     break;
                 case "NewGame":
                     this.newGame();
@@ -150,8 +151,12 @@ public class Player implements Runnable, Talkie {
         // Set Number of Players
         msg = this.receive();
         mp.parse(msg);
-        while(!mp.getOrder().equals("setNumPlayer") || mp.getNumberOfParameters() != 1) {
+        while(!mp.getOrder().equals("setNumPlayer")
+                || mp.getNumberOfParameters() != 1
+                || mp.getIntParameter(0) < 0
+                || mp.getIntParameter(0) > 4)  {
             this.send("InvalidNumPlayer");
+            System.out.println("invalid");
             msg = this.receive();
             mp.parse(msg);
         }
@@ -160,22 +165,34 @@ public class Player implements Runnable, Talkie {
         this.send("WAIT");
     }
 
-    private boolean joinGame() {
-        if(Game.hasNewGame()) {
-            this.game = Game.join(this);
-            this.send("OK");
-            return true;
+    private void joinGame() {
+        this.game = Game.join(this);
+        if(this.game == null) {
+            this.isActive.set(false);
+            this.send("waiting");
+            synchronized(this.isActive) {
+                while(!this.isActive.get()) {
+                    try {
+                        this.isActive.wait();
+                    } catch(InterruptedException ignored) { }
+                }
+            }
         }
-        else {
-            this.send("NoGameAvailable");
-            return false;
+        this.isActive.set(false);
+        this.send("Joined");
+    }
+
+    public void hasJoined(Game game) {
+        synchronized(this.isActive) {
+            this.game = game;
+            this.isActive.set(true);
+            this.isActive.notifyAll();
         }
     }
 
     // Round Management
 
-    public PlayerView getPlayerStat()
-    {
+    public PlayerView getPlayerStat() {
         return new PlayerView(this.ID,this.nickname,
                 this.playerBoard.storage.getAllResource(),
                 this.playerBoard.faithTrack.getFaithMarker(),
@@ -215,8 +232,7 @@ public class Player implements Runnable, Talkie {
         } catch(DisconnectedPlayerException ignored) { }
     }
 
-    public void selectLeader(List<LeaderCard> leaders)
-    {
+    public void selectLeader(List<LeaderCard> leaders) {
         Type listOfLeaderCard = new TypeToken<List<LeaderCard>>() {}.getType();
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(Power.class,new LeaderCard.PowerReader());
