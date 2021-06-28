@@ -33,7 +33,7 @@ public class LorenzoController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        GuiView.getGuiView().lorenzo=this;
+        GuiView.getGuiView().lorenzo = this;
         game = GuiView.getGuiView().players;
         updateFaith();
         info.setVisible(false);
@@ -78,6 +78,7 @@ public class LorenzoController implements Initializable {
             }
         }
     }
+
     public void horizontalTranslation() {
         TranslateTransition transition = new TranslateTransition();
         transition.setNode(marker);

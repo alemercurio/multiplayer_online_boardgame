@@ -9,7 +9,6 @@ import java.util.Map;
 
 public class PlayerController {
 
-    //private final List<String> nameList = new LinkedList<>();
     private final Map<String,Player> nameTable = new HashMap<>();
     private final Map<String,Game> disconnectedPlayer = new HashMap<>();
 

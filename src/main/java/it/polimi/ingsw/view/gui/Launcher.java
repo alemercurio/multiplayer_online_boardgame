@@ -1,11 +1,10 @@
 package it.polimi.ingsw.view.gui;
 
+import it.polimi.ingsw.controller.Error;
 import it.polimi.ingsw.network.Client;
 import it.polimi.ingsw.util.MessageManager;
-import it.polimi.ingsw.util.Screen;
 import javafx.application.Platform;
 
-import java.io.IOException;
 import java.util.Scanner;
 
 public class Launcher {
@@ -18,25 +17,39 @@ public class Launcher {
         if(args.length != 2) {
 
             String selection = GuiView.getGuiView().selectConnection();
+            switch(selection) {
 
-            if(selection.equals("esc")) return;
+                case "esc":
+                    return;
 
-            Scanner connectionInfo = new Scanner(selection);
-            try {
-                MessageManager manager = new MessageManager(connectionInfo.next(),connectionInfo.nextInt(),GuiView.getGuiView());
-                client.setMessageManager(manager, true);
-                GuiView.getGuiView().serverStatus=true;
-            } catch (Exception e) {
-                GuiView.getGuiView().tell("Server unavailable!");
-                return;
+                case "offline":
+                    client.setMessageManager(new MessageManager(GuiView.getGuiView()),false);
+                    GuiView.getGuiView().online = false;
+                    break;
+
+                default:
+                    Scanner connectionInfo = new Scanner(selection);
+                    try {
+                        MessageManager manager = new MessageManager(connectionInfo.next(),connectionInfo.nextInt(),GuiView.getGuiView());
+                        client.setMessageManager(manager,true);
+                        GuiView.getGuiView().online = true;
+                    } catch (Exception e) {
+                        GuiView.getGuiView().showError(Error.SERVER_OFFLINE);
+                        GuiView.getGuiView().online = false;
+                        Platform.runLater(Platform::exit);
+                        return;
+                    }
+                    break;
             }
-        }
-        else {
+        } else {
             try {
                 MessageManager manager = new MessageManager(args[0],Integer.parseInt(args[1]),GuiView.getGuiView());
-                client.setMessageManager(manager, true);
-            } catch (IOException e) {
-                Screen.printError("Server unavailable...");
+                client.setMessageManager(manager,true);
+                GuiView.getGuiView().online = true;
+            } catch (Exception e) {
+                GuiView.getGuiView().showError(Error.SERVER_OFFLINE);
+                GuiView.getGuiView().online = false;
+                Platform.runLater(Platform::exit);
                 return;
             }
         }

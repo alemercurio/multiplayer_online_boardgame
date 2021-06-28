@@ -68,6 +68,12 @@ public class CliView implements View {
                 Screen.reset();
                 break;
 
+            case PLAYER_RECONNECT:
+                Screen.setColor(227);
+                System.out.println(">> " + eventData + " has reconnected.");
+                Screen.reset();
+                break;
+
             case POPE_FAVOUR:
                 Screen.setColor(105);
                 System.out.println("\n>> REPORT SECTION REACHED!");

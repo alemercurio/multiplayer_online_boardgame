@@ -43,7 +43,7 @@ public class GuiView implements View {
 
     private static GuiView guiView;
 
-    public boolean serverStatus = false;
+    public boolean online = false;
     public boolean solo = false;
     private boolean firstRound = true;
 
@@ -127,6 +127,25 @@ public class GuiView implements View {
 
                     if (disconnect.showAndWait().get() == ButtonType.OK) {
                         disconnect.close();
+                    }
+                });
+                break;
+
+            case PLAYER_RECONNECT:
+                Platform.runLater(() -> {
+                    Alert reconnect = new Alert(Alert.AlertType.WARNING);
+                    reconnect.setTitle("Reconnect");
+                    reconnect.setHeaderText(eventData + " has reconnected to the game.");
+                    //automatic resizing
+                    reconnect.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
+                    // alert styling
+                    DialogPane dialogPane = reconnect.getDialogPane();
+                    dialogPane.getStylesheets().add(
+                            getClass().getResource("/CSS/style.css").toExternalForm());
+                    dialogPane.getStyleClass().add("alertStyle");
+
+                    if (reconnect.showAndWait().get() == ButtonType.OK) {
+                        reconnect.close();
                     }
                 });
                 break;
@@ -389,6 +408,31 @@ public class GuiView implements View {
                     }
                 });
                 break;
+
+            /*default:
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Oops!");
+                    alert.setContentText(error.toString());
+
+                    //automatic resizing
+                    alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
+                    // alert styling
+                    DialogPane dialogPane = alert.getDialogPane();
+                    dialogPane.getStylesheets().add(
+                            getClass().getResource("/CSS/style.css").toExternalForm());
+                    dialogPane.getStyleClass().add("alertStyle");
+
+                    try {
+                        ButtonType response = alert.showAndWait().get();
+                        if (response == ButtonType.OK) {
+                            alert.close();
+                        }
+                    } catch (NoSuchElementException e) {
+                        alert.close();
+                    }
+                });
+                break;*/
         }
     }
 
@@ -620,7 +664,8 @@ public class GuiView implements View {
 
     @Override
     public synchronized String selectAction() {
-        if(!solo) {
+        // TODO: FAR FUNZIONARE
+        if(!solo && this.online) {
             Platform.runLater(() -> {
                 guiApp.showScene("/FXML/playerboard.fxml");
                 this.playerboard.setActive();

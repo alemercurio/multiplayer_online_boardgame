@@ -274,6 +274,7 @@ public class MultiGame extends Game implements Runnable {
         if(oldPlayer != null) {
             newPlayer.resume(oldPlayer);
             newPlayer.updateAll();
+            this.broadCastFull(MessageParser.message("event",GameEvent.PLAYER_RECONNECT,oldPlayer.getNickname()));
             synchronized(this.players) {
                 this.players.add(newPlayer);
             }

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view.gui;
 
+import it.polimi.ingsw.controller.Error;
 import it.polimi.ingsw.network.Client;
 import it.polimi.ingsw.view.ViewEvent;
 import javafx.animation.ScaleTransition;
@@ -42,12 +43,16 @@ public class GuiApp extends Application {
     private static int numPlayers;
     private static String soloMode;
 
+    private GuiView view;
+
     private static final int WIDTH = 1280;
     private static final int HEIGHT = 650;
 
     @Override
     public void start(Stage primaryStage) {
-        GuiView.getGuiView().setGuiApp(this);
+        this.view = GuiView.getGuiView();
+        this.view.setGuiApp(this);
+
         window = primaryStage;
         try {
             TextInputDialog dialog = new TextInputDialog();
@@ -57,7 +62,7 @@ public class GuiApp extends Application {
 
             Optional<String> result = dialog.showAndWait();
             if (result.isPresent()) {
-                GuiView.getGuiView().event(ViewEvent.CONNECTION_INFO, result.get());
+                GuiView.getGuiView().event(ViewEvent.CONNECTION_INFO,result.get());
             }
             else Platform.exit();
         } catch (Exception e) {
@@ -76,7 +81,6 @@ public class GuiApp extends Application {
     public VBox newJoinBox = new VBox(-5);
     public VBox newGameMenuBox = new VBox(-5);
     private VBox numPlayersMenuBox = new VBox(-5);
-    private VBox soloModeChoice = new VBox(-5);
     public VBox nicknameChoice = new VBox((-5));
     private TextField nicknameField;
     private Line line;
@@ -107,7 +111,11 @@ public class GuiApp extends Application {
     );
 
     private List<Pair<String, Runnable>> newGameMenuFields = Arrays.asList(
-            new Pair<String, Runnable>("Single player", () -> setMenu(newGameMenuBox, soloModeChoice)),
+            new Pair<String, Runnable>("Single player", () -> {
+                setSoloMode("on");
+                GuiView.getGuiView().solo = true;
+                setNumPlayers(1);
+            }),
             new Pair<String, Runnable>("Multiplayer", () -> setMenu(newGameMenuBox, numPlayersMenuBox)),
             new Pair<String, Runnable>("Back", () -> setMenu(newGameMenuBox, newJoinBox))
     );
@@ -118,16 +126,6 @@ public class GuiApp extends Application {
             new Pair<String, Runnable>("3", () -> setNumPlayers(3)),
             new Pair<String, Runnable>("4", () -> setNumPlayers(4)),
             new Pair<String, Runnable>("Back", () -> setMenu(numPlayersMenuBox, newGameMenuBox))
-    );
-
-    private List<Pair<String, Runnable>> soloModeChoices = Arrays.asList(
-            new Pair<String, Runnable>("Offline", () -> setSoloMode("off")),
-            new Pair<String, Runnable>("Online", () -> {
-                setSoloMode("on");
-                GuiView.getGuiView().solo=true;
-                setNumPlayers(1);
-            }),
-            new Pair<String, Runnable>("Back", () -> setMenu(soloModeChoice, newGameMenuBox))
     );
 
     private List<Pair<String, Runnable>> nicknameChoices = Arrays.asList(
@@ -159,7 +157,6 @@ public class GuiApp extends Application {
         createMenu(lineX + 5, lineY + 5, newGameMenuBox, newGameMenuFields);
         createMenu(lineX + 5, lineY + 5, newJoinBox, newJoin);
         createMenu(lineX + 5, lineY + 5, numPlayersMenuBox, numPlayersMenuFields);
-        createMenu(lineX + 5, lineY + 5, soloModeChoice, soloModeChoices);
         createMenu(lineX + 5, lineY + 5, nicknameChoice, nicknameChoices);
 
         startAnimation();
@@ -264,14 +261,22 @@ public class GuiApp extends Application {
         answer.setLayoutY(lineY + 45);
         answer.setFont(Font.font("Copperplate Gothic Bold", 14));
         answer.setStyle("-fx-background-color: transparent");
+
         answer.setOnKeyPressed(event -> {
             if(event.getCode() == KeyCode.ENTER) {
                 GuiView.getGuiView().nickname = answer.getText();
                 GuiView.getGuiView().event(ViewEvent.NICKNAME, GuiView.getGuiView().nickname);
                 removeFromRoot(nicknameField);
-                setMenu(nicknameChoice, newJoinBox);
+                if(this.view.online) {
+                    setMenu(nicknameChoice, newJoinBox);
+                }
+                else {
+                    GuiView.getGuiView().event(ViewEvent.GAMEMODE, "new");
+                    showScene("/FXML/waitingscreen.fxml");
+                }
             }
         });
+
         nicknameField = answer;
         root.getChildren().add(answer);
     }
