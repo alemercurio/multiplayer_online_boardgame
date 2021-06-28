@@ -72,6 +72,7 @@ public class GuiApp extends Application {
 
     private Pane root = new AnchorPane();
     private VBox mainMenuBox = new VBox(-5);
+    public VBox newJoinBox = new VBox(-5);
     public VBox newGameMenuBox = new VBox(-5);
     private VBox numPlayersMenuBox = new VBox(-5);
     private VBox soloModeChoice = new VBox(-5);
@@ -80,16 +81,7 @@ public class GuiApp extends Application {
     private Line line;
 
     private List<Pair<String, Runnable>> mainMenuFields = Arrays.asList(
-            new Pair<String, Runnable>("New Game", () -> {
-                gameChoice = "new";
-                GuiView.getGuiView().event(ViewEvent.GAMEMODE, "new");
-
-                setMenu(mainMenuBox, nicknameChoice);
-                showNicknameField();
-            }),
-            new Pair<String, Runnable>("Join Game", () -> {
-                gameChoice = "join";
-                GuiView.getGuiView().event(ViewEvent.GAMEMODE, "join");
+            new Pair<String, Runnable>("Play", () -> {
                 setMenu(mainMenuBox, nicknameChoice);
                 showNicknameField();
             }),
@@ -102,10 +94,21 @@ public class GuiApp extends Application {
             })
     );
 
+    private List<Pair<String, Runnable>> newJoin = Arrays.asList(
+            new Pair<String, Runnable>("New Game", () -> {
+                gameChoice = "new";
+                setMenu(newJoinBox, newGameMenuBox);
+            }),
+            new Pair<String, Runnable>("Join Game", () -> {
+                gameChoice = "join";
+                startGame();
+            })
+    );
+
     private List<Pair<String, Runnable>> newGameMenuFields = Arrays.asList(
             new Pair<String, Runnable>("Single player", () -> setMenu(newGameMenuBox, soloModeChoice)),
             new Pair<String, Runnable>("Multiplayer", () -> setMenu(newGameMenuBox, numPlayersMenuBox)),
-            new Pair<String, Runnable>("Back", () -> setMenu(newGameMenuBox, mainMenuBox))
+            new Pair<String, Runnable>("Back", () -> setMenu(newGameMenuBox, newJoinBox))
     );
 
     private List<Pair<String, Runnable>> numPlayersMenuFields = Arrays.asList(
@@ -121,8 +124,7 @@ public class GuiApp extends Application {
             new Pair<String, Runnable>("Online", () -> {
                 setSoloMode("on");
                 GuiView.getGuiView().solo=true;
-                GuiView.getGuiView().event(ViewEvent.NUMBER_OF_PLAYERS, 1);
-                showScene("/FXML/waitingscreen.fxml");
+                setNumPlayers(1);
             }),
             new Pair<String, Runnable>("Back", () -> setMenu(soloModeChoice, newGameMenuBox))
     );
@@ -136,6 +138,14 @@ public class GuiApp extends Application {
             })
     );
 
+    private void startGame() {
+        GuiView.getGuiView().event(ViewEvent.GAMEMODE, gameChoice);
+        if(gameChoice.equals("new")) {
+            GuiView.getGuiView().event(ViewEvent.NUMBER_OF_PLAYERS, numPlayers);
+        }
+        showScene("/FXML/waitingscreen.fxml");
+    }
+
     private Parent createContent() {
         addBackground();
         addTitle();
@@ -146,6 +156,7 @@ public class GuiApp extends Application {
         addLine(lineX, lineY);
         createMainMenu(lineX + 5, lineY + 5);
         createMenu(lineX + 5, lineY + 5, newGameMenuBox, newGameMenuFields);
+        createMenu(lineX + 5, lineY + 5, newJoinBox, newJoin);
         createMenu(lineX + 5, lineY + 5, numPlayersMenuBox, numPlayersMenuFields);
         createMenu(lineX + 5, lineY + 5, soloModeChoice, soloModeChoices);
         createMenu(lineX + 5, lineY + 5, nicknameChoice, nicknameChoices);
@@ -255,24 +266,18 @@ public class GuiApp extends Application {
         answer.setOnKeyPressed(event -> {
             if(event.getCode() == KeyCode.ENTER) {
                 GuiView.getGuiView().nickname = answer.getText();
-                if(gameChoice.equals("join")) {
-                    removeFromRoot(nicknameField);
-                    GuiView.getGuiView().event(ViewEvent.NICKNAME, GuiView.getGuiView().nickname);
-                }
-                else if(gameChoice.equals("new")) {
-                    removeFromRoot(nicknameField);
-                    GuiView.getGuiView().event(ViewEvent.NICKNAME, GuiView.getGuiView().nickname);
-                }
+                GuiView.getGuiView().event(ViewEvent.NICKNAME, GuiView.getGuiView().nickname);
+                removeFromRoot(nicknameField);
+                setMenu(nicknameChoice, newJoinBox);
             }
-        } );
+        });
         nicknameField = answer;
         root.getChildren().add(answer);
     }
 
     private void setNumPlayers(int players) {
         numPlayers = players;
-        GuiView.getGuiView().event(ViewEvent.NUMBER_OF_PLAYERS, players);
-        showScene("/FXML/waitingscreen.fxml");
+        startGame();
     }
 
     private void setSoloMode(String mode) {

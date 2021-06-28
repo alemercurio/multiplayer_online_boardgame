@@ -263,11 +263,17 @@ public class GuiView implements View {
                     try {
                         ButtonType response = alert.showAndWait().get();
                         if (response == ButtonType.OK) {
-                            Platform.runLater(() -> guiApp.showNicknameField());
+                            Platform.runLater(() -> {
+                                guiApp.setMenu(guiApp.newJoinBox, guiApp.nicknameChoice);
+                                guiApp.showNicknameField();
+                            });
                             alert.close();
                         }
                     } catch (NoSuchElementException e) {
-                        Platform.runLater(() -> guiApp.showNicknameField());
+                        Platform.runLater(() -> {
+                            guiApp.setMenu(guiApp.newJoinBox, guiApp.nicknameChoice);
+                            guiApp.showNicknameField();
+                        });
                         alert.close();
                     }
                 });
