@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.gui;
 
 import it.polimi.ingsw.network.Client;
+import it.polimi.ingsw.util.MessageManager;
 import it.polimi.ingsw.util.Screen;
 import javafx.application.Platform;
 
@@ -22,7 +23,8 @@ public class Launcher {
 
             Scanner connectionInfo = new Scanner(selection);
             try {
-                client.setMessageManager(connectionInfo.next(),connectionInfo.nextInt(),GuiView.getGuiView());
+                MessageManager manager = new MessageManager(connectionInfo.next(),connectionInfo.nextInt(),GuiView.getGuiView());
+                client.setMessageManager(manager, true);
                 GuiView.getGuiView().serverStatus=true;
             } catch (Exception e) {
                 GuiView.getGuiView().tell("Server unavailable!");
@@ -31,7 +33,8 @@ public class Launcher {
         }
         else {
             try {
-                client.setMessageManager(args[0],Integer.parseInt(args[1]),GuiView.getGuiView());
+                MessageManager manager = new MessageManager(args[0],Integer.parseInt(args[1]),GuiView.getGuiView());
+                client.setMessageManager(manager, true);
             } catch (IOException e) {
                 Screen.printError("Server unavailable...");
                 return;
