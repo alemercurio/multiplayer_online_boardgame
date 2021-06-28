@@ -86,6 +86,7 @@ public class SoloGame extends Game {
 
     @Override
     public void nextPlayer() {
+        this.broadCast(MessageParser.message("update","player",this.getPlayerInfo()));
         if(!this.endGame) this.playSolo();
     }
 
@@ -99,6 +100,7 @@ public class SoloGame extends Game {
     public void playSolo() {
         SoloAction action = this.lorenzo.playSoloAction();
         this.broadCast(MessageParser.message("action",Action.SOLO_ACTION,action));
+        this.broadCast(MessageParser.message("update","player",this.getPlayerInfo()));
         this.broadCastFull(MessageParser.message("event",GameEvent.ROUND,player.getNickname()));
     }
 

@@ -109,13 +109,11 @@ public class LocalPlayer implements Runnable,Talkie {
     }
 
     private void runSoloGame() {
-        try {
-            while(!this.hasEnded) {
-                this.playRound();
-                if(!this.hasEnded) this.game.nextPlayer();
-            }
-            this.send("GameEnd");
-        } catch(DisconnectedPlayerException ignored) { }
+        while(!this.hasEnded) {
+            this.playRound();
+            if(!this.hasEnded) this.game.nextPlayer();
+        }
+        this.send("GameEnd");
     }
 
     public void selectLeader(List<LeaderCard> leaders) {
