@@ -1,8 +1,8 @@
 package it.polimi.ingsw.view.gui;
 
-import it.polimi.ingsw.controller.Error;
 import it.polimi.ingsw.network.Client;
 import it.polimi.ingsw.view.ViewEvent;
+import it.polimi.ingsw.view.gui.controllers.ConnectionController;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
@@ -11,8 +11,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -54,7 +54,8 @@ public class GuiApp extends Application {
         this.view.setGuiApp(this);
 
         window = primaryStage;
-        try {
+
+        /*try {
             TextInputDialog dialog = new TextInputDialog();
             dialog.setTitle("Welcome!");
             dialog.setHeaderText("You are now connecting to a server to play 'Master of Renaissance'!");
@@ -68,7 +69,30 @@ public class GuiApp extends Application {
         } catch (Exception e) {
             e.printStackTrace();
             Platform.exit();
+        }*/
+
+        try {
+            Dialog<String> selectConnection = new Dialog<String>();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/connection.fxml"));
+            try { selectConnection.setDialogPane(loader.load()); }
+            catch (IOException ignored) { }
+            selectConnection.getDialogPane().getScene().getWindow().setOnCloseRequest(event -> selectConnection.setResult("esc"));
+            loader.<ConnectionController>getController().setDialog(selectConnection);
+
+            Optional<String> result = selectConnection.showAndWait();
+            if (result.isPresent()) {
+                GuiView.getGuiView().event(ViewEvent.CONNECTION_INFO,result.get());
+                if(result.get().equals("esc")) {
+                    Platform.exit();
+                    return;
+                }
+            }
+            else Platform.exit();
+        } catch(Exception e) {
+            e.printStackTrace();
+            Platform.exit();
         }
+
         Scene scene = new Scene(createContent());
         mainMenu = scene;
         primaryStage.setTitle("Master of Renaissance");
