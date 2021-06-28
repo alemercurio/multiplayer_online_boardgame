@@ -185,40 +185,45 @@ public class GuiView implements View {
 
     @Override
     public void tell(String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Oops!");
-            alert.setHeaderText(message);
+        if(message.equals("Done!")) {
+            if(!solo) {
+                GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
+                Platform.runLater(() -> GuiView.getGuiView().playerboard.showMenu());
+            }
+        }
+        else {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Hey!");
+                alert.setHeaderText(message);
 
-            //automatic resizing
-            alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
-            // alert styling
-            DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.getStylesheets().add(
-                    getClass().getResource("/CSS/style.css").toExternalForm());
-            dialogPane.getStyleClass().add("alertStyle");
+                //automatic resizing
+                alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label) node).setMinHeight(Region.USE_PREF_SIZE));
+                // alert styling
+                DialogPane dialogPane = alert.getDialogPane();
+                dialogPane.getStylesheets().add(
+                        getClass().getResource("/CSS/style.css").toExternalForm());
+                dialogPane.getStyleClass().add("alertStyle");
 
-            try {
-                ButtonType response = alert.showAndWait().get();
-                if (response == ButtonType.OK) {
-                    if(message.equals("No game available!")) {
-                        Platform.runLater(() -> guiApp.resetToMainMenu());
+                try {
+                    ButtonType response = alert.showAndWait().get();
+                    if (response == ButtonType.OK) {
+                        if (message.equals("No game available!")) {
+                            Platform.runLater(() -> guiApp.resetToMainMenu());
+                        } else if (message.equals("Server unavailable!")) {
+                            Platform.exit();
+                        }
                     }
-                    else if(message.equals("Server unavailable!")) {
+                } catch (NoSuchElementException e) {
+                    if (message.equals("No game available!")) {
+                        Platform.runLater(() -> guiApp.resetToMainMenu());
+                    } else if (message.equals("Server unavailable!")) {
                         Platform.exit();
                     }
                     alert.close();
                 }
-            } catch (NoSuchElementException e) {
-                if(message.equals("No game available!")) {
-                    Platform.runLater(() -> guiApp.resetToMainMenu());
-                }
-                else if(message.equals("Server unavailable!")) {
-                    Platform.exit();
-                }
-                alert.close();
-            }
-        });
+            });
+        }
     }
 
     @Override
@@ -561,36 +566,6 @@ public class GuiView implements View {
                     alert.setTitle("Enemy action!");
                     alert.setHeaderText("Player: "+actionData[1]);
                     alert.setContentText("Action: takes Resources");
-
-                    //automatic resizing
-                    alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
-                    // alert styling
-                    DialogPane dialogPane = alert.getDialogPane();
-                    dialogPane.getStylesheets().add(
-                            getClass().getResource("/CSS/style.css").toExternalForm());
-                    dialogPane.getStyleClass().add("alertStyle");
-
-                    try {
-                        ButtonType response = alert.showAndWait().get();
-                        if (response == ButtonType.OK) {
-                            alert.close();
-                        }
-                    } catch (NoSuchElementException e) {
-                        alert.close();
-                    }
-                });
-                break;
-
-            case WASTED_RESOURCES:
-                if(actionData.length < 3) {
-                    this.showError(Error.UNKNOWN_ERROR);
-                    return;
-                }
-                Platform.runLater(() -> {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Enemy action!");
-                    alert.setHeaderText("Player: "+actionData[1]);
-                    alert.setContentText("Action: wastes Resources -> "+ResourcePack.fromString(actionData[2]));
 
                     //automatic resizing
                     alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));

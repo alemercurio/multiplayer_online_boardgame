@@ -247,8 +247,11 @@ public class ProductionSceneController implements Initializable, InvalidationLis
 
     @FXML
     private void activate() {
-        GuiView.getGuiView().factory.setActive(this.productions.getSelectionModel().getSelectedIndices());
-        GuiView.getGuiView().event(ViewEvent.PRODUCTION, "active");
+        if(!this.productions.getSelectionModel().getSelectedIndices().isEmpty()) {
+            GuiView.getGuiView().factory.setActive(this.productions.getSelectionModel().getSelectedIndices());
+            GuiView.getGuiView().event(ViewEvent.PRODUCTION, "active");
+        }
+        else GuiView.getGuiView().tell("You must select at least one production to activate!");
     }
 
     public void selectFreeRequirement(int amount) {

@@ -556,6 +556,7 @@ public class Client implements Runnable {
         this.view.clearFactory();
 
         if(!answer.equals("COMPLETE")) this.view.showError(Error.UNKNOWN_ERROR);
+        else view.tell("Done!");
 
         return true;
     }
