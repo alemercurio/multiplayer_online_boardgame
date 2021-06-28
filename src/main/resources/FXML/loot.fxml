@@ -26,9 +26,9 @@
          </font>
       </Label>
       <HBox fx:id="white" alignment="CENTER" layoutX="236.0" layoutY="251.0" prefHeight="157.0" prefWidth="794.0" />
-      <Button layoutX="581.0" layoutY="429.0" mnemonicParsing="false" onAction="#done" text="Done">
+      <Button layoutX="581.0" layoutY="429.0" mnemonicParsing="false" onAction="#done" prefHeight="55.0" prefWidth="129.0" stylesheets="@../CSS/actionMenuButton.css" text="Done">
          <font>
-            <Font size="30.0" />
+            <Font size="44.0" />
          </font>
       </Button>
    </children>
