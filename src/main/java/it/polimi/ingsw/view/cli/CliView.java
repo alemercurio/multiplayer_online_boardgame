@@ -93,8 +93,8 @@ public class CliView implements View {
 
     @Override
     public void enableGameEvent() {
-        this.flushGameEvent();
         this.gameEvent = true;
+        this.flushGameEvent();
     }
 
     @Override
@@ -128,11 +128,15 @@ public class CliView implements View {
 
             System.out.print("\t(IP Port | esc) >> ");
             String selection = input.nextLine();
-            if(Pattern.matches("(?:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})[ ]*[0-9]{1,5})|esc",selection))
+            if(Pattern.matches("(?:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})[ ]*[0-9]{1,5})|esc",selection)) {
+                System.out.print("\n");
                 return selection;
-            else if(selection.equals("offline")) return "offline";
+            }
+            else if(selection.equals("offline")) {
+                System.out.print("\n");
+                return "offline";
+            }
             else Screen.printError("Invalid expression.. please try again!");
-
         }
     }
 

@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import it.polimi.ingsw.controller.Game;
-import it.polimi.ingsw.model.cards.LeaderCard;
 import it.polimi.ingsw.util.MessageParser;
 import it.polimi.ingsw.controller.GameEvent;
 
@@ -178,7 +177,7 @@ public class Vatican {
     private final ReportSection[] reportSections;
     private transient final List<FaithTrack> faithTracks;
 
-    private final transient Map<Integer,FaithTrack> removedFaithTrack = new HashMap<>();
+    private final transient Map<Integer,FaithTrack> pausedFaithTrack = new HashMap<>();
 
     /**
      * Constructs the Vatican with all of its attributes.
@@ -239,7 +238,6 @@ public class Vatican {
      * @param num the number of Resources discarded by the Player.
      */
     public void wastedResources(int track, int num) {
-        // Makes other Players advance and update the furthestSpaceReached by any Player's Faith Marker.
         for(FaithTrack faithTrack : faithTracks) {
             if (faithTrack.getID() != track) {
                 faithTrack.advance(num);
@@ -257,6 +255,7 @@ public class Vatican {
         for(FaithTrack faithTrack : faithTracks) {
             faithTrack.PopeFavour(popeSpace);
         }
+        for(FaithTrack paused : this.pausedFaithTrack.values()) paused.PopeFavour(popeSpace);
         this.reportSections[popeSpace].setReported();
         this.game.broadCastFull(MessageParser.message("event", GameEvent.POPE_FAVOUR));
     }
@@ -273,20 +272,34 @@ public class Vatican {
     // NEW
 
     /**
-     * Removes the FaithTrack with the given ID from the current Vatican.
+     * Pauses the FaithTrack with the given ID in the current Vatican;
+     * after this method is called, the FaithTrack can be retrieved.
+     * @param faithTrackID the ID of the FaithTrack to remove.
+     */
+    public void pauseFaithTrack(int faithTrackID) {
+        for(FaithTrack faithTrack : this.faithTracks)
+            if(faithTrack.getID() == faithTrackID) {
+                this.faithTracks.remove(faithTrack);
+                this.pausedFaithTrack.put(faithTrackID,faithTrack);
+                return;
+            }
+    }
+
+    /**
+     * Removes the FaithTrack with the given ID in the current Vatican;
+     * after this method is called, the FaithTrack cannot be retrieved.
      * @param faithTrackID the ID of the FaithTrack to remove.
      */
     public void removeFaithTrack(int faithTrackID) {
         for(FaithTrack faithTrack : this.faithTracks)
             if(faithTrack.getID() == faithTrackID) {
                 this.faithTracks.remove(faithTrack);
-                this.removedFaithTrack.put(faithTrackID,faithTrack);
                 return;
             }
     }
 
     public void retrieveFaithTrack(int faithTrackID) {
-        FaithTrack faithTrack = this.removedFaithTrack.remove(faithTrackID);
+        FaithTrack faithTrack = this.pausedFaithTrack.remove(faithTrackID);
         if(faithTrack != null) {
             this.faithTracks.add(faithTrack);
             this.update(faithTrack);

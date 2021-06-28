@@ -43,10 +43,9 @@ public class PlayerController {
         this.disconnectedPlayer.put(nickname,game);
     }
 
-    public synchronized void freeName(String...nickname) {
+    public synchronized void removePlayerDisconnected(String...nickname) {
         for(String name : nickname) {
             this.disconnectedPlayer.remove(name);
-            this.nameList.remove(name);
         }
     }
 }

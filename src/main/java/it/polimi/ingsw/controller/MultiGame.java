@@ -19,12 +19,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @see Game
  * @author Francesco Tosini
  */
-public class MultiGame extends Game implements Runnable{
+public class MultiGame extends Game implements Runnable {
 
     private final int numPlayer;
     private final LinkedList<Player> round;
     private final AtomicInteger readyPlayers;
-    private Player playerWithInkwell;
     private List<LeaderCard> leaders;
     private boolean endGame;
 
@@ -42,6 +41,7 @@ public class MultiGame extends Game implements Runnable{
         this.leaders = Game.getLeaderDeck();
         Collections.shuffle(this.leaders);
         this.endGame = false;
+        new Thread(this).start();
     }
 
     public MultiGame(Player creator,int numPlayer) {
@@ -61,24 +61,28 @@ public class MultiGame extends Game implements Runnable{
     }
 
     public void broadCastFull(String message) {
-        for(Player player : this.players) {
-            try { player.send(message); }
-            catch(DisconnectedPlayerException ignored) { }
+        synchronized(this.players) {
+            for(Player player : this.players) {
+                try { player.send(message); }
+                catch(DisconnectedPlayerException ignored) { }
+            }
         }
     }
 
     public synchronized void addPlayer(Player player) {
         this.broadCastFull(MessageParser.message("event",GameEvent.PLAYER_JOIN,player.getNickname()));
 
-        this.players.add(player);
-        player.setForGame(this.vatican.getFaithTrack(player.getID()),this.market);
+        synchronized(this.players) {
+            this.players.add(player);
+            player.setForGame(this.vatican.getFaithTrack(player.getID()),this.market);
+            this.players.notifyAll();
+        }
 
         player.send(MessageParser.message("update","player",this.getPlayerInfo()));
         player.send(MessageParser.message("event",GameEvent.JOINED_GAME));
 
         if(this.players.size() == this.numPlayer) {
             Game.newGames.remove(this);
-            new Thread(this).start();
         }
     }
 
@@ -116,9 +120,12 @@ public class MultiGame extends Game implements Runnable{
     // NEW
 
     private final List<Player> players = new ArrayList<>();
+    private Player currentPlayer;
     private final List<Player> disconnected = new LinkedList<>();
     private final Map<String,Player> disconnectedPlayer = new HashMap<>();
     private final AtomicBoolean nextRound = new AtomicBoolean();
+
+    private final AtomicBoolean gameStarted = new AtomicBoolean(false);
 
     public void isAlive(Player player) {
         synchronized(this.disconnected) {
@@ -128,37 +135,57 @@ public class MultiGame extends Game implements Runnable{
 
     public void run() {
 
+        // Disconnection control
+
+        synchronized(this.players) {
+            this.disconnected.addAll(this.players);
+            this.broadCastFull("alive?");
+        }
+
+        TimerTask controlConnnection = new TimerTask() {
+            @Override
+            public void run() {
+                synchronized(disconnected) {
+                    for (Player player : disconnected) {
+                        player.reduceDisconnectCounter();
+                    }
+
+                    synchronized(players) {
+                        disconnected.addAll(players);
+                        broadCastFull("alive?");
+                    }
+                }
+            }
+        };
+
+        Timer t = new Timer(true);
+        t.scheduleAtFixedRate(controlConnnection,1000,1000);
+
+        // Game Management
+
+        synchronized(this.players) {
+            while(this.players.size() < this.numPlayer) {
+                try {
+                    this.players.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        // Every player has joined
+
         this.round.addAll(this.players);
         Collections.shuffle(this.round);
 
         this.broadCast(MessageParser.message("update","player",this.getPlayerInfo()));
         this.market.update();
 
+        this.gameStarted.set(true);
         this.broadCast("GameStart");
 
         this.readyPlayers.set(0);
         for(Player player : this.round) player.setActive();
-
-        // OLD RUN
-
-        this.disconnected.addAll(this.players);
-        this.broadCastFull("alive?");
-
-        TimerTask controlConnnection = new TimerTask() {
-            @Override
-            public void run() {
-                synchronized(disconnected) {
-                    for(Player player : disconnected) {
-                        player.reduceDisconnectCounter();
-                    }
-                    disconnected.addAll(players);
-                }
-                broadCastFull("alive?");
-            }
-        };
-
-        Timer t = new Timer(true);
-        t.scheduleAtFixedRate(controlConnnection,1000,1000);
 
         // Game management
 
@@ -170,33 +197,33 @@ public class MultiGame extends Game implements Runnable{
             }
         }
 
-        this.playerWithInkwell = this.round.pollFirst();
-        Player next = this.playerWithInkwell;
+        Player playerWithInkwell = this.round.pollFirst();
+        Player next = playerWithInkwell;
 
         do {
 
             if(next != null) {
+                if(!next.isDisconnected()) {
+                    synchronized(this) {
+                        this.currentPlayer = next;
+                    }
+                    next.setActive();
+                    this.broadCastFull(MessageParser.message("event",GameEvent.ROUND,next.getNickname()));
 
-                next.setActive();
-                this.broadCastFull(MessageParser.message("event",GameEvent.ROUND,next.getNickname()));
+                    this.nextRound.set(false);
 
-                this.nextRound.set(false);
-
-                synchronized(this.nextRound) {
-                    while(!this.nextRound.get()) {
-                        try { this.nextRound.wait(); }
-                        catch (InterruptedException ignored) { }
+                    synchronized(this.nextRound) {
+                        while(!this.nextRound.get()) {
+                            try { this.nextRound.wait(); }
+                            catch (InterruptedException ignored) { }
+                        }
                     }
                 }
-
-                if(!next.isDisconnected()) this.round.add(next);
-            }
-
+                this.round.add(next);
+            } else this.endGame();
             this.broadCast(MessageParser.message("update","player",this.getPlayerInfo()));
-
             next = this.round.pollFirst();
-
-        } while(!endGame || next != playerWithInkwell);
+        } while((!endGame || next != playerWithInkwell) && !this.players.isEmpty());
 
         this.round.add(next);
 
@@ -204,11 +231,14 @@ public class MultiGame extends Game implements Runnable{
             play.setHasEnded();
             play.setActive();
         }
+
         this.broadCast("GameEnd");
+        t.cancel();
+        for(String name : this.disconnectedPlayer.keySet())
+            PlayerController.getPlayerController().removePlayerDisconnected(name);
     }
 
-    public void waitForOtherPlayer()
-    {
+    public void waitForOtherPlayer() {
         synchronized(this.readyPlayers) {
             this.readyPlayers.incrementAndGet();
             this.readyPlayers.notifyAll();
@@ -224,18 +254,32 @@ public class MultiGame extends Game implements Runnable{
     }
 
     @Override
-    public void hasDisconnected(Player player) {
-        this.round.remove(player);
-        this.players.remove(player);
-        this.vatican.removeFaithTrack(player.getID());
+    public synchronized void hasDisconnected(Player player) {
+        synchronized(this.players) {
+            this.players.remove(player);
+        }
+        if(this.gameStarted.get()) {
+            this.vatican.pauseFaithTrack(player.getID());
+            this.disconnectedPlayer.put(player.getNickname(),player);
+            PlayerController.getPlayerController().postPlayerDisconnected(player.getNickname(),this);
+        } else {
+            this.vatican.removeFaithTrack(player.getID());
+        }
         this.broadCastFull(MessageParser.message("event",GameEvent.PLAYER_DISCONNECT,player.getNickname()));
+        if(player == this.currentPlayer) this.nextPlayer();
     }
 
     public boolean resumePlayer(Player newPlayer) {
         Player oldPlayer = this.disconnectedPlayer.get(newPlayer.getNickname());
         if(oldPlayer != null) {
             newPlayer.resume(oldPlayer);
-            this.round.add(newPlayer);
+            newPlayer.updateAll();
+            synchronized(this.players) {
+                this.players.add(newPlayer);
+            }
+            if(this.round.contains(oldPlayer)) {
+                this.round.set(this.round.indexOf(oldPlayer),newPlayer);
+            } else this.currentPlayer = newPlayer;
             this.broadCast(MessageParser.message("update","player",this.getPlayerInfo()));
             this.market.update();
             this.vatican.retrieveFaithTrack(oldPlayer.getID());

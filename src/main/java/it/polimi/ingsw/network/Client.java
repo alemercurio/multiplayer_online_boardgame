@@ -256,8 +256,10 @@ public class Client implements Runnable {
         do { answer = this.message.receive(); } while(!answer.equals("GameStart"));
         this.view.gameStart();
 
+        this.view.disableGameEvent();
         this.selectLeader();
         this.initialAdvantage();
+        this.view.enableGameEvent();
 
         this.runGame();
     }
@@ -270,10 +272,7 @@ public class Client implements Runnable {
             do {
                 answer = this.message.receive();
                 if(answer.equals("GameEnd")) active = false;
-                else if(!answer.equals("PLAY")) {
-                    this.view.showError(Error.UNKNOWN_ERROR);
-                    System.out.println(answer);
-                }
+                else if(!answer.equals("PLAY")) { this.view.showError(Error.UNKNOWN_ERROR); }
             } while(!answer.equals("PLAY") && active);
 
             if(answer.equals("PLAY")) {
