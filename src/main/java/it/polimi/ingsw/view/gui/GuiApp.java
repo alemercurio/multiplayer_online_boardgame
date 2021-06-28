@@ -59,6 +59,7 @@ public class GuiApp extends Application {
             if (result.isPresent()) {
                 GuiView.getGuiView().event(ViewEvent.CONNECTION_INFO, result.get());
             }
+            else Platform.exit();
         } catch (Exception e) {
             e.printStackTrace();
             Platform.exit();
