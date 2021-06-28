@@ -33,13 +33,6 @@ public class LocalPlayer implements Runnable,Talkie {
         this.hasEnded = false;
     }
 
-    public LocalPlayer(int ID,String nickname) {
-        this.ID = ID;
-        this.nickname = nickname;
-        this.port = MessageBridge.getBridge().get();
-        this.hasEnded = false;
-    }
-
     public int getID() {
         return this.ID;
     }
@@ -52,16 +45,14 @@ public class LocalPlayer implements Runnable,Talkie {
         this.playerBoard = new PlayerBoard(this,market,faithTrack);
     }
 
-    public void init() {
-        this.send(MessageParser.message("welcome",this.ID));
-        this.login();
-        this.send("noLeftGame");
-    }
-
     @Override
     public void run() {
         String msg;
-        if(this.nickname == null) this.init();
+
+        this.send(MessageParser.message("welcome",this.ID));
+        this.login();
+        this.send("noLeftGame");
+
         do {
             msg = receive();
             if(msg.equals("NewGame")) {
@@ -118,13 +109,11 @@ public class LocalPlayer implements Runnable,Talkie {
     }
 
     private void runSoloGame() {
-        try {
-            while(!this.hasEnded) {
-                this.playRound();
-                if(!this.hasEnded) this.game.nextPlayer();
-            }
-            this.send("GameEnd");
-        } catch(DisconnectedPlayerException ignored) { }
+        while(!this.hasEnded) {
+            this.playRound();
+            if(!this.hasEnded) this.game.nextPlayer();
+        }
+        this.send("GameEnd");
     }
 
     public void selectLeader(List<LeaderCard> leaders) {
@@ -180,10 +169,10 @@ public class LocalPlayer implements Runnable,Talkie {
 
         String cmd;
         this.send("PLAY");
-        boolean endRound = true;
+        boolean endRound;
 
         do {
-
+            endRound = false;
             cmd = this.receive();
             switch(cmd) {
 
@@ -298,6 +287,9 @@ public class LocalPlayer implements Runnable,Talkie {
                         this.playerBoard.buyDevCard(cardLevel,cardColor,cmd.getIntParameter(0));
                         if(!this.game.isSinglePlayer())
                             this.game.broadCast(MessageParser.message("action",Action.BUY_DEVELOPMENT_CARD,this.nickname,cardColor,cardLevel));
+                        if(this.playerBoard.devCards.getDevCardNumber() == 7) {
+                            this.game.endGame();
+                        }
                     } catch (NonPositionableCardException | NoSuchDevelopmentCardException | NonConsumablePackException ignored) {
                         /* this should never happen */
                     }

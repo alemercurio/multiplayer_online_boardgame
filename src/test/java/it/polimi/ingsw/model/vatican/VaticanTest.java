@@ -52,7 +52,7 @@ public class VaticanTest {
         }
     }
 
-    private final String vaticanData = "src/main/resources/JSON/Vatican.json";
+    private final String vaticanData = "JSON/Vatican.json";
     private final GameStub game = new GameStub();
     private final Vatican vatican = new Vatican(game,vaticanData);
 

@@ -73,7 +73,7 @@ public class SoloGame extends Game {
         };
 
         this.timer = new Timer(true);
-        timer.scheduleAtFixedRate(controlConnnection,1000,1000);
+        this.timer.scheduleAtFixedRate(controlConnnection,1000,1000);
 
         this.player.send(MessageParser.message("update","player",this.getPlayerInfo()));
         this.market.update();
@@ -86,6 +86,7 @@ public class SoloGame extends Game {
 
     @Override
     public void nextPlayer() {
+        this.broadCast(MessageParser.message("update","player",this.getPlayerInfo()));
         if(!this.endGame) this.playSolo();
     }
 
@@ -93,11 +94,13 @@ public class SoloGame extends Game {
     public void endGame() {
         this.endGame = true;
         this.player.setHasEnded();
+        this.timer.cancel();
     }
 
     public void playSolo() {
         SoloAction action = this.lorenzo.playSoloAction();
         this.broadCast(MessageParser.message("action",Action.SOLO_ACTION,action));
+        this.broadCast(MessageParser.message("update","player",this.getPlayerInfo()));
         this.broadCastFull(MessageParser.message("event",GameEvent.ROUND,player.getNickname()));
     }
 
@@ -120,8 +123,7 @@ public class SoloGame extends Game {
         return drawn;
     }
 
-    public String getPlayerInfo()
-    {
+    public String getPlayerInfo() {
         Gson parser = new Gson();
         Type listOfPlayerInfo = new TypeToken<List<PlayerView>>() {}.getType();
 
@@ -169,7 +171,7 @@ public class SoloGame extends Game {
         };
 
         this.timer = new Timer(true);
-        timer.scheduleAtFixedRate(controlConnnection,1000,1000);
+        this.timer.scheduleAtFixedRate(controlConnnection,1000,1000);
 
         return true;
     }

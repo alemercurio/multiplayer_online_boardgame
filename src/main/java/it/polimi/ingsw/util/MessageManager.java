@@ -14,24 +14,20 @@ import java.util.Scanner;
 
 public class MessageManager extends Thread {
 
-    private Talkie talkie;
-    private Talkie online;
-    private Talkie offline;
-
+    private final Talkie talkie;
     private final View view;
     private final LinkedList<String> answer = new LinkedList<>();
 
     public MessageManager(View view) {
-        this.offline = MessageBridge.getBridge().get();
         new Thread(new LocalPlayer(1)).start();
-        this.talkie = this.offline;
+        this.talkie = MessageBridge.getBridge().get();;
         this.view = view;
     }
 
     public MessageManager(String ipAddress, int port, View view) throws IOException {
-        this.online = new Talkie() {
+        this.talkie = new Talkie() {
             private final Socket socket;
-            private Scanner messageIn;
+            private final Scanner messageIn;
             private final PrintWriter messageOut;
 
             {
@@ -42,55 +38,27 @@ public class MessageManager extends Thread {
 
             @Override
             public void send(String message) {
-                if(message.equals("stop")) {
-                    this.messageIn.close();
-                    try {
-                        this.messageIn = new Scanner(this.socket.getInputStream());
-                    } catch (IOException ignored) { }
-                } else {
-                    this.messageOut.println(message);
-                    this.messageOut.flush();
-                }
+                this.messageOut.println(message);
+                this.messageOut.flush();
             }
 
             @Override
             public String receive() {
-                try {
-                    return this.messageIn.nextLine();
-                } catch(Exception e) {
-                    return "stop";
-                }
+                return this.messageIn.nextLine();
             }
 
             @Override
             public void close() {
-                this.messageOut.close();
-                this.messageIn.close();
                 try {
+                    this.messageOut.close();
+                    this.messageIn.close();
                     this.socket.close();
                 } catch (IOException exception) {
                     exception.printStackTrace();
                 }
             }
         };
-        this.talkie = this.online;
         this.view = view;
-    }
-
-    public synchronized void setOffline() {
-        if(this.online != null) {
-            this.online.send("stop");
-        }
-        if(this.offline == null) {
-            this.offline = MessageBridge.getBridge().get();
-            new Thread(new LocalPlayer(1,this.view.getNickname())).start();
-        }
-        this.talkie = this.offline;
-    }
-
-    public synchronized void setOnline() {
-        if(this.offline != null) this.offline.send("stop");
-        if(this.online != null) this.talkie = this.online;
     }
 
     public void report(String message) {
@@ -125,9 +93,7 @@ public class MessageManager extends Thread {
         try {
             while (true) {
 
-                synchronized(this) {
-                    message = this.talkie.receive();
-                }
+                message = this.talkie.receive();
                 mp.parse(message);
 
                 switch(mp.getOrder()) {
@@ -142,8 +108,6 @@ public class MessageManager extends Thread {
                         break;
                     case "alive?":
                         this.send("alive");
-                        break;
-                    case "stop":
                         break;
                     default:
                         this.report(message);

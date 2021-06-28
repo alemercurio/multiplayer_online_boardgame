@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.net.Socket;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
@@ -53,46 +54,52 @@ public class Player implements Runnable, Talkie {
 
     @Override
     public void run() {
-        String msg;
-        this.send(MessageParser.message("welcome",this.ID));
+        try {
+            String msg;
+            this.send(MessageParser.message("welcome",this.ID));
 
-        this.login();
+            this.login();
 
-        if(PlayerController.getPlayerController().hasLeftGame(this.nickname)) {
-            this.send("resumeGame?");
-            MessageParser mp = new MessageParser();
-            mp.parse(this.receive());
+            if(PlayerController.getPlayerController().hasLeftGame(this.nickname)) {
+                this.send("resumeGame?");
+                MessageParser mp = new MessageParser();
+                mp.parse(this.receive());
 
-            if(mp.getOrder().equals("resume")) {
-                if(Boolean.parseBoolean(mp.getStringParameter(0))) {
-                    PlayerController.getPlayerController().resumeGame(this.nickname).resumePlayer(this);
-                    this.runSoloGame();
+                Game leftGame = PlayerController.getPlayerController().resumeGame(this.getNickname());
+
+                if(mp.getOrder().equals("resume")) {
+                    if(Boolean.parseBoolean(mp.getStringParameter(0))) {
+                        leftGame.resumePlayer(this);
+                        if(leftGame.isSinglePlayer()) this.runSoloGame();
+                        else this.runGame();
+                    }
                 }
-            }
-            else this.send("InvalidOption");
-        } else this.send("noLeftGame");
+                else this.send("InvalidOption");
+            } else this.send("noLeftGame");
 
-        do {
-            msg = receive();
-            switch(msg) {
-                case "JoinGame":
-                    this.joinGame();
-                    this.playGame();
-                    break;
-                case "NewGame":
-                    this.newGame();
-                    if(this.game.isSinglePlayer()) this.playSoloGame();
-                    else this.playGame();
-                    break;
-                default:
-                    this.send("UnknownCommand");
-                    break;
-            }
+            do {
+                msg = receive();
 
-            this.isActive.set(false);
-            this.hasEnded = false;
+                switch(msg) {
+                    case "JoinGame":
+                        this.joinGame();
+                        this.playGame();
+                        break;
+                    case "NewGame":
+                        this.newGame();
+                        if(this.game.isSinglePlayer()) this.playSoloGame();
+                        else this.playGame();
+                        break;
+                    default:
+                        this.send("UnknownCommand");
+                        break;
+                }
 
-        } while(!msg.equals("esc"));
+                this.isActive.set(false);
+                this.hasEnded = false;
+
+            } while(!msg.equals("esc"));
+        } catch(DisconnectedPlayerException ignored) { }
     }
 
     public void send(String message) {
@@ -110,8 +117,13 @@ public class Player implements Runnable, Talkie {
             try { received = this.messageIn.nextLine(); }
             catch(Exception e) { throw new DisconnectedPlayerException(this); }
             if(received.equals("alive")) {
-                this.disconnectCounter.set(3);
-                this.game.isAlive(this);
+                if(this.game != null) {
+                    this.disconnectCounter.set(3);
+                    this.game.isAlive(this);
+                }
+                if(!this.connected.get()) {
+                    this.connected.set(true);
+                }
             }
             else return received;
         }
@@ -134,7 +146,7 @@ public class Player implements Runnable, Talkie {
         do {
             mp.parse(this.receive());
             if(mp.getOrder().equals("login") && mp.getNumberOfParameters() == 1) {
-                if(pc.registerNickname(mp.getStringParameter(0))) {
+                if(pc.registerNickname(mp.getStringParameter(0),this)) {
                     this.nickname = mp.getStringParameter(0);
                     this.send("OK");
                 } else this.send("nameAlreadyTaken");
@@ -239,110 +251,119 @@ public class Player implements Runnable, Talkie {
         builder.enableComplexMapKeySerialization();
         Gson parser = builder.create();
 
-        String leadersData = parser.toJson(leaders,listOfLeaderCard);
-        this.send(MessageParser.message("selectLeader",leadersData));
+        try {
+            String leadersData = parser.toJson(leaders,listOfLeaderCard);
+            this.send(MessageParser.message("selectLeader",leadersData));
 
-        while(true) {
+            while(true) {
 
-            MessageParser mp = new MessageParser();
-            mp.parse(this.receive());
+                MessageParser mp = new MessageParser();
+                mp.parse(this.receive());
 
-            if(mp.getOrder().equals("keepLeaders"))
-            {
-                int[] selection = mp.getObjectParameter(0,int[].class);
-
-                if(selection.length != 2) this.send("InvalidSelection");
-                else
+                if(mp.getOrder().equals("keepLeaders"))
                 {
-                    List<LeaderCard> selectedLeaders = new LinkedList<>();
+                    int[] selection = mp.getObjectParameter(0,int[].class);
 
-                    try {
-                        selectedLeaders.add(leaders.get(selection[0] - 1));
-                        selectedLeaders.add(leaders.get(selection[1] - 1));
-
-                        this.playerBoard.giveLeaders(selectedLeaders);
-                        this.send(MessageParser.message("update","leaders", parser.toJson(this.playerBoard.leaders)));
-
-                        this.send("OK");
-                        return;
-
-                    } catch(IndexOutOfBoundsException e)
+                    if(selection.length != 2) this.send("InvalidSelection");
+                    else
                     {
-                        this.send("InvalidSelection");
+                        List<LeaderCard> selectedLeaders = new LinkedList<>();
+
+                        try {
+                            selectedLeaders.add(leaders.get(selection[0] - 1));
+                            selectedLeaders.add(leaders.get(selection[1] - 1));
+
+                            this.playerBoard.giveLeaders(selectedLeaders);
+                            this.send(MessageParser.message("update","leaders", parser.toJson(this.playerBoard.leaders)));
+
+                            this.send("OK");
+                            return;
+
+                        } catch(IndexOutOfBoundsException e)
+                        {
+                            this.send("InvalidSelection");
+                        }
                     }
                 }
+                else this.send("InvalidOption");
             }
-            else this.send("InvalidOption");
+        } catch(DisconnectedPlayerException player) {
+            Collections.shuffle(leaders);
+            List<LeaderCard> selectedLeaders = new LinkedList<>();
+            selectedLeaders.add(leaders.get(0));
+            selectedLeaders.add(leaders.get(1));
+            this.playerBoard.giveLeaders(selectedLeaders);
         }
     }
 
     public void initialAdvantage() {
-
         MessageParser mp = new MessageParser();
         ResourcePack advantage = this.game.getAdvantage(this);
 
-        this.send(MessageParser.message("advantage",advantage));
+        try {
+            this.send(MessageParser.message("advantage",advantage));
 
-        if(!advantage.isEmpty()) {
+            if(!advantage.isEmpty()) {
 
-            int white = this.playerBoard.storeResources(advantage);
-            this.send(MessageParser.message("convert",white));
+                int white = this.playerBoard.storeResources(advantage);
+                this.send(MessageParser.message("convert",white));
 
-            boolean toRepeat;
-            do {
-                mp.parse(this.receive());
-                if(mp.getOrder().equals("selected")) {
+                boolean toRepeat;
+                do {
+                    mp.parse(this.receive());
+                    if(mp.getOrder().equals("selected")) {
 
-                    ResourcePack selected = mp.getObjectParameter(0,ResourcePack.class);
-                    if(selected.get(Resource.VOID) == 0 && selected.get(Resource.FAITHPOINT) == 0 && selected.size() == white) {
+                        ResourcePack selected = mp.getObjectParameter(0,ResourcePack.class);
+                        if(selected.get(Resource.VOID) == 0 && selected.get(Resource.FAITHPOINT) == 0 && selected.size() == white) {
 
-                        this.playerBoard.storage.warehouse.add(selected);
-                        this.send("OK");
-                        toRepeat = false;
+                            this.playerBoard.storage.warehouse.add(selected);
+                            this.send("OK");
+                            toRepeat = false;
+
+                        } else {
+
+                            this.send("KO");
+                            toRepeat = true;
+
+                        }
 
                     } else {
 
-                        this.send("KO");
+                        this.send("InvalidOption");
                         toRepeat = true;
 
                     }
+                } while(toRepeat);
 
-                } else {
+                this.send(MessageParser.message("update","WHConfig",this.playerBoard.storage.warehouse.getConfig()));
+                this.send("setWarehouse");
 
-                    this.send("InvalidOption");
-                    toRepeat = true;
+                while(true) {
+                    mp.parse(this.receive());
+                    if(mp.getOrder().equals("config"))
+                    {
+                        if(this.playerBoard.storage.warehouse.update(mp.getStringParameter(0))) {
 
+                            this.playerBoard.storage.warehouse.done();
+                            this.send(MessageParser.message("update","WHConfig",this.playerBoard.storage.warehouse.getConfig()));
+                            this.send("OK");
+                            return;
+
+                        } else this.send("KO");
+                    } else this.send("InvalidOption");
                 }
-            } while(toRepeat);
-
-            this.send(MessageParser.message("update","WHConfig",this.playerBoard.storage.warehouse.getConfig()));
-            this.send("setWarehouse");
-
-            while(true) {
-                mp.parse(this.receive());
-                if(mp.getOrder().equals("config"))
-                {
-                    if(this.playerBoard.storage.warehouse.update(mp.getStringParameter(0))) {
-
-                        this.playerBoard.storage.warehouse.done();
-                        this.send(MessageParser.message("update","WHConfig",this.playerBoard.storage.warehouse.getConfig()));
-                        this.send("OK");
-                        return;
-
-                    } else this.send("KO");
-                } else this.send("InvalidOption");
-            }
-        } else this.send("OK");
+            } else this.send("OK");
+        } catch(DisconnectedPlayerException ignored) { }
     }
 
     public void playRound() {
 
         String cmd;
         this.send("PLAY");
-        boolean endRound = true;
+        boolean endRound;
 
         do {
-
+            endRound = false;
             cmd = this.receive();
             switch(cmd) {
 
@@ -472,6 +493,9 @@ public class Player implements Runnable, Talkie {
                         this.playerBoard.buyDevCard(cardLevel,cardColor,cmd.getIntParameter(0));
                         if(!this.game.isSinglePlayer())
                             this.game.broadCast(MessageParser.message("action",Action.BUY_DEVELOPMENT_CARD,this.nickname,cardColor,cardLevel));
+                        if(this.playerBoard.devCards.getDevCardNumber() == 7) {
+                            this.game.endGame();
+                        }
                     } catch (NonPositionableCardException | NoSuchDevelopmentCardException | NonConsumablePackException ignored) {
                         /* this should never happen */
                     }
@@ -676,10 +700,25 @@ public class Player implements Runnable, Talkie {
         }
     }
 
-
     // NEW
 
+    private final AtomicBoolean connected = new AtomicBoolean();
     private final AtomicInteger disconnectCounter = new AtomicInteger(3);
+
+    public boolean ping() {
+        if(this.game != null) return true;
+        else {
+            this.send("alive?");
+            this.connected.set(false);
+            try {
+                Thread.sleep(250);
+            } catch(InterruptedException ignored) { }
+            if(!this.connected.get()) {
+                this.close();
+                return false;
+            } else return true;
+        }
+    }
 
     public boolean isDisconnected() {
         return (this.disconnectCounter.get() < 0);
@@ -720,6 +759,12 @@ public class Player implements Runnable, Talkie {
             this.game.waitForOtherPlayer();
             this.idle();
 
+            this.runGame();
+        } catch(DisconnectedPlayerException ignored) { }
+    }
+
+    public void runGame() {
+        try {
             while(!this.hasEnded) {
                 this.idle();
 
@@ -729,10 +774,7 @@ public class Player implements Runnable, Talkie {
                     this.game.nextPlayer();
                 }
             }
-        } catch(DisconnectedPlayerException disconnected) {
-            if(this.isActive.get()) this.game.nextPlayer();
-        }
-
+        } catch(DisconnectedPlayerException ignored) { }
     }
 
     public void resume(Player oldPlayer) {

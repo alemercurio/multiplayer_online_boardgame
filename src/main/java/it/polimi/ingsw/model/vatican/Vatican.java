@@ -7,9 +7,7 @@ import it.polimi.ingsw.controller.Game;
 import it.polimi.ingsw.util.MessageParser;
 import it.polimi.ingsw.controller.GameEvent;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -179,7 +177,7 @@ public class Vatican {
     private final ReportSection[] reportSections;
     private transient final List<FaithTrack> faithTracks;
 
-    private final transient Map<Integer,FaithTrack> removedFaithTrack = new HashMap<>();
+    private final transient Map<Integer,FaithTrack> pausedFaithTrack = new HashMap<>();
 
     /**
      * Constructs the Vatican with all of its attributes.
@@ -190,19 +188,19 @@ public class Vatican {
         this.game = game;
         this.faithTracks = new ArrayList<>();
 
-        File file = new File(filePath);
+        InputStream data = Vatican.class.getClassLoader().getResourceAsStream(filePath);
         ReportSection[] gotReportSections;
         Space[] gotTrack;
 
         try {
-            FileReader fr = new FileReader(file);
-            JsonObject vaticanData = JsonParser.parseReader(fr).getAsJsonObject();
+            InputStreamReader vaticanStream = new InputStreamReader(data);
+            JsonObject vaticanData = JsonParser.parseReader(vaticanStream).getAsJsonObject();
 
             Gson parser = new Gson();
             gotTrack = parser.fromJson(vaticanData.get("track"), Space[].class);
             gotReportSections = parser.fromJson(vaticanData.get("popeSpaces"), ReportSection[].class);
 
-            fr.close();
+            vaticanStream.close();
         } catch (IOException e) {
             gotTrack = null;
             gotReportSections = null;
@@ -240,7 +238,6 @@ public class Vatican {
      * @param num the number of Resources discarded by the Player.
      */
     public void wastedResources(int track, int num) {
-        // Makes other Players advance and update the furthestSpaceReached by any Player's Faith Marker.
         for(FaithTrack faithTrack : faithTracks) {
             if (faithTrack.getID() != track) {
                 faithTrack.advance(num);
@@ -258,6 +255,7 @@ public class Vatican {
         for(FaithTrack faithTrack : faithTracks) {
             faithTrack.PopeFavour(popeSpace);
         }
+        for(FaithTrack paused : this.pausedFaithTrack.values()) paused.PopeFavour(popeSpace);
         this.reportSections[popeSpace].setReported();
         this.game.broadCastFull(MessageParser.message("event", GameEvent.POPE_FAVOUR));
     }
@@ -274,20 +272,34 @@ public class Vatican {
     // NEW
 
     /**
-     * Removes the FaithTrack with the given ID from the current Vatican.
+     * Pauses the FaithTrack with the given ID in the current Vatican;
+     * after this method is called, the FaithTrack can be retrieved.
+     * @param faithTrackID the ID of the FaithTrack to remove.
+     */
+    public void pauseFaithTrack(int faithTrackID) {
+        for(FaithTrack faithTrack : this.faithTracks)
+            if(faithTrack.getID() == faithTrackID) {
+                this.faithTracks.remove(faithTrack);
+                this.pausedFaithTrack.put(faithTrackID,faithTrack);
+                return;
+            }
+    }
+
+    /**
+     * Removes the FaithTrack with the given ID in the current Vatican;
+     * after this method is called, the FaithTrack cannot be retrieved.
      * @param faithTrackID the ID of the FaithTrack to remove.
      */
     public void removeFaithTrack(int faithTrackID) {
         for(FaithTrack faithTrack : this.faithTracks)
             if(faithTrack.getID() == faithTrackID) {
                 this.faithTracks.remove(faithTrack);
-                this.removedFaithTrack.put(faithTrackID,faithTrack);
                 return;
             }
     }
 
     public void retrieveFaithTrack(int faithTrackID) {
-        FaithTrack faithTrack = this.removedFaithTrack.remove(faithTrackID);
+        FaithTrack faithTrack = this.pausedFaithTrack.remove(faithTrackID);
         if(faithTrack != null) {
             this.faithTracks.add(faithTrack);
             this.update(faithTrack);
