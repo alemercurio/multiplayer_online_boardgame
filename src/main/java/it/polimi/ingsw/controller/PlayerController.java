@@ -1,5 +1,7 @@
 package it.polimi.ingsw.controller;
 
+import it.polimi.ingsw.network.Player;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,7 +9,8 @@ import java.util.Map;
 
 public class PlayerController {
 
-    private final List<String> nameList = new LinkedList<>();
+    //private final List<String> nameList = new LinkedList<>();
+    private final Map<String,Player> nameTable = new HashMap<>();
     private final Map<String,Game> disconnectedPlayer = new HashMap<>();
 
     private static PlayerController controller;
@@ -18,8 +21,10 @@ public class PlayerController {
     }
 
     private synchronized boolean nameAvailable(String nickname) {
-        for(String name : this.nameList)
-            if(nickname.equals(name)) return false;
+        for(Map.Entry<String,Player> name : this.nameTable.entrySet())
+            if(nickname.equals(name.getKey())) {
+                return !name.getValue().ping();
+            }
         return true;
     }
 
@@ -31,15 +36,15 @@ public class PlayerController {
         return this.disconnectedPlayer.remove(nickname);
     }
 
-    public synchronized boolean registerNickname(String nickname) {
+    public synchronized boolean registerNickname(String nickname,Player player) {
         if(this.nameAvailable(nickname)) {
-            this.nameList.add(nickname);
+            this.nameTable.put(nickname,player);
             return true;
         } else return false;
     }
 
     public synchronized void postPlayerDisconnected(String nickname,Game game) {
-        this.nameList.remove(nickname);
+        this.nameTable.remove(nickname);
         this.disconnectedPlayer.put(nickname,game);
     }
 

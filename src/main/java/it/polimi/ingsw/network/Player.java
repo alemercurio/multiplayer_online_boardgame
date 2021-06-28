@@ -54,49 +54,52 @@ public class Player implements Runnable, Talkie {
 
     @Override
     public void run() {
-        String msg;
-        this.send(MessageParser.message("welcome",this.ID));
+        try {
+            String msg;
+            this.send(MessageParser.message("welcome",this.ID));
 
-        this.login();
+            this.login();
 
-        if(PlayerController.getPlayerController().hasLeftGame(this.nickname)) {
-            this.send("resumeGame?");
-            MessageParser mp = new MessageParser();
-            mp.parse(this.receive());
+            if(PlayerController.getPlayerController().hasLeftGame(this.nickname)) {
+                this.send("resumeGame?");
+                MessageParser mp = new MessageParser();
+                mp.parse(this.receive());
 
-            Game leftGame = PlayerController.getPlayerController().resumeGame(this.getNickname());
+                Game leftGame = PlayerController.getPlayerController().resumeGame(this.getNickname());
 
-            if(mp.getOrder().equals("resume")) {
-                if(Boolean.parseBoolean(mp.getStringParameter(0))) {
-                    leftGame.resumePlayer(this);
-                    if(leftGame.isSinglePlayer()) this.runSoloGame();
-                    else this.runGame();
+                if(mp.getOrder().equals("resume")) {
+                    if(Boolean.parseBoolean(mp.getStringParameter(0))) {
+                        leftGame.resumePlayer(this);
+                        if(leftGame.isSinglePlayer()) this.runSoloGame();
+                        else this.runGame();
+                    }
                 }
-            }
-            else this.send("InvalidOption");
-        } else this.send("noLeftGame");
+                else this.send("InvalidOption");
+            } else this.send("noLeftGame");
 
-        do {
-            msg = receive();
-            switch(msg) {
-                case "JoinGame":
-                    this.joinGame();
-                    this.playGame();
-                    break;
-                case "NewGame":
-                    this.newGame();
-                    if(this.game.isSinglePlayer()) this.playSoloGame();
-                    else this.playGame();
-                    break;
-                default:
-                    this.send("UnknownCommand");
-                    break;
-            }
+            do {
+                msg = receive();
 
-            this.isActive.set(false);
-            this.hasEnded = false;
+                switch(msg) {
+                    case "JoinGame":
+                        this.joinGame();
+                        this.playGame();
+                        break;
+                    case "NewGame":
+                        this.newGame();
+                        if(this.game.isSinglePlayer()) this.playSoloGame();
+                        else this.playGame();
+                        break;
+                    default:
+                        this.send("UnknownCommand");
+                        break;
+                }
 
-        } while(!msg.equals("esc"));
+                this.isActive.set(false);
+                this.hasEnded = false;
+
+            } while(!msg.equals("esc"));
+        } catch(DisconnectedPlayerException ignored) { }
     }
 
     public void send(String message) {
@@ -114,8 +117,13 @@ public class Player implements Runnable, Talkie {
             try { received = this.messageIn.nextLine(); }
             catch(Exception e) { throw new DisconnectedPlayerException(this); }
             if(received.equals("alive")) {
-                this.disconnectCounter.set(3);
-                this.game.isAlive(this);
+                if(this.game != null) {
+                    this.disconnectCounter.set(3);
+                    this.game.isAlive(this);
+                }
+                if(!this.connected.get()) {
+                    this.connected.set(true);
+                }
             }
             else return received;
         }
@@ -138,7 +146,7 @@ public class Player implements Runnable, Talkie {
         do {
             mp.parse(this.receive());
             if(mp.getOrder().equals("login") && mp.getNumberOfParameters() == 1) {
-                if(pc.registerNickname(mp.getStringParameter(0))) {
+                if(pc.registerNickname(mp.getStringParameter(0),this)) {
                     this.nickname = mp.getStringParameter(0);
                     this.send("OK");
                 } else this.send("nameAlreadyTaken");
@@ -694,7 +702,23 @@ public class Player implements Runnable, Talkie {
 
     // NEW
 
+    private final AtomicBoolean connected = new AtomicBoolean();
     private final AtomicInteger disconnectCounter = new AtomicInteger(3);
+
+    public boolean ping() {
+        if(this.game != null) return true;
+        else {
+            this.send("alive?");
+            this.connected.set(false);
+            try {
+                Thread.sleep(250);
+            } catch(InterruptedException ignored) { }
+            if(!this.connected.get()) {
+                this.close();
+                return false;
+            } else return true;
+        }
+    }
 
     public boolean isDisconnected() {
         return (this.disconnectCounter.get() < 0);

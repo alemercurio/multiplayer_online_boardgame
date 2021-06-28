@@ -24,8 +24,9 @@ public class Client implements Runnable {
     private MessageManager message;
     private boolean isConnected = true;
 
-    public void setMessageManager(String ip, int port, View view) throws IOException {
-        this.message = new MessageManager(ip, port, view);
+    public void setMessageManager(MessageManager manager,boolean isConnected) {
+        this.message = manager;
+        this.isConnected = isConnected;
     }
 
     public void setView(View view) {
