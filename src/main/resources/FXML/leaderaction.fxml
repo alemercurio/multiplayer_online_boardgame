@@ -18,22 +18,22 @@
       </ImageView>
       <Rectangle fx:id="leader1" arcHeight="50.0" arcWidth="50.0" fill="DODGERBLUE" height="395.0" stroke="BLACK" strokeType="INSIDE" width="260.0" x="61.0" y="100.0" />
       <Rectangle fx:id="leader2" arcHeight="50.0" arcWidth="50.0" fill="DODGERBLUE" height="395.0" stroke="BLACK" strokeType="INSIDE" width="260.0" x="960.0" y="100.0" />
-      <Button fx:id="play1" alignment="CENTER" layoutX="64.0" layoutY="502.0" mnemonicParsing="false" onAction="#play1" text="   Play   " textAlignment="CENTER" visible="false">
+      <Button fx:id="play1" alignment="CENTER" layoutX="80.0" layoutY="502.0" mnemonicParsing="false" onAction="#play1" stylesheets="@../CSS/actionMenuButton.css" text="   Play   " textAlignment="CENTER" visible="false">
          <font>
             <Font size="25.0" />
          </font>
       </Button>
-      <Button fx:id="discard1" alignment="CENTER" layoutX="206.0" layoutY="502.0" mnemonicParsing="false" onAction="#discard1" text="Discard" textAlignment="CENTER" visible="false">
+      <Button fx:id="discard1" alignment="CENTER" layoutX="210.0" layoutY="502.0" mnemonicParsing="false" onAction="#discard1" stylesheets="@../CSS/actionMenuButton.css" text="Discard" textAlignment="CENTER" visible="false">
          <font>
             <Font size="25.0" />
          </font>
       </Button>
-      <Button fx:id="play2" alignment="CENTER" layoutX="960.0" layoutY="502.0" mnemonicParsing="false" onAction="#play2" text="   Play   " textAlignment="CENTER" visible="false">
+      <Button fx:id="play2" alignment="CENTER" layoutX="980.0" layoutY="502.0" mnemonicParsing="false" onAction="#play2" stylesheets="@../CSS/actionMenuButton.css" text="   Play   " textAlignment="CENTER" visible="false">
          <font>
             <Font size="25.0" />
          </font>
       </Button>
-      <Button fx:id="discard2" alignment="CENTER" layoutX="1102.0" layoutY="502.0" mnemonicParsing="false" onAction="#discard2" text="Discard" textAlignment="CENTER" visible="false">
+      <Button fx:id="discard2" alignment="CENTER" layoutX="1110.0" layoutY="502.0" mnemonicParsing="false" onAction="#discard2" stylesheets="@../CSS/actionMenuButton.css" text="Discard" textAlignment="CENTER" visible="false">
          <font>
             <Font size="25.0" />
          </font>
@@ -45,12 +45,12 @@
                   <Image url="@../PNG/filigrana.png" />
                </image>
             </ImageView>
-            <Label fx:id="text" alignment="TOP_CENTER" layoutX="67.0" layoutY="76.0" prefHeight="119.0" prefWidth="288.0" text="You can play or discard a Leader" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" wrapText="true">
+            <Label fx:id="text" alignment="TOP_CENTER" layoutX="70.0" layoutY="76.0" prefHeight="119.0" prefWidth="288.0" text="You can play or discard a Leader" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" wrapText="true">
                <font>
                   <Font size="30.0" />
                </font>
             </Label>
-            <Button layoutX="160.0" layoutY="187.0" mnemonicParsing="false" onAction="#back" text="back">
+            <Button layoutX="168.0" layoutY="187.0" mnemonicParsing="false" onAction="#back" stylesheets="@../CSS/actionMenuButton.css" text="Cancel">
                <font>
                   <Font size="30.0" />
                </font>

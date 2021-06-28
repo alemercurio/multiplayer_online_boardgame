@@ -29,6 +29,8 @@ import java.util.ResourceBundle;
 
 public class CardMarketController implements Initializable, InvalidationListener {
 
+    boolean events=true;
+
     @FXML
     private VBox chosenCard;
 
@@ -56,7 +58,7 @@ public class CardMarketController implements Initializable, InvalidationListener
     private DevelopmentCardView cardToBuy;
 
     public void cancel(ActionEvent event) {
-        GuiView.getGuiView().event(ViewEvent.DEVCARD, "back");
+        if(events) GuiView.getGuiView().event(ViewEvent.DEVCARD, "back");
         GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
         Platform.runLater(() -> GuiView.getGuiView().playerboard.showMenu());
     }
@@ -162,6 +164,7 @@ public class CardMarketController implements Initializable, InvalidationListener
 
     public void disableActions() {
         buyButton.setVisible(false);
+        events=false;
     }
 
     @Override

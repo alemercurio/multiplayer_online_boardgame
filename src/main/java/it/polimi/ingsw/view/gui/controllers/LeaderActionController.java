@@ -20,6 +20,8 @@ import java.util.ResourceBundle;
 
 public class LeaderActionController implements Initializable {
 
+    boolean events=true;
+
     @FXML
     private Rectangle leader1,leader2;
 
@@ -59,7 +61,7 @@ public class LeaderActionController implements Initializable {
 
     @FXML
     private void back() {
-        GuiView.getGuiView().event(ViewEvent.LEADER_ACTION, "back");
+        if(events) GuiView.getGuiView().event(ViewEvent.LEADER_ACTION, "back");
         GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
         Platform.runLater(() -> GuiView.getGuiView().playerboard.showMenu());
     }
@@ -118,5 +120,6 @@ public class LeaderActionController implements Initializable {
         this.discard1.setVisible(false);
         this.play2.setVisible(false);
         this.discard2.setVisible(false);
+        events=false;
     }
 }

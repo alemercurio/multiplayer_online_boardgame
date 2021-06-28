@@ -20,6 +20,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -40,6 +41,9 @@ public class LeaderboardController implements Initializable, InvalidationListene
 
     @FXML
     TextField numPoints1, numPoints2, numPoints3, numPoints4;
+
+    @FXML
+    Text faith1, faith2, faith3, faith4;
 
     @FXML
     ImageView crown1, crown2, crown3, crown4;
@@ -92,9 +96,10 @@ public class LeaderboardController implements Initializable, InvalidationListene
         Platform.runLater(() -> GuiView.getGuiView().playerboard.showMenu());
     }
 
-    public void update(int player, ResourcePack resources, int points, String nick) {
+    public void update(int player, ResourcePack resources, int points, int marker, String nick) {
 
         TextField coins, stones, shields, servants, numPoints;
+        Text faith;
         Label name;
 
         if(player==1) {
@@ -104,6 +109,7 @@ public class LeaderboardController implements Initializable, InvalidationListene
             servants=numServ1;
             numPoints=numPoints1;
             name=player1;
+            faith=faith1;
         }
         else if(player==2) {
             coins=numCoins2;
@@ -112,6 +118,7 @@ public class LeaderboardController implements Initializable, InvalidationListene
             servants=numServ2;
             numPoints=numPoints2;
             name=player2;
+            faith=faith2;
         }
         else if(player==3) {
             coins=numCoins3;
@@ -120,6 +127,7 @@ public class LeaderboardController implements Initializable, InvalidationListene
             servants=numServ3;
             numPoints=numPoints3;
             name=player3;
+            faith=faith3;
         }
         else {
             coins=numCoins4;
@@ -128,6 +136,7 @@ public class LeaderboardController implements Initializable, InvalidationListene
             servants=numServ4;
             numPoints=numPoints4;
             name=player4;
+            faith=faith4;
         }
 
         if(points!=-1) {
@@ -136,6 +145,7 @@ public class LeaderboardController implements Initializable, InvalidationListene
             shields.setText("" + resources.get(Resource.SHIELD));
             stones.setText("" + resources.get(Resource.STONE));
             numPoints.setText("" + points);
+            faith.setText("" + marker);
             name.setText(nick);
         }
         else {
@@ -144,6 +154,7 @@ public class LeaderboardController implements Initializable, InvalidationListene
             shields.setText("∞");
             stones.setText("∞");
             numPoints.setText("X");
+            faith.setText("" + marker);
             name.setText("Il Magnifico");
         }
     }
@@ -169,25 +180,25 @@ public class LeaderboardController implements Initializable, InvalidationListene
             if(i==1) {
                 player1.setVisible(true);
                 one.setVisible(true);
-                update(1, player.getResources(), player.getVictoryPoints(), player.getNickname());
+                update(1, player.getResources(), player.getVictoryPoints(), player.getFaithMarker(), player.getNickname());
                 i++;
             }
             else if(i==2) {
                 player2.setVisible(true);
                 two.setVisible(true);
-                update(2, player.getResources(), player.getVictoryPoints(), player.getNickname());
+                update(2, player.getResources(), player.getVictoryPoints(), player.getFaithMarker(), player.getNickname());
                 i++;
             }
             else if(i==3) {
                 player3.setVisible(true);
                 three.setVisible(true);
-                update(3, player.getResources(), player.getVictoryPoints(), player.getNickname());
+                update(3, player.getResources(), player.getVictoryPoints(), player.getFaithMarker(), player.getNickname());
                 i++;
             }
             else if(i==4) {
                 player4.setVisible(true);
                 four.setVisible(true);
-                update(4, player.getResources(), player.getVictoryPoints(), player.getNickname());
+                update(4, player.getResources(), player.getVictoryPoints(), player.getFaithMarker(), player.getNickname());
                 i++;
             }
 
