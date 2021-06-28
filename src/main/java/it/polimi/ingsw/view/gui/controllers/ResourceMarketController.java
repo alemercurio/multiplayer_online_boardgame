@@ -28,6 +28,8 @@ import java.util.*;
 
 public class ResourceMarketController implements Initializable, InvalidationListener {
 
+    boolean events=true;
+
     private Resource[][] tray;
     private Resource remaining;
 
@@ -493,7 +495,7 @@ public class ResourceMarketController implements Initializable, InvalidationList
     private final Circle[][] marketTray = new Circle[3][4];
 
     public void cancel(ActionEvent event) {
-        GuiView.getGuiView().event(ViewEvent.MARBLES, "back");
+        if(events) GuiView.getGuiView().event(ViewEvent.MARBLES, "back");
         GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
         Platform.runLater(() -> GuiView.getGuiView().playerboard.showMenu());
     }
@@ -506,6 +508,7 @@ public class ResourceMarketController implements Initializable, InvalidationList
         buttonRow1.setVisible(false);
         buttonRow2.setVisible(false);
         buttonRow3.setVisible(false);
+        events=false;
     }
 
     @Override

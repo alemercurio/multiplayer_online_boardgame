@@ -33,6 +33,8 @@ import java.util.*;
 
 public class ProductionSceneController implements Initializable, InvalidationListener {
 
+    boolean events=true;
+
     public static class ResourcePackView {
         public static HBox getView(ResourcePack rp) {
             HBox pack = new HBox();
@@ -294,7 +296,7 @@ public class ProductionSceneController implements Initializable, InvalidationLis
 
     @FXML
     private void back() {
-        GuiView.getGuiView().event(ViewEvent.PRODUCTION, "back");
+        if(events) GuiView.getGuiView().event(ViewEvent.PRODUCTION, "back");
         GuiView.getGuiView().showScene("/FXML/playerboard.fxml");
         Platform.runLater(() -> GuiView.getGuiView().playerboard.showMenu());
     }
@@ -302,6 +304,7 @@ public class ProductionSceneController implements Initializable, InvalidationLis
     public void disableActions() {
         this.activate.setDisable(true);
         this.productions.setMouseTransparent(true);
+        events=false;
     }
 
     @Override
