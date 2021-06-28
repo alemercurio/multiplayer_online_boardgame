@@ -64,7 +64,7 @@
                   <Font size="50.0" />
                </font>
             </Label>
-            <Button fx:id="done" layoutX="576.0" layoutY="431.0" mnemonicParsing="false" text="Done">
+            <Button fx:id="done" layoutX="585.0" layoutY="431.0" mnemonicParsing="false" stylesheets="@../CSS/actionMenuButton.css" text="Done">
                <font>
                   <Font size="35.0" />
                </font>
