@@ -1,5 +1,7 @@
 package it.polimi.ingsw.model.cards;
 
+import it.polimi.ingsw.view.cli.CliView;
+
 import java.io.Serializable;
 
 /**
