@@ -14,7 +14,7 @@ public class Server
         ServerSocket server = new ServerSocket(port);
         int playerCount = 0;
 
-        System.out.println("(SERVER) >> Server ready on port "+server.getLocalPort());
+        System.out.println("(SERVER) >> Server ready on port " + server.getLocalPort());
         while(true)
         {
             Socket client = server.accept();

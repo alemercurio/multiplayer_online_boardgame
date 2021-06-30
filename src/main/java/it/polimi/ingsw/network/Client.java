@@ -88,8 +88,6 @@ public class Client implements Runnable {
         }
         else {
             this.view.setID(mp.getIntParameter(0));
-            // TODO: remove
-            //System.out.println(">> Successfully connected..");
         }
 
         this.login();
@@ -157,7 +155,10 @@ public class Client implements Runnable {
             answer = this.message.receive();
         }
 
-        if(!answer.equals("WAIT")) this.view.showError(Error.UNKNOWN_ERROR);
+        if(!answer.equals("WAIT")) {
+            System.out.println("Merc non rompere le balle");
+            this.view.showError(Error.UNKNOWN_ERROR);
+        }
 
         this.playGame();
     }
@@ -320,13 +321,6 @@ public class Client implements Runnable {
                             endRound = false;
                             this.view.flushGameEvent();
                             break;
-
-                        // TODO: remove
-                        case "test":
-                            this.message.send("test");
-                            endRound = false;
-                            break;
-
                     }
                 } while(!endRound);
 
@@ -338,9 +332,6 @@ public class Client implements Runnable {
     }
 
     public boolean buyDevelopmentCard() {
-
-        // TODO: gli errori sono poco significativi... occorre far capire cosa è successo!
-
         String answer;
         String selection;
         int cardLevel;

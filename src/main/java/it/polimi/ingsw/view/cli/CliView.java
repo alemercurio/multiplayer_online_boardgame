@@ -359,8 +359,16 @@ public class CliView implements View {
         while(true) {
 
             System.out.print("playing >> ");
-            Scanner selection = new Scanner(input.nextLine().toLowerCase());
-            String order = selection.next();
+
+            String order;
+            Scanner selection;
+            try {
+                selection = new Scanner(input.nextLine().toLowerCase());
+                order = selection.next();
+            } catch(NoSuchElementException e) {
+                order = "NOP";
+                selection = new Scanner(order);
+            }
 
             if(order.equals("show")) {
 
@@ -905,10 +913,11 @@ public class CliView implements View {
         ResourcePack result = new ResourcePack();
 
         ResourcePack available = this.strongbox.getCopy().add(this.warehouse.getResources());
-
         try {
-            available.consume(this.factory.productionRequirements());
-        } catch (NonConsumablePackException ignored) { /* this should not happen */ }
+            ResourcePack requirement = this.factory.productionRequirements();
+            requirement.flush(Resource.VOID);
+            available.consume(requirement); }
+        catch(NonConsumablePackException ignored) { /* this should not happen */ }
 
         Scanner input = new Scanner(System.in);
 

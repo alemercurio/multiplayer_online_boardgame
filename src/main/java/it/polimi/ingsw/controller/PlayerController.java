@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class PlayerController {
 
-    private final Map<String,Player> nameTable = new HashMap<>();
+    private final List<String> nicknames = new LinkedList<>();
     private final Map<String,Game> disconnectedPlayer = new HashMap<>();
 
     private static PlayerController controller;
@@ -20,9 +20,10 @@ public class PlayerController {
     }
 
     private synchronized boolean nameAvailable(String nickname) {
-        for(Map.Entry<String,Player> name : this.nameTable.entrySet())
-            if(nickname.equals(name.getKey())) {
-                return !name.getValue().ping();
+        if(nickname.equals("Lorenzo il Magnifico")) return false;
+        for(String name : this.nicknames)
+            if(nickname.equals(name)) {
+                return false;
             }
         return true;
     }
@@ -37,13 +38,13 @@ public class PlayerController {
 
     public synchronized boolean registerNickname(String nickname,Player player) {
         if(this.nameAvailable(nickname)) {
-            this.nameTable.put(nickname,player);
+            this.nicknames.add(nickname);
             return true;
         } else return false;
     }
 
     public synchronized void postPlayerDisconnected(String nickname,Game game) {
-        this.nameTable.remove(nickname);
+        this.nicknames.remove(nickname);
         this.disconnectedPlayer.put(nickname,game);
     }
 

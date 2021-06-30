@@ -60,6 +60,13 @@ public class GameView implements Observable {
         return "unknown";
     }
 
+    public boolean hasLorenzo() {
+        for(PlayerView player : this.players) {
+            if(player.getNickname().equals("Lorenzo il Magnifico")) return true;
+        }
+        return false;
+    }
+
     public void setFaithMarker(int playerID,int faithMarker) {
         for(PlayerView player : this.players)
             if(player.getID() == playerID) {

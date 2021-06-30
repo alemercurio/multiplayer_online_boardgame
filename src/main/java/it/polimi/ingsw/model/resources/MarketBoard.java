@@ -364,8 +364,6 @@ public class MarketBoard {
         this.game.broadCastFull(MessageParser.message("update","market:card",this.cardMarket));
     }
 
-    // TODO: eliminare i seguenti metodi!
-
     public String getResourceMarketView() {
         return this.resourceMarket.toString();
     }

@@ -59,12 +59,8 @@ public class PlayerBoard
 
     /**
      * Activates productions in the current PlayerBoard's Factory;
-     *
-     * @return
-     * @throws NonConsumablePackException
      */
-    public int activateProduction() throws NonConsumablePackException
-    {
+    public int activateProduction() throws NonConsumablePackException {
         ResourcePack required = this.factory.productionRequirements();
         ResourcePack available = this.storage.getAllResource();
         if(available.isConsumable(required)) {
@@ -87,13 +83,11 @@ public class PlayerBoard
         else throw new NonConsumablePackException();
     }
 
-    public int activateProduction(ResourcePack whiteSelection) throws NonConsumablePackException
-    {
+    public int activateProduction(ResourcePack whiteSelection) throws NonConsumablePackException {
         ResourcePack required = this.factory.productionRequirements();
         ResourcePack available = this.storage.getAllResource();
 
-        if(whiteSelection.size() == required.get(Resource.VOID))
-        {
+        if(whiteSelection.size() == required.get(Resource.VOID)) {
             required.add(whiteSelection);
             required.flush(Resource.VOID);
             required.flush(Resource.FAITHPOINT);
@@ -118,11 +112,6 @@ public class PlayerBoard
             return white;
         }
         else throw new NonConsumablePackException();
-    }
-
-    public void activateProduction(List<ResourcePack> sources) throws NonConsumablePackException
-    {
-        //TODO: valutare opzioni per consumo "controllato"
     }
 
     /**
