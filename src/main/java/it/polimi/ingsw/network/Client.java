@@ -155,7 +155,10 @@ public class Client implements Runnable {
             answer = this.message.receive();
         }
 
-        if(!answer.equals("WAIT")) this.view.showError(Error.UNKNOWN_ERROR);
+        if(!answer.equals("WAIT")) {
+            System.out.println("Merc non rompere le balle");
+            this.view.showError(Error.UNKNOWN_ERROR);
+        }
 
         this.playGame();
     }

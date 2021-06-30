@@ -359,8 +359,16 @@ public class CliView implements View {
         while(true) {
 
             System.out.print("playing >> ");
-            Scanner selection = new Scanner(input.nextLine().toLowerCase());
-            String order = selection.next();
+
+            String order;
+            Scanner selection;
+            try {
+                selection = new Scanner(input.nextLine().toLowerCase());
+                order = selection.next();
+            } catch(NoSuchElementException e) {
+                order = "NOP";
+                selection = new Scanner(order);
+            }
 
             if(order.equals("show")) {
 

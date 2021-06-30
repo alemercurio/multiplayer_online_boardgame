@@ -82,6 +82,10 @@ public class GuiApp extends Application {
         primaryStage.setTitle("Master of Renaissance");
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        window.setOnCloseRequest(event -> {
+            System.exit(0);
+        });
     }
 
     private Pane root = new AnchorPane();

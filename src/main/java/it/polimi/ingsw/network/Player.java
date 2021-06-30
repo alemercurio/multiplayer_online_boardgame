@@ -170,8 +170,8 @@ public class Player implements Runnable, Talkie {
             mp.parse(msg);
         }
 
-        this.game = Game.newGame(this,this.nickname,mp.getIntParameter(0));
         this.send("WAIT");
+        this.game = Game.newGame(this,this.nickname,mp.getIntParameter(0));
     }
 
     private void joinGame() {
