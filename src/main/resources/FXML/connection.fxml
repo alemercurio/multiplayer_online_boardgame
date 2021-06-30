@@ -10,8 +10,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-
-<DialogPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="854.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.controllers.ConnectionController">
+<DialogPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="854.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.controllers.ConnectionController">
    <content>
       <Pane>
          <children>
@@ -30,7 +29,7 @@
                   <Font size="20.0" />
                </font>
             </TextField>
-            <Button layoutX="419.0" layoutY="365.0" mnemonicParsing="false" onAction="#offline" prefHeight="30.0" prefWidth="125.0" stylesheets="@../CSS/actionMenuButton.css" text="Continue Offline">
+            <Button layoutX="419.0" layoutY="365.0" mnemonicParsing="false" onAction="#offline" prefHeight="30.0" prefWidth="125.0" stylesheets="@../CSS/actionMenuButton.css" text="Play Offline">
                <font>
                   <Font size="15.0" />
                </font>
