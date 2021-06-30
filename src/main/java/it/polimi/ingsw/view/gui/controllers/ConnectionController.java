@@ -34,11 +34,11 @@ public class ConnectionController implements Initializable {
                 this.dialog.setResult(ipSelect.getText() + " " + portSelect.getText());
             } else {
                 portSelect.clear();
-                portSelect.setPromptText("Please, use a valid IP address");
+                portSelect.setPromptText("Please, select a valid port");
             }
         } else {
             ipSelect.clear();
-            ipSelect.setPromptText("Please, select a port");
+            ipSelect.setPromptText("Please, select a valid IP address");
         }
     }
 

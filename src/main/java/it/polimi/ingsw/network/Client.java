@@ -318,13 +318,6 @@ public class Client implements Runnable {
                             endRound = false;
                             this.view.flushGameEvent();
                             break;
-
-                        // TODO: remove
-                        case "test":
-                            this.message.send("test");
-                            endRound = false;
-                            break;
-
                     }
                 } while(!endRound);
 
@@ -336,9 +329,6 @@ public class Client implements Runnable {
     }
 
     public boolean buyDevelopmentCard() {
-
-        // TODO: gli errori sono poco significativi... occorre far capire cosa è successo!
-
         String answer;
         String selection;
         int cardLevel;

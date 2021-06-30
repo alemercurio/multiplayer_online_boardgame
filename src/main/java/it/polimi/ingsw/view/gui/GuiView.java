@@ -381,6 +381,26 @@ public class GuiView implements View {
                 });
                 break;
 
+            case SERVER_OFFLINE:
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Server Unreachable");
+                    alert.setHeaderText("The server is unreachable...");
+                    alert.setContentText("Please, check your IP address and port number input.");
+
+                    //automatic resizing
+                    alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
+                    // alert styling
+                    DialogPane dialogPane = alert.getDialogPane();
+                    dialogPane.getStylesheets().add(
+                            getClass().getResource("/CSS/style.css").toExternalForm());
+                    dialogPane.getStyleClass().add("alertStyle");
+
+                    alert.showAndWait();
+                    Platform.exit();
+                });
+                break;
+
             case UNKNOWN_ERROR:
                 Platform.runLater(() -> {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -676,7 +696,6 @@ public class GuiView implements View {
 
     @Override
     public synchronized String selectAction() {
-        // TODO: FAR FUNZIONARE
         if(!solo && this.online) {
             Platform.runLater(() -> {
                 guiApp.showScene("/FXML/playerboard.fxml");
@@ -864,6 +883,7 @@ public class GuiView implements View {
 
             case "player":
                 this.players.update(state);
+                if(this.players.hasLorenzo() && !this.solo) this.solo = true;
                 break;
 
             case "white":

@@ -36,7 +36,6 @@ public class Launcher {
                     } catch (Exception e) {
                         GuiView.getGuiView().showError(Error.SERVER_OFFLINE);
                         GuiView.getGuiView().online = false;
-                        Platform.runLater(Platform::exit);
                         return;
                     }
                     break;
@@ -49,7 +48,6 @@ public class Launcher {
             } catch (Exception e) {
                 GuiView.getGuiView().showError(Error.SERVER_OFFLINE);
                 GuiView.getGuiView().online = false;
-                Platform.runLater(Platform::exit);
                 return;
             }
         }

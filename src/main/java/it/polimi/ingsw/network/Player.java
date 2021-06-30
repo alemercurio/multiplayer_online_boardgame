@@ -8,7 +8,6 @@ import it.polimi.ingsw.model.resources.*;
 import it.polimi.ingsw.model.vatican.*;
 import it.polimi.ingsw.util.MessageParser;
 import it.polimi.ingsw.view.lightmodel.PlayerView;
-import it.polimi.ingsw.util.Screen;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -31,6 +30,7 @@ public class Player implements Runnable, Talkie {
     private Game game;
     private PlayerBoard playerBoard;
     private final AtomicBoolean isActive = new AtomicBoolean(false);
+    private final AtomicInteger disconnectCounter = new AtomicInteger(3);
     private boolean hasEnded;
 
     public Player(int ID,Socket client) throws IOException {
@@ -120,9 +120,6 @@ public class Player implements Runnable, Talkie {
                 if(this.game != null) {
                     this.disconnectCounter.set(3);
                     this.game.isAlive(this);
-                }
-                if(!this.connected.get()) {
-                    this.connected.set(true);
                 }
             }
             else return received;
@@ -388,21 +385,6 @@ public class Player implements Runnable, Talkie {
 
                 case "leader":
                     this.leaderAction();
-                    endRound = false;
-                    break;
-
-                // TODO: remove
-                case "test":
-                    Screen.printError(this.nickname + " is cheating!");
-                    this.playerBoard.storage.strongbox.add(new ResourcePack(10,10,10,10));
-                    this.playerBoard.factory.addProductionPower(new Production(
-                            new ResourcePack(2),
-                            new ResourcePack(0,2,0,0,0,6)));
-                    this.playerBoard.addWhite(Resource.COIN);
-                    this.playerBoard.addWhite(Resource.SHIELD);
-                    this.playerBoard.addDiscount(new ResourcePack(10,10,10,10));
-                    this.playerBoard.addLeaderStock(new StockPower(2,Resource.COIN));
-                    this.send(MessageParser.message("update","strongbox",this.playerBoard.storage.strongbox));
                     endRound = false;
                     break;
             }
@@ -697,26 +679,6 @@ public class Player implements Runnable, Talkie {
                 this.send("OK");
                 return selected;
             }
-        }
-    }
-
-    // NEW
-
-    private final AtomicBoolean connected = new AtomicBoolean();
-    private final AtomicInteger disconnectCounter = new AtomicInteger(3);
-
-    public boolean ping() {
-        if(this.game != null) return true;
-        else {
-            this.send("alive?");
-            this.connected.set(false);
-            try {
-                Thread.sleep(250);
-            } catch(InterruptedException ignored) { }
-            if(!this.connected.get()) {
-                this.close();
-                return false;
-            } else return true;
         }
     }
 
