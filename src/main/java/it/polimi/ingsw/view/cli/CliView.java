@@ -905,10 +905,11 @@ public class CliView implements View {
         ResourcePack result = new ResourcePack();
 
         ResourcePack available = this.strongbox.getCopy().add(this.warehouse.getResources());
-
         try {
-            available.consume(this.factory.productionRequirements());
-        } catch (NonConsumablePackException ignored) { /* this should not happen */ }
+            ResourcePack requirement = this.factory.productionRequirements();
+            requirement.flush(Resource.VOID);
+            available.consume(requirement); }
+        catch(NonConsumablePackException ignored) { /* this should not happen */ }
 
         Scanner input = new Scanner(System.in);
 

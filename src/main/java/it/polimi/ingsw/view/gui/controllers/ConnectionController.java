@@ -31,7 +31,7 @@ public class ConnectionController implements Initializable {
 
         if(ip.matches("[ ]*(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})[ ]*")) {
             if(port.matches("[ ]*[0-9]{1,5}[ ]*")) {
-                this.dialog.setResult(ipSelect.getText() + portSelect.getText());
+                this.dialog.setResult(ipSelect.getText() + " " + portSelect.getText());
             } else {
                 portSelect.clear();
                 portSelect.setPromptText("Please, use a valid IP address");

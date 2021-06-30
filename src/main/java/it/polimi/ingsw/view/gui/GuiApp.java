@@ -55,22 +55,6 @@ public class GuiApp extends Application {
 
         window = primaryStage;
 
-        /*try {
-            TextInputDialog dialog = new TextInputDialog();
-            dialog.setTitle("Welcome!");
-            dialog.setHeaderText("You are now connecting to a server to play 'Master of Renaissance'!");
-            dialog.setContentText("Please enter the IP address and port number of the server:");
-
-            Optional<String> result = dialog.showAndWait();
-            if (result.isPresent()) {
-                GuiView.getGuiView().event(ViewEvent.CONNECTION_INFO,result.get());
-            }
-            else Platform.exit();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Platform.exit();
-        }*/
-
         try {
             Dialog<String> selectConnection = new Dialog<String>();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/connection.fxml"));
@@ -261,7 +245,7 @@ public class GuiApp extends Application {
 
     public void setMenu(VBox from, VBox to) {
         root.getChildren().remove(from);
-        root.getChildren().add(to);
+        if(!root.getChildren().contains(to)) root.getChildren().add(to);
         removeFromRoot(nicknameField);
     }
 

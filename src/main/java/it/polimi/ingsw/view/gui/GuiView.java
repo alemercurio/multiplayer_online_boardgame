@@ -21,14 +21,10 @@ import it.polimi.ingsw.controller.GameEvent;
 import it.polimi.ingsw.view.View;
 import it.polimi.ingsw.view.ViewEvent;
 import javafx.application.Platform;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.text.Font;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 
 import java.util.HashMap;
@@ -36,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GuiView implements View {
 
@@ -46,6 +43,7 @@ public class GuiView implements View {
     public boolean online = false;
     public boolean solo = false;
     private boolean firstRound = true;
+    boolean leaderUpdate = false;
 
     public final GameView players = new GameView();
     public MarketView market = new MarketView();
@@ -408,31 +406,6 @@ public class GuiView implements View {
                     }
                 });
                 break;
-
-            /*default:
-                Platform.runLater(() -> {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Oops!");
-                    alert.setContentText(error.toString());
-
-                    //automatic resizing
-                    alert.getDialogPane().getChildren().stream().filter(node -> node instanceof Label).forEach(node -> ((Label)node).setMinHeight(Region.USE_PREF_SIZE));
-                    // alert styling
-                    DialogPane dialogPane = alert.getDialogPane();
-                    dialogPane.getStylesheets().add(
-                            getClass().getResource("/CSS/style.css").toExternalForm());
-                    dialogPane.getStyleClass().add("alertStyle");
-
-                    try {
-                        ButtonType response = alert.showAndWait().get();
-                        if (response == ButtonType.OK) {
-                            alert.close();
-                        }
-                    } catch (NoSuchElementException e) {
-                        alert.close();
-                    }
-                });
-                break;*/
         }
     }
 
@@ -450,8 +423,47 @@ public class GuiView implements View {
     }
 
     @Override
-    public boolean selectResume() {
-        return false;
+    public synchronized boolean selectResume() {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Master of Renaissance");
+            alert.setHeaderText("You have left a game, do you want to resume it?");
+
+            ButtonType yes = new ButtonType("Yes");
+            ButtonType no = new ButtonType("No");
+
+            alert.getButtonTypes().setAll(yes,no);
+
+            // alert styling
+            DialogPane dialogPane = alert.getDialogPane();
+            dialogPane.getStylesheets().add(getClass().getResource("/CSS/style.css").toExternalForm());
+            dialogPane.getStyleClass().add("alertStyle");
+
+            ImageView icon = new ImageView(getClass().getResource("/PNG/punchboard/inkwell_icon.png").toString());
+            icon.setFitHeight(125);
+            icon.setFitWidth(125);
+            alert.setGraphic(icon);
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if(result.isPresent()) {
+                if(result.get() == yes) {
+                    final GuiView view = GuiView.getGuiView();
+                    view.enableLeaderUpdate();
+                    view.event(ViewEvent.RESUME_GAME,true);
+                    Platform.runLater(() -> {
+                        view.showScene("/FXML/playerboard.fxml");
+                    });
+                }
+                else GuiView.getGuiView().event(ViewEvent.RESUME_GAME,false);
+            } else {
+                GuiView.getGuiView().event(ViewEvent.RESUME_GAME,false);
+            }
+        });
+
+        try {
+            while (!eventHandler.containsKey(ViewEvent.RESUME_GAME)) wait();
+        } catch (InterruptedException ignored) { /* Should not happen */ }
+        return (boolean) eventHandler.remove(ViewEvent.RESUME_GAME);
     }
 
     @Override
@@ -831,13 +843,9 @@ public class GuiView implements View {
         Platform.runLater(() -> leaderboard.endGame());
     }
 
-    // ------- NEW ----------
-    boolean leaderUpdate = false;
-
     public void enableLeaderUpdate() {
         this.leaderUpdate = true;
     }
-    // ------------------------
 
     @Override
     public void update(String target, String state) {

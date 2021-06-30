@@ -88,8 +88,6 @@ public class Client implements Runnable {
         }
         else {
             this.view.setID(mp.getIntParameter(0));
-            // TODO: remove
-            //System.out.println(">> Successfully connected..");
         }
 
         this.login();

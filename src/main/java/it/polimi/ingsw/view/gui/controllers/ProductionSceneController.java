@@ -33,7 +33,7 @@ import java.util.*;
 
 public class ProductionSceneController implements Initializable, InvalidationListener {
 
-    boolean events=true;
+    boolean events = true;
 
     public static class ResourcePackView {
         public static HBox getView(ResourcePack rp) {
@@ -258,6 +258,12 @@ public class ProductionSceneController implements Initializable, InvalidationLis
 
         ResourcePack resources = GuiView.getGuiView().warehouse.getResources();
         resources.add(GuiView.getGuiView().strongbox);
+        try {
+            ResourcePack requirement = GuiView.getGuiView().factory.productionRequirements();
+            requirement.flush(Resource.VOID);
+            resources.consume(requirement);
+        }
+        catch(NonConsumablePackException ignored) { }
 
         ResourcePackPicker picker = new ResourcePackPicker(resources,amount);
 
