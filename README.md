@@ -40,7 +40,8 @@ What we do own is the code which we wrote the software in.
 ## Testing
 
 Extensive testing has been performed on all parts of the software, by writing unit tests where possible and with manual QA.
-The unit tests cover 100% of the classes, 88% of methods and 85% of lines of the Model package. The few non-covered lines mainly deal with runtime exceptions or simple loading/getting/setting of data.
+The unit tests cover 100% of the classes, 88% of methods and 85% of lines of the Model package. The few non-covered lines mainly deal with simple loading/getting/setting of data.  
+
 ![coverage](deliverables/coverage.png)
 
 ## Compile
@@ -55,12 +56,14 @@ To simply run the game, you just need to:
     ```
    and go to the newly created ```shade``` folder.
    Otherwise, just head to ```deliverables/final/jar```.
-5. You will find:
+5. You will find three JAR files:
+
    - ```server.jar```, to run the server
    - ```cli.jar```, to run the client in CLI mode
-   - ```gui.jar```, to run the client in GUI mode
+   - ```gui.jar```, to run the client in GUI mode  
+
    Please note that you will need an ANSI terminal with 8-bit colors and extended ASCII support to correctly experience the CLI version.
-6. If you want to play offline, skip to 7. Otherwise, someone needs to launch the server first: in the terminal run:
+6. If you want to play offline, skip to 7. Otherwise, someone needs to launch the server first: in the terminal run
     ```bash
     java -jar server.jar
     ```
