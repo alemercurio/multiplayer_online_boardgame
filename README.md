@@ -47,9 +47,9 @@ The unit tests cover 100% of the classes, 88% of methods and 85% of lines of the
 ## Compile
 
 To run the software and play the game, you just need to:
-1. Install [Java SE 15](https://docs.oracle.com/en/java/javase/15/)
-2. Install [Maven](https://maven.apache.org/install.html)
-3. Clone this repository
+1. Install [Java SE 15](https://docs.oracle.com/en/java/javase/15/).
+2. Install [Maven](https://maven.apache.org/install.html).
+3. Clone this repository.
 4. If you want to run the tests and compile the software from scratch, which is the safest option, run:
    ```bash
     mvn package
@@ -84,6 +84,6 @@ To run the software and play the game, you just need to:
        java -jar cli.jar
        ```
 8. To play:
-   - online: insert the IP address of the server and port number it is running on.
+   - online: insert the IP address and port number of the server (and click ```Connect``` if in the GUI).
    - offline: click ```Play Offline``` (GUI) or type ```offline``` (CLI).
 9. Have fun! :smile:
