@@ -46,7 +46,7 @@ The unit tests cover 100% of the classes, 88% of methods and 85% of lines of the
 
 ## Compile
 
-To simply run the game, you just need to:
+To run the software and play the game, you just need to:
 1. Install [Java SE 15](https://docs.oracle.com/en/java/javase/15/)
 2. Install [Maven](https://maven.apache.org/install.html)
 3. Clone this repository
