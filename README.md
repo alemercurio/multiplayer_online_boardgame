@@ -47,23 +47,22 @@ The unit tests cover 100% of the classes, 88% of methods and 85% of lines of the
 ## Compile
 
 To run the software and play the game, you just need to:
-1. Install [Java SE 11](https://www.oracle.com/it/java/technologies/javase-jdk11-downloads.html).
-2. Install [Maven](https://maven.apache.org/install.html).
-3. Clone this repository.
-4. If you want to run the tests and compile the software from scratch, which is the safest option, run:
+1. Clone this repository.
+2. Install [Java SE 11](https://www.oracle.com/it/java/technologies/javase-jdk11-downloads.html).
+3. If you want to run the tests and compile the software from scratch, install [Maven](https://maven.apache.org/install.html), run:
    ```bash
     mvn package
     ```
-   and go to the newly created ```shade``` folder.
+   and then go to the newly created ```shade``` folder.
    Otherwise, just head to ```deliverables/final/jar```.
-5. You will find three JAR files:
+4. You will find three JAR files:
 
    - ```server.jar```, to run the server
    - ```cli.jar```, to run the client in CLI mode
    - ```gui.jar```, to run the client in GUI mode  
 
    Please note that you will need an ANSI terminal with 8-bit colors and extended ASCII support to correctly experience the CLI version.
-6. If you want to play offline, skip to 7. Otherwise, someone needs to launch the server first: in the terminal run
+5. If you want to play offline, skip to 6. Otherwise, someone needs to launch the server first: in the terminal run
     ```bash
     java -jar server.jar
     ```
@@ -73,7 +72,7 @@ To run the software and play the game, you just need to:
     ```
    with a variable port number (a free port is picked up randomly). 
    You will need this later, together with the IP address of the machine running the server, to connect.
-7. You can now run the clients:
+6. You can now run the clients:
     - GUI: 
        ```bash
        java -jar gui.jar
@@ -83,7 +82,7 @@ To run the software and play the game, you just need to:
        ```bash
        java -jar cli.jar
        ```
-8. To play:
+7. To play:
    - online: insert the IP address and port number of the server (and click ```Connect``` if in the GUI).
    - offline: click ```Play Offline``` (GUI) or type ```offline``` (CLI).
-9. Have fun! :smile:
+8. Have fun! :smile:
